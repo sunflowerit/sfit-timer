@@ -1,5 +1,5 @@
-SFIT Timer App Conneting to Odoo
-================================
+SFIT Timer App Connecting to Odoo
+=================================
 
 Description
 -----------
