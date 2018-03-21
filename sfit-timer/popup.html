@@ -1,0 +1,87 @@
+<html ng-app="sfitTimerApp" ng-controller="mainController">
+<head>
+	<title>SFIT</title>
+	<link rel="stylesheet" type="text/css" href="/css/font-awesome-4.6.3/css/font-awesome.min.css">
+	<link rel="stylesheet" type="text/css" href="/css/bootstrap.min.css">
+	<link rel="stylesheet" type="text/css" href="/css/popup.css">
+	<script type="text/javascript" src="/lib/jquery-2.0.3.min.js"></script>
+	<script type="text/javascript" src="/lib/angular.min.js"></script>
+	<script type="text/javascript" src="/lib/bootstrap.min.js"></script>
+	<script type="text/javascript" src="/lib/ui-bootstrap-tpls-1.3.3.min.js"></script>
+	<script type="text/javascript" src="/lib/odoo.js"></script>
+	<script type="text/javascript" src="/js/_localstorage.js"></script>
+	<script type="text/javascript" src="/js/_main.js"></script>
+</head>
+<body class="unselectable">
+
+	<!-- Animated Loader runs as app connects to odoo (2 seconds) -->
+	<div id="loader-container">
+		<i class="fa fa-cog fa-spin fa-5x"></i>
+	</div>
+
+	<!-- Login Form - Shown when there is no active odoo session-->
+	<div id="login" class="module form-module hide" ng-show="!data.selected_employee">
+		<div class="toggle"><i class="fa fa-times fa-pencil"></i>
+			<!-- <div class="tooltip">Click Me</div> -->
+		</div>
+		<div class="form">
+			<div class="logo">
+				<img src="/img/sunflower-logo.png">
+			</div>
+			<div>
+				<p class="odooError">{{odoo_error}}</p>
+			</div>
+			<form>
+				<p class="odooError">{{loginError}}</p>
+				<input type="text" ng-model="data.username" placeholder="Username"/>
+				<input type="password" ng-model="data.password" placeholder="Password"/>
+				<button ng-click="login()">Login</button>
+			</form>
+		</div>
+		<div class="cta"><a>Forgot your password?</a></div>
+	</div>
+	<!-- End Login Form-->
+
+	<div id="wrapper" class="hide" ng-show="data.selected_employee">
+		<input 
+		ng-model="searchIssue"
+		type="text" 
+		id="searchIssue" 
+		placeholder="Search for issue.." 
+		title="Type in an issue name">
+		<br/>
+		<table class="table table-bordered">
+			<thead>
+				<tr>
+					<th>Issue Name</th>
+					<th>Stage ID</th>
+					<th></th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr ng-repeat="issue in data.filtered_issues = (data.employee_issues | filter: {name: searchIssue} | limitTo: 6)">
+					<td class="td-60">{{issue.name}}</td>
+					<td class="td-20">{{issue.stage_id[1]}}</td>
+					<td class="td-20">
+						<i class="fa fa-play-circle action-btn" ng-click="startTimer()"></i>
+						<i class="fa fa-stop-circle action-btn"></i>
+						<i class="fa fa-pause-circle action-btn"></i>
+						{{data.filtered_issues.length}}
+					</td>
+				</tr> 
+				<tr ng-if="!data.filtered_issues.length">
+					<td>No Issues Available</td>
+					<td/>
+					<td/>
+				</tr>
+			</tbody>
+		</table>
+		<div class="footer" style="">
+			<div class="row nomargin">
+				<div class="col-xs-6">d</div>
+				<div class="col-xs-6">mm</div>
+			</div>
+		</div>
+	</div> 
+</body>
+</html>
