@@ -3,7 +3,7 @@ setTimeout(function(){
     $("#wrapper").removeClass("hide");
     $("#login").removeClass("hide");
     $("#loader-container").addClass("hide");
-}, 2000);
+}, 4000);
 
 
 var storage = {};

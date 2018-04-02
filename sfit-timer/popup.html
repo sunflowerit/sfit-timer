@@ -6,11 +6,20 @@
 	<link rel="stylesheet" type="text/css" href="/css/popup.css">
 	<script type="text/javascript" src="/lib/jquery-2.0.3.min.js"></script>
 	<script type="text/javascript" src="/lib/angular.min.js"></script>
+	<script type="text/javascript" src="/lib/angular-animate.min.js"></script>
+	<script type="text/javascript" src="/lib/angular-sanitize.min.js"></script>
+	<script type="text/javascript" src="/lib/angular-cookies.min.js"></script>
+	<script type="text/javascript" src="/lib/angular-timer.js"></script>
+	<script type="text/javascript" src="/lib/moment.min.js"></script>
+	<script type="text/javascript" src="/lib/locales.min.js"></script>
+	<script type="text/javascript" src="/lib/humanize-duration.js"></script>
 	<script type="text/javascript" src="/lib/bootstrap.min.js"></script>
 	<script type="text/javascript" src="/lib/ui-bootstrap-tpls-1.3.3.min.js"></script>
 	<script type="text/javascript" src="/lib/odoo.js"></script>
 	<script type="text/javascript" src="/js/_localstorage.js"></script>
 	<script type="text/javascript" src="/js/_main.js"></script>
+	<script type="text/javascript" src="/js/_sfit-readmore-directive.js"></script>
+
 </head>
 <body class="unselectable">
 
@@ -24,6 +33,7 @@
 		<div class="toggle"><i class="fa fa-times fa-pencil"></i>
 			<!-- <div class="tooltip">Click Me</div> -->
 		</div>
+
 		<div class="form">
 			<div class="logo">
 				<img src="/img/sunflower-logo.png">
@@ -33,40 +43,113 @@
 			</div>
 			<form>
 				<p class="odooError">{{loginError}}</p>
-				<input type="text" ng-model="data.username" placeholder="Username"/>
-				<input type="password" ng-model="data.password" placeholder="Password"/>
-				<button ng-click="login()">Login</button>
+				<input 
+					ng-show="!data.useDefaultHost" 
+					type="text" 
+					ng-model="data.host" 
+					placeholder="Host"/>
+				<input 
+					ng-show="!data.useDefaultHost" 
+					type="text" 
+					ng-model="data.database" 
+					placeholder="Database"/>
+				<input 
+					type="text" 
+					ng-model="data.username" 
+					placeholder="Username"/>
+				<input 
+					type="password" 
+					ng-model="data.password" 
+					placeholder="Password"/>
+				<div class="checkbox">
+			      	<label>
+			      		<input 
+			      			type="checkbox" 
+			      			name="useDefaultHost" 
+			      			ng-model="data.useDefaultHost" 
+			      			ng-init='data.useDefaultHost=true' 
+			      			class="defaultCheckbox"/>
+			      			Use Default Host
+			      	</label>
+			    </div>
+				<button class="login" ng-click="login()">
+					Login <i ng-show="loginLoading" class="fa fa-cog fa-spin"></i>
+				</button>			
 			</form>
 		</div>
-		<div class="cta"><a>Forgot your password?</a></div>
+		<div class="cta forgotpwd"><a>Forgot your password?</a></div>
 	</div>
 	<!-- End Login Form-->
 
 	<div id="wrapper" class="hide" ng-show="data.selected_employee">
 		<input 
-		ng-model="searchIssue"
+		ng-model="searchIssue.$"
 		type="text" 
 		id="searchIssue" 
-		placeholder="Search for issue.." 
+		placeholder="Search for Issue by ID, Name, Stage..." 
 		title="Type in an issue name">
-		<br/>
+        <select 
+        	id="limitTo"
+        	ng-model="limitTo" 
+        	ng-options="l for l in limitRange" 
+        	ng-init="limitTo=limitRange[1]">
+        </select>
+
 		<table class="table table-bordered">
 			<thead>
 				<tr>
-					<th>Issue Name</th>
+					<th>Issue Name 
+						<span class="allIssues"> 
+							<input 
+								type="checkbox" 
+								ng-model="allIssues" 
+								ng-change='onallIssues(allIssues)'>
+								All
+						</span>
+								
+					</th>
 					<th>Stage ID</th>
-					<th></th>
+					<th>
+						<timer 
+							ng-if="startTimeCount" 
+							start-time="startTimeCount" 
+							class="startTimeCount">{{hhours}}:{{mminutes}}:{{sseconds}}
+						</timer>
+					</th>
 				</tr>
 			</thead>
 			<tbody>
-				<tr ng-repeat="issue in data.filtered_issues = (data.employee_issues | filter: {name: searchIssue} | limitTo: 6)">
-					<td class="td-60">{{issue.name}}</td>
-					<td class="td-20">{{issue.stage_id[1]}}</td>
-					<td class="td-20">
-						<i class="fa fa-play-circle action-btn" ng-click="startTimer()"></i>
-						<i class="fa fa-stop-circle action-btn"></i>
-						<i class="fa fa-pause-circle action-btn"></i>
-						{{data.filtered_issues.length}}
+				<tr ng-repeat="issue in data.filtered_issues = (data.employee_issues | filter:searchIssue:strict| filter:{user_id: data.user_id} | limitTo: limitTo)">
+					<td class="td-60 pd-7"
+					 	hm-read 
+			        	hmtext="{{issue.id}}-{{issue.name}}" 
+			        	hmrecord="{{issue.id}}"
+			        	hmhost="{{data.host}}"
+			        	hmlimit="33"
+			        	hmMoreClass="hmMoreClass" 
+			        	hmLessClass="hmMoreClass"
+			        	hm-more-text="..." 
+			        	hm-less-text="<i class='fa fa-caret-up'></i>">	
+			        	
+			        </td>
+			        <td class="td-25 pd-7"
+					 	hm-read 
+			        	hmtext="{{issue.stage_id[1]}}" 
+			        	hmlimit="9"
+			        	hmMoreClass="hmMoreClass" 
+			        	hmLessClass="hmMoreClass"
+			        	hm-more-text="..." 
+			        	hm-less-text="<i class='fa fa-caret-up'></i>">	
+			        </td>
+					<td class="td-15 pd-7 text-center td-btn">
+						<i 
+							ng-show="!current_date" 
+							class="fa fa-play-circle action-btn" 
+							ng-click="startTimer1(issue.id)"></i>
+						<i 
+							ng-show="current_date && current_date.issue_id == issue.id"
+							class="fa fa-stop-circle action-btn" 
+							ng-click="stopTimer1(issue.id)"></i>
 					</td>
 				</tr> 
 				<tr ng-if="!data.filtered_issues.length">
@@ -76,10 +159,9 @@
 				</tr>
 			</tbody>
 		</table>
-		<div class="footer" style="">
-			<div class="row nomargin">
-				<div class="col-xs-6">d</div>
-				<div class="col-xs-6">mm</div>
+		<div class="footer">
+			<div class="col-xs-6 right">
+				<i class="fa fa-sign-out fa-2x" ng-click="logout()"></i>
 			</div>
 		</div>
 	</div> 
