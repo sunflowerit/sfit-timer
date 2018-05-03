@@ -26,7 +26,6 @@ sfitTimerApp.controller('mainController', [
 
     $scope.timerRunning = true;
     $scope.startTimer = function (){
-        console.log('meme');
         $scope.$broadcast('timer-resume');
         $scope.timerRunning = true;
     };
@@ -118,8 +117,9 @@ sfitTimerApp.controller('mainController', [
             if (startTimeInfo) {
 
                 //get time difference in minutes
-                var duration = moment.duration(now.diff(startTimeInfo.start_time)).asMinutes();
-                var durationInHours = duration / 60;
+                var durationMins = moment.duration(now.diff(startTimeInfo.start_time)).asMinutes();
+                var roundedDurationMins = (parseInt((durationMins + 7.5)/15) * 15) % 60;
+                var durationInHours = roundedDurationMins / 60;
 
                 //get current issue
                 function getIssue(issue) {
@@ -184,7 +184,6 @@ sfitTimerApp.controller('mainController', [
             jsonRpc
             .login($scope.data.database, $scope.data.username, $scope.data.password)
             .then(function (response) {
-                console.log('res', response);
                 var host_info = {
                     'host': $scope.data.host,
                     'database': $scope.data.database
@@ -222,12 +221,9 @@ sfitTimerApp.controller('mainController', [
                 $scope.fields = ['name'];
                 jsonRpc.searchRead($scope.model, $scope.domain, $scope.fields)
                 .then(function(response) {
-                    console.log('set emp', response.records[0])
                     $scope.data.selected_employee = response.records[0];
                 }, odoo_failure_function);
             }
-
-            console.log('current user', $scope.data.user);
             $.when(
                 // load stuff
                 $scope.load_employee_issues()
@@ -245,7 +241,7 @@ sfitTimerApp.controller('mainController', [
         var model = 'project.issue';
         // ['user_id', '=', $scope.data.user.id],
         var domain = [
-            ['stage_id.name', 'not in', ['done', 'cancelled']]
+            ['stage_id.name', 'not in', ['Done', 'Cancelled', 'On Hold']]
         ];
         var fields = [
             'name',
@@ -267,7 +263,6 @@ sfitTimerApp.controller('mainController', [
         angular.forEach(response.records, function (issue) {
             $scope.data.employee_issues.push(issue);
         });
-        console.log('emp issues', $scope.data.employee_issues);
         deferred.resolve();
     }
 
