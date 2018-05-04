@@ -147,6 +147,7 @@ sfitTimerApp.controller('mainController', [
                         "account_id": issue.analytic_account_id[0],
                         "unit_amount": durationInHours,
                         "to_invoice": 1,
+                        "issue_id": issue.id
                     }];
                     var kwargs = {};
                     $scope.args = args;
