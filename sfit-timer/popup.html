@@ -88,6 +88,9 @@
 		id="searchIssue" 
 		placeholder="Search for Issue by ID, Name, Stage..." 
 		title="Type in an issue name">
+		<div>
+			<p class="odooError">{{odoo_error}}</p>
+		</div>
         <select 
         	id="limitTo"
         	ng-model="limitTo" 

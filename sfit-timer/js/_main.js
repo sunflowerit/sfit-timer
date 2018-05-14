@@ -126,6 +126,7 @@ sfitTimerApp.controller('mainController', [
                     return issue.id == id;
                 }
                 var issue = $scope.data.employee_issues.find(getIssue);
+
                 $scope.analytic_journal = null;
                 // Search analytic journal for timesheet
                 $scope.model = 'account.analytic.journal';
@@ -137,30 +138,34 @@ sfitTimerApp.controller('mainController', [
                     createTimesheet();
                 }, odoo_failure_function);
 
-                //post to odoo, create new time sheet
-                function createTimesheet(){
-                    var args = [{
-                        'date': now.format('YYYY-MM-D'),
-                        'user_id': $scope.data.user.id,
-                        'name': issue.name,
-                        'journal_id': $scope.analytic_journal.id,
-                        "account_id": issue.analytic_account_id[0],
-                        "unit_amount": durationInHours,
-                        "to_invoice": 1,
-                        "issue_id": issue.id
-                    }];
-                    var kwargs = {};
-                    $scope.args = args;
-                    jsonRpc.call(
-                        'hr.analytic.timesheet',
-                        'create',
-                        args,
-                        kwargs
-                    ).then(function(response) {
-                        console.log('response', response);
-                    },
-                    odoo_failure_function
-                    );
+                if (issue.analytic_account_id){
+                    //post to odoo, create new time sheet
+                    function createTimesheet(){
+                        var args = [{
+                            'date': now.format('YYYY-MM-D'),
+                            'user_id': $scope.data.user.id,
+                            'name': issue.name,
+                            'journal_id': $scope.analytic_journal.id,
+                            "account_id": issue.analytic_account_id[0],
+                            "unit_amount": durationInHours,
+                            "to_invoice": 1,
+                            "issue_id": issue.id
+                        }];
+                        var kwargs = {};
+                        $scope.args = args;
+                        jsonRpc.call(
+                            'hr.analytic.timesheet',
+                            'create',
+                            args,
+                            kwargs
+                        ).then(function(response) {
+                            console.log('response', response);
+                        },
+                        odoo_failure_function
+                        );
+                    }
+                }else{
+                  $scope.odoo_error =  "No Analytic Account is defined on the project." 
                 }
             } else {
                 console.log('not there');
