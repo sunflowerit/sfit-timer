@@ -99,7 +99,6 @@ sfitTimerApp.controller('mainController', [
         //change icon to inactive
         chrome.runtime.sendMessage({TimerActive: false});
 
-
         //stop timer
         $scope.stopTimer();
 
@@ -118,8 +117,8 @@ sfitTimerApp.controller('mainController', [
 
                 //get time difference in minutes
                 var durationMins = moment.duration(now.diff(startTimeInfo.start_time)).asMinutes();
-                var roundedDurationMins = (parseInt((durationMins + 7.5)/15) * 15) % 60;
-                var durationInHours = roundedDurationMins / 60;
+                var mins = (Math.round((durationMins % 60)/15) * 15) % 60;
+                var durationInHours = Math.floor(durationMins/60) + mins/60;
 
                 //get current issue
                 function getIssue(issue) {
@@ -144,7 +143,7 @@ sfitTimerApp.controller('mainController', [
                         var args = [{
                             'date': now.format('YYYY-MM-D'),
                             'user_id': $scope.data.user.id,
-                            'name': issue.name,
+                            'name': issue.name+' (#'+issue.id+')',
                             'journal_id': $scope.analytic_journal.id,
                             "account_id": issue.analytic_account_id[0],
                             "unit_amount": durationInHours,
