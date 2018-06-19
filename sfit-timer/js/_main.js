@@ -117,9 +117,8 @@ sfitTimerApp.controller('mainController', [
 
                 //get time difference in minutes
                 var durationMins = moment.duration(now.diff(startTimeInfo.start_time)).asMinutes();
-                var mins = (Math.round((durationMins % 60)/15) * 15) % 60;
+                var mins = (Math.round((durationMins % 60)/15) * 15);
                 var durationInHours = Math.floor(durationMins/60) + mins/60;
-
                 //get current issue
                 function getIssue(issue) {
                     return issue.id == id;
