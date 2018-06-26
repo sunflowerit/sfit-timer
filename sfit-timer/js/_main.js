@@ -94,6 +94,12 @@ sfitTimerApp.controller('mainController', [
         storage.setItem("active_timer_id", id);
     }
 
+    $scope.stopActiveTimer1 = function(){
+        storage.getItem("start_date_time", function(time) {
+            var startTimeInfo = JSON.parse(time);
+            $scope.stopTimer1(startTimeInfo.issue_id);
+        });
+    }
     //Stop timer
     $scope.stopTimer1 = function(id){
         //change icon to inactive
@@ -125,48 +131,82 @@ sfitTimerApp.controller('mainController', [
                 }
                 var issue = $scope.data.employee_issues.find(getIssue);
 
-                $scope.analytic_journal = null;
-                // Search analytic journal for timesheet
-                $scope.model = 'account.analytic.journal';
-                $scope.domain = [['name', 'ilike', 'Timesheet']];
-                $scope.fields = ['name'];
-                jsonRpc.searchRead($scope.model, $scope.domain, $scope.fields)
-                .then(function(response) {
-                    $scope.analytic_journal = response.records[0];
-                    createTimesheet();
-                }, odoo_failure_function);
-
-                if (issue.analytic_account_id){
-                    //post to odoo, create new time sheet
-                    function createTimesheet(){
-                        var args = [{
-                            'date': now.format('YYYY-MM-D'),
-                            'user_id': $scope.data.user.id,
-                            'name': issue.name+' (#'+issue.id+')',
-                            'journal_id': $scope.analytic_journal.id,
-                            "account_id": issue.analytic_account_id[0],
-                            "unit_amount": durationInHours,
-                            "to_invoice": 1,
-                            "issue_id": issue.id
-                        }];
-                        var kwargs = {};
-                        $scope.args = args;
-                        jsonRpc.call(
-                            'hr.analytic.timesheet',
-                            'create',
-                            args,
-                            kwargs
-                        ).then(function(response) {
-                            console.log('response', response);
-                        },
-                        odoo_failure_function
-                        );
+                if ($scope.data.dataSource == 'project.issue'){
+                    var analytic_account_id = issue.analytic_account_id;
+                    if (!analytic_account_id){
+                        var analytic_account_id = issue.project_id.analytic_account_id;
                     }
+                    if (!analytic_account_id){
+                      $scope.odoo_error =  "No Analytic Account is defined on the project." 
+                    }
+                    $scope.analytic_journal = null;
+                    // Search analytic journal for timesheet
+                    $scope.model = 'account.analytic.journal';
+                    $scope.domain = [['name', 'ilike', 'Timesheet']];
+                    $scope.fields = ['name'];
+                    jsonRpc.searchRead($scope.model, $scope.domain, $scope.fields)
+                    .then(function(response) {
+                        $scope.analytic_journal = response.records[0];
+                        if (!$scope.odoo_error){
+                            createTimesheet();
+                        }
+                    }, odoo_failure_function);
                 }else{
-                  $scope.odoo_error =  "No Analytic Account is defined on the project." 
+                    createTaskwork();
                 }
+
+                //post to odoo project.task.work, create new task work
+                function createTaskwork(){
+                    console.log('createTaskwork Called');
+                    var args = [{
+                        'date': now.format('YYYY-MM-D'),
+                        'user_id': $scope.data.user.id,
+                        'name': issue.name,
+                        'task_id': issue.id,
+                        "hours": durationInHours
+                    }];
+                    var kwargs = {};
+                    $scope.args = args;
+                    jsonRpc.call(
+                        'project.task.work',
+                        'create',
+                        args,
+                        kwargs
+                    ).then(function(response) {
+                        console.log('response', response);
+                    },
+                    odoo_failure_function
+                    );
+                }
+
+                //post to odoo hr.analytic.timesheet, create new time sheet
+                function createTimesheet(){
+                    var args = [{
+                        'date': now.format('YYYY-MM-D'),
+                        'user_id': $scope.data.user.id,
+                        'name': issue.name+' (#'+issue.id+')',
+                        'journal_id': $scope.analytic_journal.id,
+                        "account_id": analytic_account_id[0],
+                        "unit_amount": durationInHours,
+                        "to_invoice": 1,
+                        "issue_id": issue.id
+                    }];
+                    var kwargs = {};
+                    $scope.args = args;
+                    jsonRpc.call(
+                        'hr.analytic.timesheet',
+                        'create',
+                        args,
+                        kwargs
+                    ).then(function(response) {
+                        console.log('response', response);
+                    },
+                    odoo_failure_function
+                    );
+                }
+                
             } else {
-                console.log('not there');
+                console.log('No time info');
             }
         });
 
@@ -240,10 +280,16 @@ sfitTimerApp.controller('mainController', [
         );
     }
 
+    $scope.data.dataSource = 'project.issue';
+    storage.getItem("dataSource", function(source) {
+        if(source){
+            $scope.data.dataSource = source;
+        }
+    });
+
     // search able employees
     function search_employee_issues() {
-        var model = 'project.issue';
-        // ['user_id', '=', $scope.data.user.id],
+        var model = $scope.data.dataSource;
         var domain = [
             ['stage_id.name', 'not in', ['Done', 'Cancelled', 'On Hold']]
         ];
@@ -254,7 +300,6 @@ sfitTimerApp.controller('mainController', [
             'stage_id',
             'analytic_account_id'
         ];
-
         return jsonRpc.searchRead(
             model,
             domain,

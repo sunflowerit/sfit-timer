@@ -1,20 +1,20 @@
 body {
 	background-color: #ededed;
-    width: 500px;
-    /*height: 100.1%;*/
-    margin: 0 auto;
-    padding: 0;
-    overflow-x: hidden !important;
-    overflow-y: scroll !important;
-    font-family: 'Open Sans', sans-serif;
-    font-size: .7em;
-    background: white;
-    max-height: 300px !important;
+  width: 500px;
+  /*height: 100.1%;*/
+  margin: 0 auto;
+  padding: 0;
+  overflow-x: hidden !important;
+  overflow-y: scroll !important;
+  font-family: 'Open Sans', sans-serif;
+  font-size: .7em;
+  background: white;
+  max-height: 300px !important;
 }
 #wrapper {
-    width: 100%;
-    padding: 0 0 40px 0;
-    background: white;
+  width: 100%;
+  padding: 0 0 40px 0;
+  background: white;
 }
 
 /* LOGIN */
@@ -59,7 +59,7 @@ body {
   width: 100%;
   border-top: 5px solid #f30c16;
   -webkit-box-shadow: 0 0 3px rgba(0, 0, 0, 0.1);
-          box-shadow: 0 0 3px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 0 3px rgba(0, 0, 0, 0.1);
   margin: 0 auto;
 }
 .form-module .toggle {
@@ -120,7 +120,7 @@ body {
   margin: 0 0 20px;
   padding: 10px 15px;
   -webkit-box-sizing: border-box;
-          box-sizing: border-box;
+  box-sizing: border-box;
   font-wieght: 400;
   -webkit-transition: 0.3s ease;
   transition: 0.3s ease;
@@ -147,7 +147,7 @@ body {
   width: 100%;
   padding: 15px 40px;
   -webkit-box-sizing: border-box;
-          box-sizing: border-box;
+  box-sizing: border-box;
   color: #666666;
   font-size: 12px;
   text-align: center;
@@ -225,44 +225,50 @@ body {
 }
 
 .defaultCheckbox{
-    width: 40px !important;
-    display: inline !important;
-     margin-bottom: 0 !important;
-  }
-  .forgotpwd{
-    position: fixed; 
-    bottom:0;
-  }
-  .allIssues{
-    font-weight: normal; 
-    float: right;
-  }
-  .startTimerCount{
-    font-size: 12px; 
-    color:red;
-  }
-  .morebtn, .lessbtn{
-    color: orange !important;
-    cursor: pointer;
-  }
-  .pd-7{
-    padding: 7px !important;
-  }
-  .td-name{
-    width: 60%;
-  }
-  .td-25{
-    width: 25%;
-  }
-  .td-15{
-    width: 15%;
-  }
-  .td-btn{
-    color: #28a745;
-  }
-  .text-center{
-    text-align: center;
-  }
-  .right{
-    float: right;
-  }
+  width: 40px !important;
+  display: inline !important;
+  margin-bottom: 0 !important;
+}
+.forgotpwd{
+  position: fixed; 
+  bottom:0;
+}
+.allIssues{
+  font-weight: normal; 
+  float: right;
+}
+.startTimerCount{
+  font-size: 12px; 
+  color:red;
+}
+.morebtn, .lessbtn{
+  color: orange !important;
+  cursor: pointer;
+}
+.pd-7{
+  padding: 7px !important;
+}
+.td-name{
+  width: 60%;
+}
+.td-25{
+  width: 25%;
+}
+.td-15{
+  width: 15%;
+}
+.td-btn{
+  color: #28a745;
+}
+.text-center{
+  text-align: center;
+}
+.right{
+  float: right;
+}
+.pointer {
+  cursor: pointer;
+}
+.fa-2x{
+  margin: 0 3%;
+}

@@ -11,7 +11,6 @@
 	},
 	
 	// "default_locale": "en",
-	
 	"browser_action": {
 		"default_icon": { 
 			"19": "img/inactive_19.png",

@@ -1,11 +1,64 @@
-<html>
-	<head>
-		<script src="/lib/jquery-2.0.3.min.js" type="text/javascript"></script>
-		<script src="/js/utils.js" type="text/javascript"></script>
-		<script src="/js/options_main_page.js" type="text/javascript"></script>
-		<title>SFIT Timer Options</title>
-	</head>
-	<body>
-	Options will come here
-	</body>
+<html ng-app='sfitTimerAppOptions' ng-controller='mainController'>
+
+<head>
+    <link rel="stylesheet" type="text/css" href="/css/font-awesome-4.6.3/css/font-awesome.min.css">
+	<link rel="stylesheet" type="text/css" href="/css/bootstrap.min.css">
+	<link rel="stylesheet" type="text/css" href="/css/options_main_page.css">
+	<script type="text/javascript" src="/lib/jquery-2.0.3.min.js"></script>
+	<script type="text/javascript" src="/lib/angular.min.js"></script>
+	<script type="text/javascript" src="/js/_localstorage.js"></script>
+	<script type="text/javascript" src="/js/options_main_page.js"></script>
+    <title>Timer Options</title>
+</head>
+<body style="min-width: 500px;">
+	<div id="navigation">
+        <h1>Timer Options</h1>
+        <ul>
+            <li class="chooser" 
+            	ng-class="(options.active_page=='about') ? 'selected' : 'notselected'"
+            	ng-click="goToPage('about')">
+                <i class="fa fa-info-circle"></i>
+                <span>About Timer</span>
+            </li>
+            <li class="chooser" 
+            	ng-class="(options.active_page=='options') ? 'selected' : 'notselected'"
+            	ng-click="goToPage('options')">
+            	Options
+            </li>
+        </ul>
+        <hr/>
+        <div class="back-popup">
+    		<a href="popup.html">
+				<i class="fa fa-arrow-left" aria-hidden="true"></i> Back to Timer
+			</a>
+		</div>
+    </div>
+    <div id="options-box" 
+    	class="box" 
+    	ng-class="(options.active_page=='about') ? 'active_page' : 'inactive_page'">
+        <h1>About me</h1>
+        <hr>
+        About this App
+    </div>
+
+    <div id="options-box" 
+    	class="box" 
+    	ng-class="(options.active_page=='options') ? 'active_page' : 'inactive_page'">
+        <h1>Options</h1>
+        <hr>
+
+        <form>
+		  <h6> Pick a Data Source: </h6>
+		  <label class="container">From Issues: <small>Fetch issue list.</small>
+			  <input type="radio" ng-model="options.dataSource" value="project.issue">
+			  <span class="checkmark"></span>
+			</label>
+			<label class="container">From Tasks: <small>Fetch task list.</small>
+			  <input type="radio" ng-model="options.dataSource" value="project.task">
+			  <span class="checkmark"></span>
+			</label>
+		</form>
+    </div>
+</body>
+
 </html>
