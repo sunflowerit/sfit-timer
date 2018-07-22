@@ -1,0 +1,1 @@
+google-chrome --allow-running-insecure-content --load-and-launch-app=`pwd`
