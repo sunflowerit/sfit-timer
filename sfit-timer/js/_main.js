@@ -14,18 +14,22 @@ sfitTimerApp.controller('mainController', [
 	'$scope', '$cookies', '$http', '$window', '$timeout', '$rootScope', '$location', 'jsonRpc',
 	function($scope, $cookies, $http, $window, $timeout, $rootScope, $location, jsonRpc, data){
 
-    $scope.limitRange = ['5', '10', '15'];
-
-    $scope.onallIssues = function(allIssues){
-        if(allIssues){
+    $scope.limitRange = [
+        {val:'5', opt: '5'},
+        {val:'10', opt: '10'},
+        {val:'15', opt: '15'},
+        {val:'', opt: 'All'}
+    ];
+    $scope.$watch('allIssues', function() {
+        if($scope.allIssues){
             $scope.data.user_id = false;
         }else{
             $scope.data.user_id = $scope.data.user.id;
         }
-    }
+    });
 
     $scope.timerRunning = true;
-    $scope.startTimer = function (){
+    $scope.startTimer = function (issue){
         $scope.$broadcast('timer-resume');
         $scope.timerRunning = true;
     };
@@ -72,9 +76,9 @@ sfitTimerApp.controller('mainController', [
     });
 
     //Start timer
-    $scope.startTimer1 = function(id){
+    $scope.startTimer1 = function(issue){
         var now = moment();
-
+        issue.currentRunning = 1;
         //change icon to active
         chrome.runtime.sendMessage({TimerActive: true});
 
@@ -86,12 +90,12 @@ sfitTimerApp.controller('mainController', [
         // show start/stop buttons on other issues
         var timer_info = {
             'start_time': now,
-            'issue_id': id
+            'issue_id': issue.id
 
         }
         $scope.current_date = timer_info;
         storage.setItem('start_date_time', JSON.stringify(timer_info));
-        storage.setItem("active_timer_id", id);
+        storage.setItem("active_timer_id", issue.id);
     }
 
     $scope.stopActiveTimer1 = function(){
@@ -291,7 +295,7 @@ sfitTimerApp.controller('mainController', [
     function search_employee_issues() {
         var model = $scope.data.dataSource;
         var domain = [
-            ['stage_id.name', 'not in', ['Done', 'Cancelled', 'On Hold']]
+            ['stage_id.name', 'not in', ['Cancelled', 'On Hold']]
         ];
         var fields = [
             'name',
@@ -312,6 +316,7 @@ sfitTimerApp.controller('mainController', [
         angular.forEach(response.records, function (issue) {
             $scope.data.employee_issues.push(issue);
         });
+        console.log($scope.data.employee_issues);
         deferred.resolve();
     }
 

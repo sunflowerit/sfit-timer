@@ -92,22 +92,20 @@
         <select 
         	id="limitTo"
         	ng-model="limitTo" 
-        	ng-options="l for l in limitRange" 
+        	ng-options="l.opt for l in limitRange" 
         	ng-init="limitTo=limitRange[1]">
         </select>
 
 		<table class="table table-bordered">
 			<thead>
 				<tr>
-					<th>Issue
+					<th>Issues [{{data.filtered_issues.length}}]
 						<span class="allIssues"> 
 							<input 
 								type="checkbox" 
-								ng-model="allIssues" 
-								ng-change='onallIssues(allIssues)'>
+								ng-model="allIssues">
 								All
-						</span>
-								
+						</span>	
 					</th>
 					<th>Stage</th>
 					<th>
@@ -116,11 +114,16 @@
 							start-time="startTimeCount" 
 							class="startTimeCount">{{hhours}}:{{mminutes}}:{{sseconds}}
 						</timer>
+						<div class="bigstopbutton" 
+							ng-show="current_date" 
+							ng-click="stopActiveTimer1()">
+							<i class="fa fa-square" aria-hidden="true"></i>
+						</div>
 					</th>
 				</tr>
 			</thead>
 			<tbody>
-				<tr ng-repeat="issue in data.filtered_issues = (data.employee_issues | filter:searchIssue:strict| filter:{user_id: data.user_id} | limitTo: limitTo)">
+				<tr ng-repeat="issue in data.filtered_issues = (data.employee_issues | filter:searchIssue:strict| filter:{user_id: data.user_id} | filter:{stage_id: data.stage_id} | limitTo: limitTo.val | orderBy: 'currentRunning')">
 					<td class="td-60 pd-7"
 					 	hm-read 
 			        	hmtext="{{issue.id}}-{{issue.name}}" 
@@ -146,7 +149,7 @@
 						<i 
 							ng-show="!current_date" 
 							class="fa fa-play-circle action-btn pointer" 
-							ng-click="startTimer1(issue.id)"></i>
+							ng-click="startTimer1(issue)"></i>
 						<i 
 							ng-show="current_date && current_date.issue_id == issue.id"
 							class="fa fa-stop-circle action-btn pointer" 
@@ -171,9 +174,6 @@
 				<div class="col-sm-6">
 					<i class="fa fa-sign-out fa-2x right pointer" 
 						ng-click="logout()"></i>
-					<i ng-show="current_date" 
-						class="fa fa-stop-circle fa-2x right pointer" 
-						ng-click="stopActiveTimer1()"></i> 
 				</div>
 			</div>
 		</div>
