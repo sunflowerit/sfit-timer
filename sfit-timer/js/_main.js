@@ -22,7 +22,7 @@ sfitTimerApp.controller('mainController', [
     ];
     $scope.$watch('allIssues', function() {
         if($scope.allIssues){
-            $scope.data.user_id = false;
+            $scope.data.user_id = '';
         }else{
             $scope.data.user_id = $scope.data.user.id;
         }
