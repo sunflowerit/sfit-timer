@@ -295,7 +295,7 @@ sfitTimerApp.controller('mainController', [
     function search_employee_issues() {
         var model = $scope.data.dataSource;
         var domain = [
-            ['stage_id.name', 'not in', ['Cancelled', 'On Hold']]
+            ['stage_id.name', 'not in', ['Done', 'Cancelled', 'On Hold']]
         ];
         var fields = [
             'name',
