@@ -235,8 +235,10 @@ sfitTimerApp.controller('mainController', [
                 var host_info = {
                     'host': $scope.data.host,
                     'database': $scope.data.database
-                }
+                };
+                var users_issues = $scope.data.employee_issues;
                 storage.setItem('host_info', JSON.stringify(host_info));
+                storage.setItem('users_issues', JSON.stringify(users_issues));
                 $scope.set_current_user(response.uid);
                 $scope.loginLoading = false;
             },function(response){
@@ -316,7 +318,6 @@ sfitTimerApp.controller('mainController', [
         angular.forEach(response.records, function (issue) {
             $scope.data.employee_issues.push(issue);
         });
-        console.log($scope.data.employee_issues);
         deferred.resolve();
     }
 
