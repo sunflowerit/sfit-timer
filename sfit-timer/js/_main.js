@@ -69,6 +69,7 @@ sfitTimerApp.controller('mainController', [
                 if (result.uid){
                     $scope.set_current_user(result.uid);
                     $scope.database = result.db;
+
                 }
             });
         }
@@ -236,9 +237,7 @@ sfitTimerApp.controller('mainController', [
                     'host': $scope.data.host,
                     'database': $scope.data.database
                 };
-                var users_issues = $scope.data.employee_issues;
                 storage.setItem('host_info', JSON.stringify(host_info));
-                storage.setItem('users_issues', JSON.stringify(users_issues));
                 $scope.set_current_user(response.uid);
                 $scope.loginLoading = false;
             },function(response){
@@ -276,7 +275,17 @@ sfitTimerApp.controller('mainController', [
             }
             $.when(
                 // load stuff
-                $scope.load_employee_issues()
+
+                storage.getItem("users_issues", function(issues) {
+                    if (issues) {
+                        $scope.data.employee_issues =  JSON.parse(issues);
+                    } else {
+                        $scope.load_employee_issues();
+                        var users_issues = $scope.data.employee_issues;
+                        storage.setItem('users_issues', JSON.stringify(users_issues))
+                    }
+
+                })
             ).done(function() {
                 console.log('done');
                 // $scope.hide_loader();
@@ -319,6 +328,8 @@ sfitTimerApp.controller('mainController', [
             $scope.data.employee_issues.push(issue);
         });
         deferred.resolve();
+        var users_issues = $scope.data.employee_issues;
+        storage.setItem('users_issues', JSON.stringify(users_issues));
     }
 
     //LOAD EMPLOYEE ISSUES
