@@ -41,20 +41,18 @@ sfitTimerApp.controller('mainController', [
             console.log('Timer Stopped - data = ', data);
         });
 
-        // // // reload current page
+        //-----------------------------------
+        /* MAIN CODE */
         storage.getItem("start_date_time", function (active_timer) {
             if (active_timer) {
                 $scope.current_date = JSON.parse(active_timer);
                 $scope.startTimeCount = JSON.parse(active_timer).start_time;
             } else {
-                console.log('not there');
+                console.log('no active timer found');
             }
-
         });
 
-        /* MAIN CODE */
         $scope.data = {};
-        $scope.showloader = true;
         $scope.data.today = new Date();
 
         storage.getItem("host_info", function (host_info) {
@@ -64,17 +62,18 @@ sfitTimerApp.controller('mainController', [
                 $scope.data.database = host_info.database;
                 jsonRpc.odoo_server = $scope.data.host;
 
-                // Check if user is loged in and set user:
+                // Check if user is logged in and set user:
                 jsonRpc.getSessionInfo().then(function (result) {
                     if (result.uid) {
                         $scope.set_current_user(result.uid);
                         $scope.database = result.db;
-
+                    } else {
+                        $scope.to_login();
                     }
                 });
             }
-
         });
+        //-----------------------------------
 
         // Start timer
         $scope.startTimer1 = function (issue) {
@@ -92,7 +91,6 @@ sfitTimerApp.controller('mainController', [
             var timer_info = {
                 'start_time': now,
                 'issue_id': issue.id,
-
             };
             $scope.current_date = timer_info;
             storage.setItem('start_date_time', JSON.stringify(timer_info));
@@ -107,7 +105,8 @@ sfitTimerApp.controller('mainController', [
         };
         // Stop timer
         $scope.stopTimer1 = function (id) {
-        // Change icon to inactive
+
+            // Change icon to inactive
             chrome.runtime.sendMessage({TimerActive: false});
 
             // Stop timer
@@ -246,12 +245,26 @@ sfitTimerApp.controller('mainController', [
             }
         };
 
+        $scope.to_main = function () {
+            $("#wrapper").removeClass("hide");
+            $("#loader-container").addClass("hide");
+            $("#login").addClass("hide");
+        };
+
+        $scope.to_login = function () {
+            $("#login").removeClass("hide");
+            $("#loader-container").addClass("hide");
+            $("#wrapper").addClass("hide");
+        };
+
         $scope.logout = function () {
             jsonRpc.logout();
             // Delete odoo cookie.
             $cookies.remove('session_id');
             $scope.data.user = null;
             $scope.data.selected_employee = null;
+            $scope.to_login();
+            console.log('logged out');
         };
 
         $scope.set_current_user = function (id) {
@@ -259,40 +272,36 @@ sfitTimerApp.controller('mainController', [
             $scope.model = 'res.users';
             $scope.domain = [['id', '=', id]];
             $scope.fields = ['display_name'];
-            jsonRpc.searchRead($scope.model, $scope.domain, $scope.fields)
-                .then(function (response) {
-                    $scope.data.user = response.records[0];
-                    $scope.data.user_id = $scope.data.user.id;
-                    // Set default employee id
-                    if (!$scope.data.selected_employee) {
-                        $scope.model = 'hr.employee';
-                        $scope.domain = [['user_id', '=', id]];
-                        $scope.fields = ['name'];
-                        jsonRpc.searchRead($scope.model, $scope.domain, $scope.fields)
-                            .then(function (response) {
-                                $scope.data.selected_employee = response.records[0];
-                            }, odoo_failure_function);
+            jsonRpc.searchRead(
+                $scope.model, $scope.domain, $scope.fields
+            ).then(function (response) {
+                $scope.data.user = response.records[0];
+                $scope.data.user_id = $scope.data.user.id;
+                // Set default employee id
+                if (!$scope.data.selected_employee) {
+                    $scope.model = 'hr.employee';
+                    $scope.domain = [['user_id', '=', id]];
+                    $scope.fields = ['name'];
+                    jsonRpc.searchRead(
+                        $scope.model, $scope.domain, $scope.fields
+                    ).then(function (response) {
+                        $scope.data.selected_employee = response.records[0];
+                    }, odoo_failure_function);
+                }
+                storage.getItem("users_issues", function (issues) {
+                    if (issues) {
+                        $scope.data.employee_issues = JSON.parse(issues);
+                        $scope.to_main();
+                        console.log('loaded existing issues');
                     }
-                    $.when(
-                        // Load stuff
-
-                        storage.getItem("users_issues", function (issues) {
-                            if (issues) {
-                                $scope.data.employee_issues = JSON.parse(issues);
-                            } else {
-                                $scope.load_employee_issues();
-                                var users_issues = $scope.data.employee_issues;
-                                storage.setItem('users_issues', JSON.stringify(users_issues));
-                            }
-
-                        })
-                    ).done(function () {
-                        console.log('done');
-                        // $scope.hide_loader();
+                    $scope.load_employee_issues().then(function() {
+                        var users_issues = $scope.data.employee_issues;
+                        storage.setItem('users_issues', JSON.stringify(users_issues));
+                        $scope.to_main();
+                        console.log('loaded new issues');
                     });
-                },
-                odoo_failure_function
-                );
+                });
+            });
         };
 
         $scope.data.dataSource = 'project.issue';

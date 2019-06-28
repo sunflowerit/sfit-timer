@@ -1,10 +1,4 @@
 // Display
-setTimeout(function () {
-    $("#wrapper").removeClass("hide");
-    $("#login").removeClass("hide");
-    $("#loader-container").addClass("hide");
-}, 4000);
-
 
 var storage = {};
 
