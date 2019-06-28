@@ -1,5 +1,5 @@
 // Display
-setTimeout(function(){ 
+setTimeout(function () {
     $("#wrapper").removeClass("hide");
     $("#login").removeClass("hide");
     $("#loader-container").addClass("hide");
@@ -13,11 +13,12 @@ if (typeof chrome !== 'undefined' && chrome.storage && chrome.storage.local) {
     storage.isChromeStorage = true;
 
     storage.getItem = function (key, callback) {
-        chrome.storage.local.get(key, function(obj) {
-            if (obj.hasOwnProperty(key))
+        chrome.storage.local.get(key, function (obj) {
+            if (obj.hasOwnProperty(key)) {
                 callback(obj[key]);
-            else
+            } else {
                 callback(null);
+            }
         });
     };
 
@@ -27,30 +28,29 @@ if (typeof chrome !== 'undefined' && chrome.storage && chrome.storage.local) {
         chrome.storage.local.set(obj, function () {});
     };
 
-    storage.removeItem = function(key) {
+    storage.removeItem = function (key) {
         chrome.storage.local.remove(key);
     };
 
-    storage.clear = function() {
+    storage.clear = function () {
         chrome.storage.local.clear();
-    }
-}
+    };
+} else {
 
-else {
     /* Test for local storage */
-    function lsTest(){
+    function lsTest () {
         var test = 'test';
         try {
             localStorage.setItem(test, test);
             localStorage.removeItem(test);
             return true;
-        } catch(e) {
+        } catch (e) {
             return false;
         }
     }
 
     /* Use normal local storage */
-    if(lsTest() === true){
+    if (lsTest() === true) {
         storage.getItem = function (key, callback) {
             value = localStorage.getItem(key);
             callback(value);
@@ -60,25 +60,25 @@ else {
             localStorage.setItem(key, value);
         };
 
-        storage.removeItem = function(key) {
+        storage.removeItem = function (key) {
             localStorage.removeItem(key);
         };
 
-        storage.clear = function() {
+        storage.clear = function () {
             localStorage.clear();
-        }
+        };
     }
 
     /* Use dummy functions */
-    else{
-        function noop() {}
+    else {
+        function noop () {}
         storage = {
             getItem: noop,
             setItem: noop,
             clear: noop,
             removeItem: noop,
-            getAllKeys: noop
-        }
+            getAllKeys: noop,
+        };
     }
 
 }

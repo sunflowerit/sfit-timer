@@ -129,6 +129,7 @@
 			        	hmtext="{{issue.id}}-{{issue.name}}" 
 			        	hmrecord="{{issue.id}}"
 			        	hmhost="{{data.host}}"
+                hmsource="{{data.dataSource}}"
 			        	hmlimit="33"
 			        	hmMoreClass="hmMoreClass" 
 			        	hmLessClass="hmMoreClass"
@@ -163,6 +164,7 @@
 				</tr>
 			</tbody>
 		</table>
+        <!--<button class="btn btn-success" style="float: right;">Refresh</button>-->
 		<div class="footer">
 			<div class="row">
 				<div class="col-sm-6">
@@ -172,6 +174,8 @@
 					</a>
 				</div>
 				<div class="col-sm-6">
+                    <i class="fa fa-refresh fa-2x right pointer action-btn"
+                       ng-click="load_employee_issues()"></i>
 					<i class="fa fa-sign-out fa-2x right pointer" 
 						ng-click="logout()"></i>
 				</div>
