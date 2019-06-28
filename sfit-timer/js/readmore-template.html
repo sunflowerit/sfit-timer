@@ -1,7 +1,7 @@
 <span ng-if="hmtext.length > hmlimit">
 
 	<span ng-hide="hmfulltext" class="hmblink">
-		<a ng-if="hmrecord" href="{{hmhost}}/web#id={{hmrecord}}&view_type=form&model=project.issue" target="_blank">
+		<a ng-if="hmrecord" href="{{hmhost}}/web#id={{hmrecord}}&view_type=form&model={{hmsource}}" target="_blank">
 			{{hmtext | limitTo:hmlimit}}
 		</a>
 		<span ng-if="!hmrecord">{{hmtext | limitTo:hmlimit}}</span>
@@ -17,7 +17,7 @@
 </span>
 
 <span ng-if="hmtext.length <= hmlimit">
-	<a ng-if="hmrecord" href="{{hmhost}}/web#id={{hmrecord}}&view_type=form&model=project.issue" target="_blank">
+	<a ng-if="hmrecord" href="{{hmhost}}/web#id={{hmrecord}}&view_type=form&model={{hmsource}}" target="_blank">
 		{{hmtext | limitTo:hmlimit}}
 	</a>
 	<span ng-if="!hmrecord">{{hmtext | limitTo:hmlimit}}</span>
