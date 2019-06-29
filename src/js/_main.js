@@ -70,7 +70,11 @@ sfitTimerApp.controller('mainController', [
                     } else {
                         $scope.to_login();
                     }
+                }, function() {
+                    $scope.to_login();
                 });
+            } else {
+                $scope.to_login();
             }
         });
         //-----------------------------------
