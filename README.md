@@ -1,5 +1,18 @@
 SFIT Timer Chrome app is used to log hours and automatically write them to Odoo Timesheets.
 
+It connects to SFIT odoo and displays issue list. From the list, one can start timer based on the issue,
+set start and end time of the issue and when stop button is clicked, a new timesheet line record is added to Odoo.
+
+Features:
+
+* Start issue timer.
+* Edit issue time.
+* Stop issue timer.
+* Create odoo timesheet line record linked to analytic account.
+* Change issue state - eg. start or finish issue.
+* Support tasks instead of issues
+* Show own issues or all issues
+
 Installation
 ------------
 
