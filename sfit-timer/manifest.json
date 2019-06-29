@@ -24,8 +24,8 @@
 	
 	"background": {
 	    "scripts": [
-	      "/lib/jquery-2.0.3.min.js",
-	      "/js/background.js"
+          "/lib/jquery-2.0.3.min.js",
+          "/js/background.js"
 	    ],
 	    "persistent": false
 	  },

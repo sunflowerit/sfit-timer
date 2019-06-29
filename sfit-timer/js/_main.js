@@ -21,10 +21,10 @@ sfitTimerApp.controller('mainController', [
             {val:'', opt: 'All'},
         ];
         $scope.$watch('allIssues', function () {
-            if ($scope.allIssues) {
-                $scope.data.user_id = '';
-            } else {
+            if (!$scope.allIssues && $scope.data.user) {
                 $scope.data.user_id = $scope.data.user.id;
+            } else {
+                $scope.data.user_id = '';
             }
         });
 
