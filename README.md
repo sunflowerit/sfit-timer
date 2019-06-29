@@ -3,10 +3,10 @@ SFIT Timer Chrome app is used to log hours and automatically write them to Odoo 
 Installation
 ------------
 
-# Git clone git@github.com:sunflowerit/sfit-timer.git
-# Browse to chrome://extensions/ 
-# Select 'load unpacked' and point to the 'src' folder
-# The app will now appear in the top-right of your Chrome browser
+1. Git clone git@github.com:sunflowerit/sfit-timer.git
+2. Browse to chrome://extensions/ 
+3. Select 'load unpacked' and point to the 'src' folder
+4. The app will now appear in the top-right of your Chrome browser
 
 Configuration
 -------------
@@ -31,6 +31,6 @@ Usage
 Update
 ------
 
-# cd /path/to/sfit-timer
-# git pull
+1. cd /path/to/sfit-timer
+2. git pull
 
