@@ -46,4 +46,5 @@ Update
 
 1. `cd /path/to/sfit-timer`
 2. `git pull`
+3. update on chrome://extensions
 
