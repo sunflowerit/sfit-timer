@@ -43,10 +43,10 @@ sfitTimerApp.controller('mainController', [
 
         //-----------------------------------
         /* MAIN CODE */
-        storage.getItem("start_date_time", function (active_timer) {
-            if (active_timer) {
-                $scope.current_date = JSON.parse(active_timer);
-                $scope.startTimeCount = JSON.parse(active_timer).start_time;
+        storage.getItem("start_date_time", function (start_date_time) {
+            if (start_date_time) {
+                $scope.current_date = JSON.parse(start_date_time);
+                $scope.startTimeCount = $scope.current_date.start_time;
             } else {
                 console.log('no active timer found');
             }
@@ -54,6 +54,14 @@ sfitTimerApp.controller('mainController', [
 
         $scope.data = {};
         $scope.data.today = new Date();
+
+        storage.getItem("active_timer_id", function (active_timer_id) {
+            if (active_timer_id) {
+                $scope.data.active_timer_id = active_timer_id;
+            } else {
+                console.log('no active issue found');
+            }
+        });
 
         storage.getItem("host_info", function (host_info) {
             if (host_info) {
@@ -81,6 +89,7 @@ sfitTimerApp.controller('mainController', [
 
         // Start timer
         $scope.startTimer1 = function (issue) {
+            console.log(issue);
             var now = moment();
             issue.currentRunning = 1;
             // Change icon to active
@@ -109,6 +118,7 @@ sfitTimerApp.controller('mainController', [
         };
         // Stop timer
         $scope.stopTimer1 = function (id) {
+            console.log('stopping time...');
 
             // Change icon to inactive
             chrome.runtime.sendMessage({TimerActive: false});
@@ -128,24 +138,35 @@ sfitTimerApp.controller('mainController', [
             storage.getItem("start_date_time", function (time) {
                 var startTimeInfo = JSON.parse(time);
                 if (startTimeInfo) {
-
                     // Get time difference in minutes
-                    var durationMins = moment.duration(now.diff(startTimeInfo.start_time)).asMinutes();
+                    var durationMins = moment.duration(
+                        now.diff(startTimeInfo.start_time)).asMinutes();
                     var mins = Math.round(durationMins % 60/15) * 15;
                     var durationInHours = Math.floor(durationMins/60) + mins/60;
-                    // Get current issue
-                    function getIssue (issue) {
-                        return issue.id == id;
+                    var issue = $scope.data.employee_issues.find(
+                        function(o) {return o.id == id});
+                    if (!issue) {
+                        $scope.odoo_error = "Issue " + id + " not found";
+                        $scope.$apply();
+                        return;
                     }
-                    var issue = $scope.data.employee_issues.find(getIssue);
-
                     if ($scope.data.dataSource == 'project.issue') {
                         var analytic_account_id = issue.analytic_account_id;
                         if (!analytic_account_id) {
-                            var analytic_account_id = issue.project_id.analytic_account_id;
+                            var project = $scope.data.projects.find(
+                                function (o) {return o.id == issue.project_id[0];}
+                            );
+                            if (!project) {
+                                $scope.odoo_error = "Project not found.";
+                                $scope.$apply();
+                                return; 
+                            }
+                            analytic_account_id = project.analytic_account_id;
                         }
                         if (!analytic_account_id) {
                             $scope.odoo_error = "No Analytic Account is defined on the project.";
+                            $scope.$apply();
+                            return; 
                         }
                         $scope.analytic_journal = null;
                         // Search analytic journal for timesheet
@@ -155,9 +176,7 @@ sfitTimerApp.controller('mainController', [
                         jsonRpc.searchRead($scope.model, $scope.domain, $scope.fields)
                             .then(function (response) {
                                 $scope.analytic_journal = response.records[0];
-                                if (!$scope.odoo_error) {
-                                    createTimesheet();
-                                }
+                                createTimesheet();
                             }, odoo_failure_function);
                     } else {
                         createTaskwork();
@@ -189,6 +208,7 @@ sfitTimerApp.controller('mainController', [
 
                     // Post to odoo hr.analytic.timesheet, create new time sheet
                     function createTimesheet () {
+                        console.log('createTimeSheet Called');
                         var args = [{
                             'date': now.format('YYYY-MM-D'),
                             'user_id': $scope.data.user.id,
@@ -219,9 +239,9 @@ sfitTimerApp.controller('mainController', [
             });
 
             // Clear storage
-            storage.removeItem("active_timer");
+            console.log('stopped time...');
+            storage.removeItem("active_timer_id");
             storage.removeItem("start_date_time");
-
         };
 
         // LOGIN
@@ -298,6 +318,9 @@ sfitTimerApp.controller('mainController', [
                         $scope.to_main();
                         console.log('loaded existing issues');
                     }
+                    $scope.load_projects().then(function() {
+                        console.log('loaded projects');
+                    });
                     $scope.load_employee_issues().then(function() {
                         var users_issues = $scope.data.employee_issues;
                         storage.setItem('users_issues', JSON.stringify(users_issues));
@@ -315,17 +338,31 @@ sfitTimerApp.controller('mainController', [
             }
         });
 
-        // Search able employees
         function search_employee_issues () {
             var model = $scope.data.dataSource;
             var domain = [
+                '|',
                 ['stage_id.name', 'not in', ['Done', 'Cancelled', 'On Hold']],
+                ['id', '=', $scope.data.active_timer_id],
             ];
             var fields = [
                 'name',
                 'user_id',
                 'project_id',
                 'stage_id',
+                'analytic_account_id',
+            ];
+            return jsonRpc.searchRead(
+                model,
+                domain,
+                fields
+            );
+        }
+
+        function search_projects() {
+            var model = 'project.project';
+            var domain = [];
+            var fields = [
                 'analytic_account_id',
             ];
             return jsonRpc.searchRead(
@@ -345,16 +382,27 @@ sfitTimerApp.controller('mainController', [
             storage.setItem('users_issues', JSON.stringify(users_issues));
         }
 
-        // LOAD EMPLOYEE ISSUES
+        function process_projects (response, deferred) {
+            $scope.data.projects = [];
+            angular.forEach(response.records, function (project) {
+                $scope.data.projects.push(project);
+            });
+            deferred.resolve();
+        }
+
         $scope.load_employee_issues = function () {
             var deferred = new $.Deferred();
-            search_employee_issues().then(
-            // Success
-                function (response) {
-                    process_employee_issues(response, deferred);
-                },
-                odoo_failure_function
-            );
+            search_employee_issues().then(function (response) {
+                process_employee_issues(response, deferred);
+            }, odoo_failure_function);
+            return deferred;
+        };
+
+        $scope.load_projects = function () {
+            var deferred = new $.Deferred();
+            search_projects().then(function (response) {
+                process_projects(response, deferred);
+            }, odoo_failure_function);
             return deferred;
         };
 
@@ -366,7 +414,6 @@ sfitTimerApp.controller('mainController', [
                 'message': response.fullTrace.data.message,
             };
             $scope.error = $scope.odoo_error.message;
-        // $scope.errorModal();
         };
 
     }]);
