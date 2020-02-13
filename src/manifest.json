@@ -1,9 +1,9 @@
 {
 
-	"name": "SFIT-Timer",
+	"name": "Therp-Timer",
 	"version": "1.0",
 	
-	"description": "SFIT Timer chrome extension, posts time to odoo",
+	"description": "Therp Timer chrome extension, posts time to odoo",
 	"icons": {
 		"16": "img/icon_16.png",
 		"48": "img/icon_48.png",
@@ -16,7 +16,7 @@
 			"19": "img/inactive_19.png",
 			"38": "img/inactive_38.png"
 		},
-		"default_title": "SFIT Timer",
+		"default_title": "Therp Timer",
 		"default_popup": "popup.html"
 	},
 	

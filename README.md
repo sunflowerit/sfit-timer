@@ -1,6 +1,6 @@
-SFIT Timer Chrome app is used to log hours and automatically write them to Odoo Timesheets.
+Therp Timer Chrome app is used to log hours and automatically write them to Odoo Timesheets.
 
-It connects to SFIT odoo and displays issue list. From the list, one can start timer based on the issue,
+It connects to Therp odoo and displays task list. From the list, one can start timer based on the issue,
 set start and end time of the issue and when stop button is clicked, a new timesheet line record is added to Odoo.
 
 Features:
@@ -24,11 +24,11 @@ Installation
 Configuration
 -------------
 
-* When you clicking on the SFIT Timer button in Chrome for the first time, the log in screen comes up.
+* When you clicking on the Therp Timer button in Chrome for the first time, the log in screen comes up.
 * Uncheck the 'Use Default Host' box at the buttom, and use the correct URL and database name.
-* For Username and Password, use your regular SFIT Odoo login info.
+* For Username and Password, use your regular Therp Odoo login info.
 
-![Logging in to SFIT timer app](img/login.png "Login")
+![Logging in to Therp timer app](img/login.png "Login")
 
 Usage
 -----
@@ -39,7 +39,7 @@ Usage
 * Tick 'all' to have other people's issue show up in this list as well; useful for multidev tasks!
 * Under 'options' there's a switch to write time on ''tasks'' instead of ''issues'', we'll be using this in the future :)
 
-![List of issues](img/issues.png "Issue list")
+![List of tasks](img/tasks.png "Task list")
 
 Update
 ------
