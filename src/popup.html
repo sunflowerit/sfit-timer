@@ -93,10 +93,10 @@
     <div>
       <input 
         ng-model="searchIssue.$"
-        type="text" 
-        id="searchIssue" 
-        placeholder="Search for Issue by ID, Name, Stage..." 
-        title="Type in an issue name">
+        type="text"
+        id="searchIssue"
+        placeholder="Search for Task by ID, Name, Stage..."
+        title="Type in a task name">
         <select 
             id="limitTo"
             ng-model="limitTo" 
@@ -110,7 +110,7 @@
         <table class="table table-bordered">
             <thead>
                 <tr>
-                    <th>Issues [{{data.filtered_issues.length}}]
+                    <th>Tasks [{{data.filtered_issues.length}}]
                         <span class="allIssues"> 
                             <input 
                                 type="checkbox" 
@@ -169,7 +169,7 @@
                     </td>
                 </tr> 
                 <tr ng-if="!data.filtered_issues.length">
-                    <td>No Issues Available</td>
+                    <td>No Tasks Available</td>
                     <td/>
                     <td/>
                 </tr>

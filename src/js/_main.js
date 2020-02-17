@@ -366,7 +366,7 @@ sfitTimerApp.controller('mainController', [
                     if (issues) {
                         $scope.data.employee_issues = JSON.parse(issues);
                         $scope.to_main();
-                        console.log('loaded existing issues');
+                        console.log('loaded existing issues/tasks');
                     }
                     $scope.load_projects().then(function() {
                         console.log('loaded projects');
@@ -375,10 +375,10 @@ sfitTimerApp.controller('mainController', [
                         var users_issues = $scope.data.employee_issues;
                         storage.setItem('users_issues', JSON.stringify(users_issues));
                         $scope.to_main();
-                        console.log('loaded new issues');
+                        console.log('loaded new issues/tasks');
                     }, function() {
                         $scope.to_main();
-                        console.log('no issues found');
+                        console.log('no issues/tasks found');
                     });
                 });
             });
