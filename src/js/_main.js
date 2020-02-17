@@ -384,7 +384,7 @@ sfitTimerApp.controller('mainController', [
             });
         };
 
-        $scope.data.dataSource = 'project.issue';
+        $scope.data.dataSource = 'project.task';
         storage.getItem("dataSource", function (source) {
             if (source) {
                 $scope.data.dataSource = source;
