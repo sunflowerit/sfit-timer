@@ -27,7 +27,7 @@
     </div>
 
     <!-- Login Form - Shown when there is no active odoo session-->
-    <div id="login" class="module form-module hide" ng-show="!data.selected_employee">
+    <div id="login" class="module form-module hide" ng-show="!data.user">
         <div class="toggle"><i class="fa fa-times fa-pencil"></i></div>
         <div class="form">
             <div class="logo">
@@ -89,7 +89,7 @@
     </div>
     <!-- End Login Form-->
 
-    <div id="wrapper" class="hide" ng-show="data.selected_employee">
+    <div id="wrapper" class="hide" ng-show="data.user">
     <div>
       <input 
         ng-model="searchIssue.$"

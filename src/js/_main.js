@@ -348,7 +348,6 @@ sfitTimerApp.controller('mainController', [
             // Delete odoo cookie.
             $cookies.remove('session_id');
             $scope.data.user = null;
-            $scope.data.selected_employee = null;
             $scope.to_login();
             console.log('logged out');
         };
@@ -363,17 +362,6 @@ sfitTimerApp.controller('mainController', [
             ).then(function (response) {
                 $scope.data.user = response.records[0];
                 $scope.data.user_id = $scope.data.user.id;
-                // Set default employee id
-                if (!$scope.data.selected_employee) {
-                    $scope.model = 'hr.employee';
-                    $scope.domain = [['user_id', '=', id]];
-                    $scope.fields = ['name'];
-                    jsonRpc.searchRead(
-                        $scope.model, $scope.domain, $scope.fields
-                    ).then(function (response) {
-                        $scope.data.selected_employee = response.records[0];
-                    }, odoo_failure_function);
-                }
                 storage.getItem("users_issues", function (issues) {
                     if (issues) {
                         $scope.data.employee_issues = JSON.parse(issues);
@@ -407,8 +395,12 @@ sfitTimerApp.controller('mainController', [
             var model = $scope.data.dataSource;
             var domain = [
                 '|',
-                ['stage_id.name', 'not in', ['Done', 'Cancelled', 'On Hold']],
                 ['id', '=', $scope.data.active_timer_id],
+                '&',
+                ['stage_id.name', 'not ilike', '%Done%'],
+                '&',
+                ['stage_id.name', 'not ilike', '%Cancel%'],
+                ['stage_id.name', 'not ilike', '%Hold%'],
             ];
             var fields = [
                 'name',
