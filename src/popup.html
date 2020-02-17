@@ -39,32 +39,45 @@
             <form>
                 <p class="odooError">{{loginError}}</p>
                 <input 
-                    ng-show="!data.useDefaultHost" 
-                    type="text" 
-                    ng-model="data.host" 
+                    ng-show="!data.useDefaultHost"
+                    type="text"
+                    ng-model="data.host"
                     placeholder="Host"/>
                 <input 
-                    ng-show="!data.useDefaultHost" 
-                    type="text" 
-                    ng-model="data.database" 
+                    ng-show="!data.useDefaultHost"
+                    type="text"
+                    ng-model="data.database"
                     placeholder="Database"/>
                 <input 
-                    type="text" 
-                    ng-model="data.username" 
+                    ng-show="!data.useExistingSession"
+                    type="text"
+                    ng-model="data.username"
                     placeholder="Username"/>
                 <input 
-                    type="password" 
-                    ng-model="data.password" 
+                    ng-show="!data.useExistingSession"
+                    type="password"
+                    ng-model="data.password"
                     placeholder="Password"/>
                 <div class="checkbox">
                     <label>
-                        <input 
-                            type="checkbox" 
-                            name="useDefaultHost" 
-                            ng-model="data.useDefaultHost" 
-                            ng-init='data.useDefaultHost=true' 
+                        <input
+                            type="checkbox"
+                            name="useDefaultHost"
+                            ng-model="data.useDefaultHost"
+                            ng-init="data.useDefaultHost=true"
                             class="defaultCheckbox"/>
                             Use Default Host
+                    </label>
+                </div>
+                <div class="checkbox">
+                    <label>
+                        <input 
+                            type="checkbox"
+                            name="useExistingSession"
+                            ng-model="data.useExistingSession"
+                            ng-init="data.useExistingSession=false"
+                            class="defaultCheckbox"/>
+                            Try to use existing session
                     </label>
                 </div>
                 <button class="login" ng-click="login()">

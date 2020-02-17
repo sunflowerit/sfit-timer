@@ -63,28 +63,39 @@ sfitTimerApp.controller('mainController', [
             }
         });
 
-        storage.getItem("host_info", function (host_info) {
-            if (host_info) {
-                var host_info = JSON.parse(host_info);
-                $scope.data.host = host_info.host;
-                $scope.data.database = host_info.database;
-                jsonRpc.odoo_server = $scope.data.host;
-
-                // Check if user is logged in and set user:
-                jsonRpc.getSessionInfo().then(function (result) {
-                    if (result.uid) {
-                        $scope.set_current_user(result.uid);
-                        $scope.database = result.db;
-                    } else {
-                        $scope.to_login();
-                    }
-                }, function() {
-                    $scope.to_login();
-                });
-            } else {
-                $scope.to_login();
+        storage.getItem("host_info", function (host_info_json) {
+            var default_host_info = {
+                'host': 'https://helpdesk.therp.nl',
+                'database': 'odointprd10-helpdesk'
             }
+            if (!host_info_json) {
+                storage.setItem('host_info', JSON.stringify(host_info));
+                host_info = default_host_info;
+            } else {
+                var host_info = JSON.parse(host_info_json);
+            }
+            $scope.data.host = host_info.host;
+            $scope.data.database = host_info.database;
+            jsonRpc.odoo_server = $scope.data.host;
+            $scope.trySession();
         });
+
+        $scope.trySession = function() {
+            // Check if user is logged in and set user:
+            jsonRpc.getSessionInfo().then(function (result) {
+                if (result.uid) {
+                    $scope.set_current_user(result.uid);
+                    $scope.database = result.db;
+                    $scope.loginLoading = false;
+                } else {
+                    $scope.loginError = 'Automatic login failed';
+                    $scope.to_login();
+                }
+            }, function() {
+                $scope.loginError = 'Automatic login failed';
+                $scope.to_login();
+            });
+        };
         //-----------------------------------
 
         // Start timer
@@ -179,11 +190,56 @@ sfitTimerApp.controller('mainController', [
                                 createTimesheet();
                             }, odoo_failure_function);
                     } else {
-                        createTaskwork();
+                        createTaskwork().then(function(response) {
+                            console.log('task.work created');
+                        }, function(response) {
+                            createAnalyticLine();
+                            console.log('creating analytic line');
+                        });
+                    }
+
+                    // Post to odoo project.task.work, create new task work
+                    function createAnalyticLine() {
+                        var deferred = new $.Deferred();
+                        console.log('creating analytic line');
+                        var project = $scope.data.projects.find(
+                            function (o) {return o.id == issue.project_id[0];}
+                        );
+                        if (!project) {
+                            console.log('project not found');
+                            deferred.reject();
+                        }
+                        jsonRpc.call(
+                            'account.analytic.line',
+                            'default_get',
+                            ['invoice_discount_id'],
+                            {} 
+                        ).then(function (response) {
+                            var args = [{
+                                'invoice_discount_id': response.invoice_discount_id,
+                                'date': now.format('YYYY-MM-D'),
+                                'user_id': $scope.data.user.id,
+                                'name': issue.name,
+                                'task_id': issue.id,
+                                'project_id': project.id,
+                                'unit_amount': durationInHours,
+                            }];
+                            jsonRpc.call(
+                                'account.analytic.line',
+                                'create',
+                                args,
+                                {}
+                            ).then(function (response) {
+                                console.log('response', response);
+                                deferred.resolve();
+                            }, deferred.reject);
+                        }, deferred.reject);
+                        return deferred;
                     }
 
                     // Post to odoo project.task.work, create new task work
                     function createTaskwork () {
+                        var deferred = new $.Deferred();
                         console.log('createTaskwork Called');
                         var args = [{
                             'date': now.format('YYYY-MM-D'),
@@ -193,7 +249,6 @@ sfitTimerApp.controller('mainController', [
                             "hours": durationInHours,
                         }];
                         var kwargs = {};
-                        $scope.args = args;
                         jsonRpc.call(
                             'project.task.work',
                             'create',
@@ -201,9 +256,12 @@ sfitTimerApp.controller('mainController', [
                             kwargs
                         ).then(function (response) {
                             console.log('response', response);
-                        },
-                        odoo_failure_function
-                        );
+                            deferred.resolve();
+                        }, function(response) {
+                            console.log('rejecting');
+                            deferred.reject();
+                        });
+                        return deferred;
                     }
 
                     // Post to odoo hr.analytic.timesheet, create new time sheet
@@ -220,7 +278,6 @@ sfitTimerApp.controller('mainController', [
                             "issue_id": issue.id,
                         }];
                         var kwargs = {};
-                        $scope.args = args;
                         jsonRpc.call(
                             'hr.analytic.timesheet',
                             'create',
@@ -249,10 +306,14 @@ sfitTimerApp.controller('mainController', [
             jsonRpc.odoo_server = $scope.data.host;
             $scope.database = $scope.data.database;
             $scope.loginLoading = true;
-            // Check if username and password exists
-            if (!$scope.data.username || !$scope.data.password) {
+            if ($scope.data.useExistingSession) {
+                $scope.trySession();
+            }
+            else if (!$scope.data.username || !$scope.data.password) {
+                $scope.loginLoading = false; 
                 $scope.loginError = 'Username or Password is missing';
-            } else {
+            }
+            else {
                 jsonRpc
                     .login($scope.data.database, $scope.data.username, $scope.data.password)
                     .then(function (response) {
@@ -264,6 +325,7 @@ sfitTimerApp.controller('mainController', [
                         $scope.set_current_user(response.uid);
                         $scope.loginLoading = false;
                     }, function (response) {
+                        $scope.loginLoading = false;
                         $scope.loginError = response.message;
                     });
             }
@@ -326,6 +388,9 @@ sfitTimerApp.controller('mainController', [
                         storage.setItem('users_issues', JSON.stringify(users_issues));
                         $scope.to_main();
                         console.log('loaded new issues');
+                    }, function() {
+                        $scope.to_main();
+                        console.log('no issues found');
                     });
                 });
             });
@@ -372,37 +437,41 @@ sfitTimerApp.controller('mainController', [
             );
         }
 
-        function process_employee_issues (response, deferred) {
+        function process_employee_issues (response) {
             $scope.data.employee_issues = [];
             angular.forEach(response.records, function (issue) {
                 $scope.data.employee_issues.push(issue);
             });
-            deferred.resolve();
             var users_issues = $scope.data.employee_issues;
             storage.setItem('users_issues', JSON.stringify(users_issues));
         }
 
-        function process_projects (response, deferred) {
+        function process_projects (response) {
             $scope.data.projects = [];
             angular.forEach(response.records, function (project) {
                 $scope.data.projects.push(project);
             });
-            deferred.resolve();
         }
 
         $scope.load_employee_issues = function () {
             var deferred = new $.Deferred();
             search_employee_issues().then(function (response) {
-                process_employee_issues(response, deferred);
-            }, odoo_failure_function);
+                process_employee_issues(response);
+                deferred.resolve();
+            }, function(response) {
+                deferred.reject();
+            });
             return deferred;
         };
 
         $scope.load_projects = function () {
             var deferred = new $.Deferred();
             search_projects().then(function (response) {
-                process_projects(response, deferred);
-            }, odoo_failure_function);
+                process_projects(response);
+                deferred.resolve();
+            }, function() {
+                deferred.reject();
+            });
             return deferred;
         };
 
