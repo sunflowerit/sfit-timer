@@ -404,6 +404,7 @@ sfitTimerApp.controller('mainController', [
             ];
             var fields = [
                 'name',
+                'code',
                 'user_id',
                 'project_id',
                 'stage_id',
