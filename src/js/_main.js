@@ -161,44 +161,10 @@ sfitTimerApp.controller('mainController', [
                         $scope.$apply();
                         return;
                     }
-                    if ($scope.data.dataSource == 'project.issue') {
-                        var analytic_account_id = issue.analytic_account_id;
-                        if (!analytic_account_id) {
-                            var project = $scope.data.projects.find(
-                                function (o) {return o.id == issue.project_id[0];}
-                            );
-                            if (!project) {
-                                $scope.odoo_error = "Project not found.";
-                                $scope.$apply();
-                                return; 
-                            }
-                            analytic_account_id = project.analytic_account_id;
-                        }
-                        if (!analytic_account_id) {
-                            $scope.odoo_error = "No Analytic Account is defined on the project.";
-                            $scope.$apply();
-                            return; 
-                        }
-                        $scope.analytic_journal = null;
-                        // Search analytic journal for timesheet
-                        $scope.model = 'account.analytic.journal';
-                        $scope.domain = [['name', 'ilike', 'Timesheet']];
-                        $scope.fields = ['name'];
-                        jsonRpc.searchRead($scope.model, $scope.domain, $scope.fields)
-                            .then(function (response) {
-                                $scope.analytic_journal = response.records[0];
-                                createTimesheet();
-                            }, odoo_failure_function);
-                    } else {
-                        createTaskwork().then(function(response) {
-                            console.log('task.work created');
-                        }, function(response) {
-                            createAnalyticLine();
-                            console.log('creating analytic line');
-                        });
-                    }
+                    createAnalyticLine();
+                    console.log('creating analytic line');
 
-                    // Post to odoo project.task.work, create new task work
+                    // Post to odoo analytic line, create new task work
                     function createAnalyticLine() {
                         var deferred = new $.Deferred();
                         console.log('creating analytic line');
@@ -235,59 +201,6 @@ sfitTimerApp.controller('mainController', [
                             }, deferred.reject);
                         }, deferred.reject);
                         return deferred;
-                    }
-
-                    // Post to odoo project.task.work, create new task work
-                    function createTaskwork () {
-                        var deferred = new $.Deferred();
-                        console.log('createTaskwork Called');
-                        var args = [{
-                            'date': now.format('YYYY-MM-D'),
-                            'user_id': $scope.data.user.id,
-                            'name': issue.name,
-                            'task_id': issue.id,
-                            "hours": durationInHours,
-                        }];
-                        var kwargs = {};
-                        jsonRpc.call(
-                            'project.task.work',
-                            'create',
-                            args,
-                            kwargs
-                        ).then(function (response) {
-                            console.log('response', response);
-                            deferred.resolve();
-                        }, function(response) {
-                            console.log('rejecting');
-                            deferred.reject();
-                        });
-                        return deferred;
-                    }
-
-                    // Post to odoo hr.analytic.timesheet, create new time sheet
-                    function createTimesheet () {
-                        console.log('createTimeSheet Called');
-                        var args = [{
-                            'date': now.format('YYYY-MM-D'),
-                            'user_id': $scope.data.user.id,
-                            'name': issue.name+' (#'+issue.id+')',
-                            'journal_id': $scope.analytic_journal.id,
-                            "account_id": analytic_account_id[0],
-                            "unit_amount": durationInHours,
-                            "to_invoice": 1,
-                            "issue_id": issue.id,
-                        }];
-                        var kwargs = {};
-                        jsonRpc.call(
-                            'hr.analytic.timesheet',
-                            'create',
-                            args,
-                            kwargs
-                        ).then(function (response) {
-                            console.log('response', response);
-                        },
-                        odoo_failure_function
-                        );
                     }
 
                 } else {
