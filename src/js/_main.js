@@ -311,9 +311,7 @@ sfitTimerApp.controller('mainController', [
                 ['id', '=', $scope.data.active_timer_id],
                 '&',
                 ['stage_id.name', 'not ilike', '%Done%'],
-                '&',
                 ['stage_id.name', 'not ilike', '%Cancel%'],
-                ['stage_id.name', 'not ilike', '%Hold%'],
             ];
             var fields = [
                 'name',
