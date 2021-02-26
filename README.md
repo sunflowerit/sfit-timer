@@ -1,6 +1,6 @@
-Therp Timer Chrome app is used to log hours and automatically write them to Odoo Timesheets.
+Hunki Timer Chrome app is used to log hours and automatically write them to Odoo Timesheets.
 
-It connects to Therp odoo and displays task list. From the list, one can start timer based on the issue,
+It connects to Hunki odoo and displays task list. From the list, one can start timer based on the issue,
 set start and end time of the issue and when stop button is clicked, a new timesheet line record is added to Odoo.
 
 Features:
@@ -24,11 +24,11 @@ Installation
 Configuration
 -------------
 
-* When you clicking on the Therp Timer button in Chrome for the first time, the log in screen comes up.
+* When you clicking on the Hunki Timer button in Chrome for the first time, the log in screen comes up.
 * Uncheck the 'Use Default Host' box at the buttom, and use the correct URL and database name.
-* For Username and Password, use your regular Therp Odoo login info.
+* For Username and Password, use your regular Hunki Odoo login info.
 
-![Logging in to Therp timer app](img/login.png "Login")
+![Logging in to Hunki timer app](img/login.png "Login")
 
 Usage
 -----

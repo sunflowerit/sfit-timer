@@ -65,8 +65,8 @@ sfitTimerApp.controller('mainController', [
 
         storage.getItem("host_info", function (host_info_json) {
             var default_host_info = {
-                'host': 'https://helpdesk.therp.nl',
-                'database': 'odointprd10-helpdesk'
+                'host': 'https://hunki-enterprises.com',
+                'database': 'hunki',
             }
             if (!host_info_json) {
                 storage.setItem('host_info', JSON.stringify(host_info));
@@ -309,6 +309,8 @@ sfitTimerApp.controller('mainController', [
             var domain = [
                 '|',
                 ['id', '=', $scope.data.active_timer_id],
+                '|',
+                ['stage_id', '=', null],
                 '&',
                 ['stage_id.name', 'not ilike', '%Done%'],
                 ['stage_id.name', 'not ilike', '%Cancel%'],

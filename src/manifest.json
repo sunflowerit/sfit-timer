@@ -1,9 +1,9 @@
 {
 
-	"name": "Therp-Timer",
+	"name": "Hunki-Timer",
 	"version": "1.0",
 	
-	"description": "Therp Timer chrome extension, posts time to odoo",
+	"description": "Hunki Timer chrome extension, posts time to odoo",
 	"icons": {
 		"16": "img/icon_16.png",
 		"48": "img/icon_48.png",
@@ -16,7 +16,7 @@
 			"19": "img/inactive_19.png",
 			"38": "img/inactive_38.png"
 		},
-		"default_title": "Therp Timer",
+		"default_title": "Hunki Timer",
 		"default_popup": "popup.html"
 	},
 	

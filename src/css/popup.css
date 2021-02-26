@@ -42,10 +42,10 @@ body {
   font-size: 12px;
 }
 .pen-title span .fa {
-  color: #3BC7EE;
+  color: #F9F9F9;
 }
 .pen-title span a {
-  color: #3BC7EE;
+  color: #F9F9F9;
   font-weight: 600;
   text-decoration: none;
 }
@@ -57,7 +57,7 @@ body {
   /*max-width: 320px;*/
   /*max-width: 400px;*/
   width: 100%;
-  border-top: 5px solid #3BC7EE;
+  border-top: 5px solid #F9F9F9;
   -webkit-box-shadow: 0 0 3px rgba(0, 0, 0, 0.1);
   box-shadow: 0 0 3px rgba(0, 0, 0, 0.1);
   margin: 0 auto;
@@ -67,7 +67,7 @@ body {
   position: absolute;
   top: -0;
   right: -0;
-  background: #3BC7EE;
+  background: #F9F9F9;
   width: 30px;
   height: 30px;
   margin: -5px 0 0;
@@ -107,7 +107,7 @@ body {
 }
 .form-module h2 {
   margin: 0 0 20px;
-  color: #3BC7EE;
+  color: #F9F9F9;
   font-size: 18px;
   font-weight: 400;
   line-height: 1;
@@ -126,12 +126,12 @@ body {
   transition: 0.3s ease;
 }
 .form-module input:focus {
-  border: 1px solid #3BC7EE;
+  border: 1px solid #F9F9F9;
   color: #333333;
 }
 .form-module button {
   cursor: pointer;
-  background: #3BC7EE;
+  background: #F9F9F9;
   width: 100%;
   border: 0;
   padding: 10px 15px;
@@ -196,7 +196,7 @@ body {
 
 #loader-container .fa-cog{
   margin-top: 30%; 
-  color: #3BC7EE;
+  color: #F9F9F9;
 }
 .odooError{
   color:red; 
@@ -218,7 +218,7 @@ body {
   margin: 0;
 }
 .odooError{
-  color: #3BC7EE;
+  color: #F9F9F9;
   font-weight: bold;
 }
 .login{
