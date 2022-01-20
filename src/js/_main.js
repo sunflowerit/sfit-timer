@@ -101,6 +101,7 @@ sfitTimerApp.controller('mainController', [
         // Start timer
         $scope.startTimer1 = function (issue) {
             console.log(issue);
+            $scope.odoo_error = '';
             var now = moment();
             issue.currentRunning = 1;
             // Change icon to active
@@ -232,7 +233,11 @@ sfitTimerApp.controller('mainController', [
                             ).then(function (response) {
                                 console.log('response', response);
                                 deferred.resolve();
-                            }, deferred.reject);
+                            }).catch(function(res){
+                                console.log(res);
+                                $scope.odoo_error = res.title + '\n' +
+                                    res.message;
+                            });
                         }, deferred.reject);
                         return deferred;
                     }
