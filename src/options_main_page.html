@@ -10,7 +10,7 @@
 	<script type="text/javascript" src="/js/options_main_page.js"></script>
     <title>Timer Options</title>
 </head>
-<body style="min-width: 500px;">
+<body style="min-width: 500px; min-height: 500px;">
 	<div id="navigation">
         <h1>Timer Options</h1>
         <ul>
@@ -36,9 +36,17 @@
     <div id="options-box" 
     	class="box" 
     	ng-class="(options.active_page=='about') ? 'active_page' : 'inactive_page'">
-        <h1>About me</h1>
+        <h1>
+        	<div class="logo">
+        		<img src="/img/sunflower-logo.png">
+        	</div>
+        </h1>
+        
         <hr>
-        About this App
+        This is a Chrome fork of the original Sunflower Timer but modified
+        to meet firefox needs. This was last tested on Firefox's version 96.0.1
+        2022. For any queries contact <a href='https://www.sunflowerweb.nl'>Sunflower Website</a>
+        or <a href="mailto: info@sunflowerweb.nl">Send Email</a> or call <a href="tel:+31502112651"> +31502112651</a>
     </div>
 
     <div id="options-box" 

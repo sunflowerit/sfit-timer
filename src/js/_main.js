@@ -65,8 +65,8 @@ sfitTimerApp.controller('mainController', [
 
         storage.getItem("host_info", function (host_info_json) {
             var default_host_info = {
-                'host': 'https://helpdesk.therp.nl',
-                'database': 'odointprd10-helpdesk'
+                'host': 'https://sunflower.1systeem.nl',
+                'database': 'sunflowerdatabase'
             }
             if (!host_info_json) {
                 storage.setItem('host_info', JSON.stringify(host_info));
@@ -105,7 +105,7 @@ sfitTimerApp.controller('mainController', [
             var now = moment();
             issue.currentRunning = 1;
             // Change icon to active
-            chrome.runtime.sendMessage({TimerActive: true});
+            browser.runtime.sendMessage({TimerActive: true});
 
             // Start timer
             $scope.startTimeCount = now;
@@ -120,6 +120,7 @@ sfitTimerApp.controller('mainController', [
             $scope.current_date = timer_info;
             storage.setItem('start_date_time', JSON.stringify(timer_info));
             storage.setItem("active_timer_id", issue.id);
+            $('')
         };
 
         $scope.stopActiveTimer1 = function () {
@@ -133,7 +134,7 @@ sfitTimerApp.controller('mainController', [
             console.log('stopping time...');
 
             // Change icon to inactive
-            chrome.runtime.sendMessage({TimerActive: false});
+            browser.runtime.sendMessage({TimerActive: false});
 
             // Stop timer
             $scope.stopTimer();
@@ -283,6 +284,8 @@ sfitTimerApp.controller('mainController', [
                             "issue_id": issue.id,
                         }];
                         var kwargs = {};
+                        console.log("ARGS");
+                        console.log(args);
                         jsonRpc.call(
                             'hr.analytic.timesheet',
                             'create',

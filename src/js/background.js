@@ -8,14 +8,14 @@ var TogglButton = {
         } else {
             var imagePath = {'19': 'img/inactive_19.png', '38': 'img/inactive_19.png'};
         }
-        chrome.browserAction.setIcon({
+        browser.browserAction.setIcon({
 	      path: imagePath,
 	    });
 	    console.log("works");
     },
 };
 
-chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
+browser.runtime.onMessage.addListener(function (message, sender, sendResponse) {
     TogglButton.setBrowserAction(message.TimerActive);
 });
 

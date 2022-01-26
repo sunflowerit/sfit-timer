@@ -9,7 +9,7 @@ body {
   font-family: 'Open Sans', sans-serif;
   font-size: .7em;
   background: white;
-  max-height: 300px !important;
+  max-height: 700px !important;
 }
 #wrapper {
   width: 100%;
@@ -284,3 +284,7 @@ body {
   color: #ffffff; 
   text-align: center;
 }
+
+tr:hover {
+          background-color: #ffff99;
+        }
