@@ -198,7 +198,11 @@ sfitTimerApp.controller('mainController', [
                             ).then(function (response) {
                                 console.log('response', response);
                                 deferred.resolve();
-                            }, deferred.reject);
+                            }).catch(function(res){
+                                console.log(res);
+                                $scope.odoo_error = res.title + '\n' +
+                                    res.message;
+                            });
                         }, deferred.reject);
                         return deferred;
                     }
