@@ -285,6 +285,10 @@ body {
   text-align: center;
 }
 
-tr:hover {
+tbody tr:hover {
           background-color: #ffff99;
         }
+        
+.active-row {
+  background: #ffff99;
+}
