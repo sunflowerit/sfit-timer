@@ -134,7 +134,7 @@
                 </tr>
             </thead>
             <tbody>
-                <tr ng-repeat="issue in data.filtered_issues = (data.employee_issues | filter:searchIssue:strict| filter:{user_id: data.user_id} | filter:{stage_id: data.stage_id} | limitTo: limitTo.val | orderBy: 'currentRunning')">
+                <tr ng-class="data.active_timer_id == issue.id ? 'active-row': ''" ng-repeat="issue in data.filtered_issues = (data.employee_issues | filter:searchIssue:strict| filter:{user_id: data.user_id} | filter:{stage_id: data.stage_id} | limitTo: limitTo.val | orderBy: 'currentRunning')">
                     <td class="td-60 pd-7"
                         hm-read 
                         hmtext="{{issue.id}}-{{issue.name}}" 
