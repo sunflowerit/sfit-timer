@@ -65,8 +65,8 @@ sfitTimerApp.controller('mainController', [
 
         storage.getItem("host_info", function (host_info_json) {
             var default_host_info = {
-                'host': 'https://helpdesk.therp.nl',
-                'database': 'odointprd10-helpdesk'
+                'host': 'https://sunflower.1systeem.nl',
+                'database': 'sunflowerdatabase'
             }
             if (!host_info_json) {
                 storage.setItem('host_info', JSON.stringify(host_info));
