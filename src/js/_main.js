@@ -120,6 +120,14 @@ sfitTimerApp.controller('mainController', [
             $scope.current_date = timer_info;
             storage.setItem('start_date_time', JSON.stringify(timer_info));
             storage.setItem("active_timer_id", issue.id);
+            storage.getItem("active_timer_id", function (active_timer_id) {
+            if (active_timer_id) {
+                console.log("ACTIVE TIMER FOUND: "+ active_timer_id);
+                $scope.data.active_timer_id = active_timer_id;
+            } else {
+                console.log('NO ACTIVE TIMER');
+            }
+        });
         };
 
         $scope.stopActiveTimer1 = function () {
