@@ -1,21 +1,30 @@
-var online = "it is online";
-console.log(online);
-var TogglButton = {
-    setBrowserAction: function (timer) {
-        console.log(timer);
-        if (timer) {
-            var imagePath = {'19': 'img/icon_19.png', '38': 'img/icon_38.png'};
-        } else {
-            var imagePath = {'19': 'img/inactive_19.png', '38': 'img/inactive_19.png'};
-        }
-        browser.browserAction.setIcon({
-	      path: imagePath,
-	    });
-	    console.log("works");
-    },
-};
+var is_firefox = /firefox/i.test(navigator.userAgent);
+if (is_firefox) {
+    var online = "it is online";
+    console.log(online);
+    var TogglButton = {
+        setBrowserAction: function (timer) {
+            console.log(timer);
+            if (timer) {
+                var imagePath = {'19': 'img/icon_19.png', '38': 'img/icon_38.png'};
+            } else {
+                var imagePath = {'19': 'img/inactive_19.png', '38': 'img/inactive_19.png'};
+            }
+            browser.browserAction.setIcon({
+              path: imagePath,
+            });
+            console.log("works");
+        },
+    };
 
 browser.runtime.onMessage.addListener(function (message, sender, sendResponse) {
     TogglButton.setBrowserAction(message.TimerActive);
 });
+
+}
+
+else {
+    console.log("Best to use firefox rather than " + navigator.vendor);
+}
+
 

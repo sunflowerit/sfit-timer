@@ -2,9 +2,11 @@
 
 var storage = {};
 
-/* Chrome storage */
-if (typeof chrome !== 'undefined' && browser.storage && browser.storage.local) {
-    storage.isChromeStorage = true;
+var is_firefox = /firefox/i.test(navigator.userAgent);
+
+/* Firefox storage */
+if (is_firefox && browser.storage && browser.storage.local) {
+    storage.isFirefoxStorage = true;
 
     storage.getItem = function (key, callback) {
         browser.storage.local.get(key, function (obj) {

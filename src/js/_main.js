@@ -13,7 +13,6 @@ var sfitTimerApp = angular.module(
 sfitTimerApp.controller('mainController', [
     '$scope', '$cookies', '$http', '$window', '$timeout', '$rootScope', '$location', 'jsonRpc',
     function ($scope, $cookies, $http, $window, $timeout, $rootScope, $location, jsonRpc, data) {
-        console.log("called sasa!");
 
         $scope.limitRange = [
             {val:'5', opt: '5'},
@@ -57,7 +56,6 @@ sfitTimerApp.controller('mainController', [
         $scope.data.today = new Date();
 
         storage.getItem("active_timer_id", function (active_timer_id) {
-            console.log("called! now");
             if (active_timer_id) {
                 $scope.data.active_timer_id = active_timer_id;
             } else {
