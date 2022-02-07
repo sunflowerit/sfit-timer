@@ -13,13 +13,15 @@ var sfitTimerApp = angular.module(
 sfitTimerApp.controller('mainController', [
     '$scope', '$cookies', '$http', '$window', '$timeout', '$rootScope', '$location', 'jsonRpc',
     function ($scope, $cookies, $http, $window, $timeout, $rootScope, $location, jsonRpc, data) {
-
+        $scope.remote_info = '';
+        $('.remote-info').removeClass('alert alert-info');
         $scope.limitRange = [
             {val:'5', opt: '5'},
             {val:'10', opt: '10'},
             {val:'15', opt: '15'},
             {val:'', opt: 'All'},
         ];
+        $scope.remotes = [];
         $scope.$watch('allIssues', function () {
             if (!$scope.allIssues && $scope.data.user) {
                 $scope.data.user_id = $scope.data.user.id;
@@ -27,7 +29,11 @@ sfitTimerApp.controller('mainController', [
                 $scope.data.user_id = '';
             }
         });
-
+        $scope.displayPass = function (ev) {
+            console.log("clicked!");;
+            $('#unique-password').attr('type', $('#unique-password').is(
+                ':password') ? 'text' : 'password');
+        }
         $scope.timerRunning = true;
         $scope.startTimer = function (issue) {
             $scope.$broadcast('timer-resume');
@@ -80,10 +86,40 @@ sfitTimerApp.controller('mainController', [
             $scope.trySession();
         });
 
+        storage.getItem('remote_host_info', function(remotes) {
+            if (remotes && remotes.length) {
+                $scope.remotes_info = remotes;
+                var count = 0;
+                remotes.forEach(remote => {
+                remote = JSON.parse(remote);
+                    $scope.remotes.push({'id': count, 'label': remote.url});
+                    count++;
+                });
+            }
+        });
+
         $scope.trySession = function() {
             // Check if user is logged in and set user:
             jsonRpc.getSessionInfo().then(function (result) {
-                if (result.uid) {
+                if ($scope.data.useSelectionRemoteHost && $scope.remotes.length) {
+                    var remote_host = $("#remote-selection option:selected");
+                    var selected_host = {};
+                    // If remotes exists use its values
+                    if (remote_host.length && remote_host.val()) {
+                        selected_host = JSON.parse(
+                            $scope.remotes_info[remote_host.val()]);
+                    }
+                    storage.getItem(selected_host['database'], function (res){
+                        if (res) {
+                            var info = JSON.parse(res);
+                            $scope.set_current_user(info.uid);
+                            $scope.database = info.db;
+                            $scope.loginLoading = false;
+                        }
+
+                    })
+                }
+                else if (result.uid) {
                     $scope.set_current_user(result.uid);
                     $scope.database = result.db;
                     $scope.loginLoading = false;
@@ -105,7 +141,7 @@ sfitTimerApp.controller('mainController', [
             var now = moment();
             issue.currentRunning = 1;
             // Change icon to active
-            chrome.runtime.sendMessage({TimerActive: true});
+            browser.runtime.sendMessage({TimerActive: true});
 
             // Start timer
             $scope.startTimeCount = now;
@@ -141,7 +177,7 @@ sfitTimerApp.controller('mainController', [
             console.log('stopping time...');
 
             // Change icon to inactive
-            chrome.runtime.sendMessage({TimerActive: false});
+            browser.runtime.sendMessage({TimerActive: false});
 
             // Stop timer
             $scope.stopTimer();
@@ -243,8 +279,10 @@ sfitTimerApp.controller('mainController', [
                                 deferred.resolve();
                             }).catch(function(res){
                                 console.log(res);
-                                $scope.odoo_error = res.title + '\n' +
+                                var msg = res.title + '\n' +
                                     res.message;
+                                alert.show("ERROR: " + msg);
+                                $scope.odoo_error = "ERROR" + msg;
                             });
                         }, deferred.reject);
                         return deferred;
@@ -316,8 +354,31 @@ sfitTimerApp.controller('mainController', [
 
         // LOGIN
         $scope.login = function () {
-            jsonRpc.odoo_server = $scope.data.host;
-            $scope.database = $scope.data.database;
+            $('.remote-info').removeClass('alert alert-info');
+            var remote_host = $("#remote-selection option:selected");
+            var selected_host = {};
+            // If remotes exists use its values
+            if (remote_host.length && remote_host.val()) {
+                selected_host = JSON.parse(
+                    $scope.remotes_info[remote_host.val()]);
+            }
+            // else add or create remote host to storage
+            else {
+                selected_host = {
+                    'url': $scope.data.host,
+                    'database': $scope.data.database
+                };
+                if ('remotes_info' in $scope) {
+                    storage.setItem('remote_host_info', $scope.remote_info.push(
+                        JSON.stringify(selected_host)));
+                }
+                else {
+                    storage.setItem('remote_host_info', [JSON.stringify(selected_host)]);
+                }
+            }
+
+            jsonRpc.odoo_server = $scope.data.useSelectionRemoteHost ? selected_host.url : $scope.data.host;
+            $scope.database = $scope.data.useSelectionRemoteHost ? selected_host.database : $scope.data.database;
             $scope.loginLoading = true;
             if ($scope.data.useExistingSession) {
                 $scope.trySession();
@@ -325,14 +386,15 @@ sfitTimerApp.controller('mainController', [
             else if (!$scope.data.username || !$scope.data.password) {
                 $scope.loginLoading = false; 
                 $scope.loginError = 'Username or Password is missing';
+                alert.show("Username or Password is missing");
             }
             else {
                 jsonRpc
-                    .login($scope.data.database, $scope.data.username, $scope.data.password)
+                    .login($scope.database, $scope.data.username, $scope.data.password)
                     .then(function (response) {
                         var host_info = {
                             'host': $scope.data.host,
-                            'database': $scope.data.database,
+                            'database': $scope.database,
                         };
                         storage.setItem('host_info', JSON.stringify(host_info));
                         $scope.set_current_user(response.uid);

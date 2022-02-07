@@ -35,7 +35,7 @@ angular.module('odoo').provider('jsonRpc', function jsonRpcProvider() {
 
 			return odooRpc.sendRequest('/web/session/authenticate', params).then(function(result) {
 				if (!result.uid) {
-					cookies.delete_sessionId();
+					cookies.delete_sessionID();
 					return $q.reject({ 
 						title: 'wrong_login',
 						message:"Username and password don't match",
@@ -43,7 +43,7 @@ angular.module('odoo').provider('jsonRpc', function jsonRpcProvider() {
 					});
 				}
 				odooRpc.context = result.user_context;
-				cookies.set_sessionId(result.session_id);
+				cookies.set_sessionId(result.session_id, result);
 				return result;
 			});
 		};
@@ -62,7 +62,7 @@ angular.module('odoo').provider('jsonRpc', function jsonRpcProvider() {
 				return cookies.get_sessionId().length > 0;
 
 			return odooRpc.getSessionInfo().then(function (result) {
-				cookies.set_sessionId(result.session_id);
+				cookies.set_sessionId(result.session_id, result);
 				return !!(result.uid); 
 			});
 		};
@@ -74,7 +74,7 @@ angular.module('odoo').provider('jsonRpc', function jsonRpcProvider() {
 		* @return null || promise 
 		*/
 		odooRpc.logout = function (force) {
-			cookies.delete_sessionId();
+			cookies.delete_sessionID();
 			if (force)
 				return odooRpc.getSessionInfo().then(function (r) { //get db from sessionInfo
 					if (r.db)
@@ -296,7 +296,7 @@ angular.module('odoo').provider('jsonRpc', function jsonRpcProvider() {
 							(error.code === 300 && error.message === "OpenERP WebClient Error" && error.data.debug.match("SessionExpiredException")) //v7
 						) {
 							errorObj.title ='session_expired';
-							cookies.delete_sessionId();
+							cookies.delete_sessionID();
 				} else if ( (error.message === "Odoo Server Error" && /FATAL:  database "(.+)" does not exist/.test(error.data.message))) {
 					errorObj.title = "database_not_found";
 					errorObj.message = error.data.message;
@@ -387,7 +387,23 @@ angular.module('odoo').provider('jsonRpc', function jsonRpcProvider() {
 	var cookies = (function() {
 		var session_id; //cookies doesn't work with Android Default Browser / Ionic
 		return {
-			delete_sessionId: function() {
+			delete_session: function($scope=false) {
+				if ($scope) {
+					$scope.remotes_info.forEach((x) => {
+						var remote = JSON.parse(x);
+						storage.getItem(remote.database, function (res){
+							if (res.session_id === session_id) {
+								storage.removeItem(remote.database);
+							}
+						})
+					});
+				}
+				else {
+					session_id = null;
+					document.cookie  = 'session_id=; expires=Thu, 01 Jan 1970 00:00:00 GMT';
+				}
+			},
+			delete_sessionID: function() {
 				session_id = null;
 				document.cookie  = 'session_id=; expires=Thu, 01 Jan 1970 00:00:00 GMT';
 			},
@@ -397,9 +413,9 @@ angular.module('odoo').provider('jsonRpc', function jsonRpcProvider() {
 				.map(function (x) { return x.split('=')[1]; })
 				.pop() || session_id || "";
 			},
-			set_sessionId: function (val) {
+			set_sessionId: function (val, result) {
 				document.cookie = 'session_id=' + val;
-				session_id = val;
+				storage.setItem(result.db, JSON.stringify(result));
 			}
 		};
 	}());

@@ -1,6 +1,6 @@
-SFIT Timer Chrome app is used to log hours and automatically write them to Odoo Timesheets.
+SFIT Timer is a cross-plaform browser extension app used to log work hours and automatically write them to Odoo Timesheets.
 
-It connects to SFIT odoo and displays issue list. From the list, one can start timer based on the issue,
+It connects to an odoo instance e.g SFIT odoo instance and displays issue list. From the list, one can start timer based on the issue,
 set start and end time of the issue and when stop button is clicked, a new timesheet line record is added to Odoo.
 
 Features:
@@ -12,14 +12,24 @@ Features:
 * Change issue state - eg. start or finish issue.
 * Support tasks instead of issues
 * Show own issues or all issues
+* Add a Remote host
 
-Installation
-------------
+Usage
+=============
+Pull latest from `git clone git@github.com:sunflowerit/sfit-timer.git` then manually
+load to your browser see below steps for Chrome and Firefox.
 
-1. `git clone git@github.com:sunflowerit/sfit-timer.git`
-2. Browse to [chrome://extensions/](chrome://extensions/)
-3. Select 'load unpacked' and point to the 'src' folder
-4. The app will now appear in the top-right of your Chrome browser
+chrome
+-------
+1. Browse to [chrome://extensions/](chrome://extensions/)
+2. Select 'load unpacked' and point to the 'src' folder.
+3. The app will now appear in the top-right of your Chrome browser.
+
+Firefox
+-------
+1. Browse to *about:debugging#/runtime/this-firefox*
+2. Select *Load Temporary Add-on..* and point to the *repo -> src -> manifest.json* file
+3. The app will now appear in the top-right of your Firefox browser
 
 Configuration
 -------------
@@ -28,7 +38,7 @@ Configuration
 * Uncheck the 'Use Default Host' box at the buttom, and use the correct URL and database name.
 * For Username and Password, use your regular SFIT Odoo login info.
 
-![Logging in to SFIT timer app](img/login.png "Login")
+![Logging in to SFIT timer app](src/img/login.png "Login")
 
 Usage
 -----
@@ -39,7 +49,7 @@ Usage
 * Tick 'all' to have other people's issue show up in this list as well; useful for multidev tasks!
 * Under 'options' there's a switch to write time on ''tasks'' instead of ''issues'', we'll be using this in the future :)
 
-![List of issues](img/issues.png "Issue list")
+![List of issues](src/img/issues.png "Issue list")
 
 Update
 ------
