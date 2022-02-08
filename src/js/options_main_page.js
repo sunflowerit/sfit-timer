@@ -1,6 +1,10 @@
 var sfitTimerAppOptions = angular.module(
     'sfitTimerAppOptions',
-    []
+    [
+        'odoo',
+        'ngCookies',
+        'ngSanitize',
+    ]
 );
 
 function validURL(str) {
@@ -14,25 +18,15 @@ function validURL(str) {
 }
 
 
-sfitTimerAppOptions.controller('mainController', ['$scope', '$http', '$timeout', function ($scope, $http, $timeout, data) {
+sfitTimerAppOptions.controller('mainController', [
+    '$scope', '$cookies', '$http', '$window', '$timeout', '$rootScope', '$location', 'jsonRpc',
+    function ($scope, $cookies, $http, $window, $timeout, $rootScope, $location, jsonRpc, data) {
     $scope.options = {};
     $scope.options.active_page = 'options';
-    $scope.options.dataSource = 'project.issue';
-    storage.getItem("dataSource", function (source) {
-        if (source) {
-            $scope.options.dataSource = source;
-        }
-    });
-    $timeout(function () {
-        $scope.options.dataSource = $scope.options.dataSource;
-    }, 0);
 
     $scope.goToPage = function (page) {
         $scope.options.active_page = page;
     }
-    $scope.$watch('options.dataSource', function (value) {
-        storage.setItem("dataSource", value);
-    });
 
     $scope.add_remote_host = function () {
         $scope.remote_error = "";
@@ -43,6 +37,8 @@ sfitTimerAppOptions.controller('mainController', ['$scope', '$http', '$timeout',
                 var remote_host = {
                     'url': $scope.data.remote_host,
                     'database': $scope.data.remote_database,
+                    'datasrc': $scope.data.remote_datasrc,
+                    'state': 'Inactive'
                 }
                 // Check if url is valid for storage.
                 if (validURL($scope.data.remote_host)) {
@@ -98,8 +94,38 @@ sfitTimerAppOptions.controller('mainController', ['$scope', '$http', '$timeout',
         return false;
     }
 
+    // Remove hosts and any sessions stored
     $scope.remove_remotes_hosts = function () {
+        storage.getItem('current_host', function (host) {
+            jsonRpc.odoo_server = host || 'https://sunflower.1systeem.nl';
+            // Clear the default odoo sessions store in browser
+            // NB: Odoo v8 doesn't give the url
+            jsonRpc.getSessionInfo().then(async function (result) {
+                if (result.session_id) {
+                    var url = result['web.base.url'] || 'https://sunflower.1systeem.nl'
+                    var cookies = await browser.cookies.getAll(
+                        {'name': 'session_id', 'url': url});
+                    cookies.forEach(async (cookie)=>{
+                        var res = await browser.cookies.remove({
+                            'name': cookie.name,
+                            'storeId': cookie.storeId,
+                            'url': url || 'https://' + cookie.domain
+                        });
+                        console.log(res);
+                    });
+                }
+            });
+        })
+        storage.getItem("remote_host_info", function (remotes) {
+            if (remotes) {
+                for (let remote of remotes) {
+                    remote = JSON.parse(remote);
+                    storage.removeItem(remote['database']);
+                }
+            }
+        });
         storage.removeItem('remote_host_info');
+        document.cookie  = 'session_id=; expires=Thu, 01 Jan 1970 00:00:00 GMT';
         alert.show("Host list removed successfully!");
     }
 }]);
