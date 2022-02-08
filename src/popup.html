@@ -43,18 +43,17 @@
         <div ng-show="odoo_error">
             <p class="odooError">{{odoo_error}}</p>
         </div>
-        <form>
+        <!-- If no remotes configures show -->
+        <div class="container no-remotes-set" ng-show="!remotes.length">
+            <div class="alert alert-warning">
+                Hello <span class="fun-man">&#128521;</span>, you
+                have not configured any
+                remotes, please click on <b><i class="fa fa-cogs fa-spin"></i>
+                options</b> below and configure remotes to login using them.
+            </div>
+        </div>
+        <form ng-show="remotes.length">
             <p class="odooError">{{loginError}}</p>
-            <input
-                    ng-show="!data.useDefaultHost && !data.useSelectionRemoteHost"
-                    type="text"
-                    ng-model="data.host"
-                    placeholder="Host"/>
-            <input
-                    ng-show="!data.useDefaultHost && !data.useSelectionRemoteHost"
-                    type="text"
-                    ng-model="data.database"
-                    placeholder="Database"/>
             <input ng-show="!data.useExistingSession"
                    type="text"
                    ng-model="data.username"
@@ -69,7 +68,7 @@
                 <i class="fa fa-eye" aria-hidden="true"></i>
             </span>
             <select id="remote-selection"
-                    ng-show="remotes.length && data.useSelectionRemoteHost"
+                    ng-show="remotes.length"
                     data-toggle="tooltip"
                     data-placement="bottom"
                     title="Select a remote host via the URLs"
@@ -82,31 +81,11 @@
             <div class="checkbox" ng-show="remotes.length">
                 <label>
                     <input type="checkbox"
-                           name="useSelectionRemoteHost"
-                           ng-model="data.useSelectionRemoteHost"
-                           ng-init="data.useSelectionRemoteHost=false"
-                           class="defaultCheckbox"/>
-                    Use Remote Host
-                </label>
-            </div>
-            <div class="checkbox">
-                <label>
-                    <input type="checkbox"
-                           name="useDefaultHost"
-                           ng-model="data.useDefaultHost"
-                           ng-init="data.useDefaultHost=true"
-                           class="defaultCheckbox"/>
-                    Use Default Host
-                </label>
-            </div>
-            <div class="checkbox">
-                <label>
-                    <input type="checkbox"
                            name="useExistingSession"
                            ng-model="data.useExistingSession"
                            ng-init="data.useExistingSession=false"
                            class="defaultCheckbox"/>
-                    Use Existing Sessions
+                    Use Existing Session
                 </label>
             </div>
             <button class="login" ng-click="login()">
@@ -115,10 +94,14 @@
             <div class="remote-info">{{remote_info}}</div>
         </form>
     </div>
-    <div class="cta forgotpwd"><a>Forgot your password?</a></div>
+    <div class="cta forgotpwd footer-app">
+        <a href="options_main_page.html">
+            <i class="fa fa-cogs fa-spin" aria-hidden="true"></i> Options
+        </a>
+    </div>
 </div>
-<!-- End Login Form-->
-<div id="wrapper" class="hide" ng-show="data.user">
+<!-- Issue Table -->
+<div id="wrapper" class="hide" ng-show="data.user && remotes.length">
     <div>
         <input ng-model="searchIssue.$"
                type="text"
@@ -200,23 +183,38 @@
         </tr>
         </tbody>
     </table>
-    <!--<button class="btn btn-success" style="float: right;">Refresh</button>-->
     <div class="footer">
         <div class="row">
-            <div class="col-sm-6">
-                <small><b>Data loaded from:</b> {{data.dataSource}}</small><br/>
-                <a class="footer-app" href="options_main_page.html">
-                    <i class="fa fa-cog" aria-hidden="true"></i> Options
-                </a>
+            <hr/>
+            <div class="remote-info-block col-md-4"
+                 ng-repeat="info in remote_instance_info">
+                <span><b>Odoo: </b> {{info.odoo_version}}</span><br/>
+                <span><b>Host:</b> {{info.host}}</span><br/>
+                <span><b>Database:</b> {{info.db}}</span><br/>
+                <span><b>Current User:</b> {{info.current_user}}</span><br/>
             </div>
-            <div class="col-sm-6">
-                <i class="fa fa-refresh fa-2x right pointer action-btn"
+            <hr/>
+            <div class="col-md-8 left pointer">
+                <i class="fa fa-refresh fa-2x" data-toggle="tooltip"
+                   data-placement="top" title="Refresh employee issues"
                    ng-click="load_employee_issues()"></i>
-                <i class="fa fa-sign-out fa-2x right pointer"
+                <i class="fa fa-sign-out fa-2x"
+                   data-toggle="tooltip" data-placement="top"
+                   title="Log out"
                    ng-click="logout()"></i>
+                <i class="fa fa-trash-o fa-2x"
+                   data-toggle="tooltip" data-placement="top"
+                   title="Clear/Remove active session"
+                   ng-click="clearActiveSession()"></i>
+                <a href="options_main_page.html"
+                   data-toggle="tooltip" data-placement="top"
+                   title="Go To options">
+                    <i class="fa fa-cogs fa-2x"></i>
+                </a>
             </div>
         </div>
     </div>
 </div>
+<!-- End of Issue Table -->
 </body>
 </html>

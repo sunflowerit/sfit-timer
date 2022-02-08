@@ -7,8 +7,15 @@
     <script type="text/javascript" src="/js/lib/browser-polyfill.js"></script>
     <script type="text/javascript" src="/js/lib/jquery-2.0.3.min.js"></script>
     <script type="text/javascript" src="/js/lib/angular.min.js"></script>
+    <script type="text/javascript"
+            src="/js/lib/angular-animate.min.js"></script>
+    <script type="text/javascript"
+            src="/js/lib/angular-sanitize.min.js"></script>
+    <script type="text/javascript"
+            src="/js/lib/angular-cookies.min.js"></script>
     <script type="text/javascript" src="/js/lib/ripple.js"></script>
     <script type="text/javascript" src="/js/lib/alert.js"></script>
+    <script type="text/javascript" src="/js/lib/odoo.js"></script>
     <script type="text/javascript" src="/js/_localstorage.js"></script>
     <script type="text/javascript" src="/js/options_main_page.js"></script>
     <title>Timer Options</title>
@@ -54,10 +61,6 @@
         with the aim
         of registering working hours of individual issues based on Odoo
         timesheets.
-        For any queries contact <a href='https://www.sunflowerweb.nl'>Sunflower
-        Website</a> or <a href="mailto: info@sunflowerweb.nl">Send Email</a> or
-        call
-        <a href="tel:+31502112651"> +31502112651</a>
         <hr/>
         <h4 class="title-app text-center">Usage</h4>
         <hr/>
@@ -73,35 +76,6 @@
             </div>
         </div>
     </div>
-</div>
-<div class="options-box box"
-     ng-class="(options.active_page=='options') ? 'active_page' : 'inactive_page'">
-    <form>
-        <div class="title-app">Select Data Source</div>
-        <hr/>
-        <ul class="data-source-list list-group">
-            <li class="list-group-item">
-                <div class="form-check">
-                    <input class="form-check-input" type="radio"
-                           value="project.issue"
-                           ng-model="options.dataSource" id="FromIssues"/>
-                    <label class="form-check-label" for="FromIssues">
-                        From Issues
-                    </label>
-                </div>
-            </li>
-            <li class="list-group-item">
-                <div class="form-check">
-                    <input class="form-check-input" type="radio"
-                           value="project.task"
-                           ng-model="options.dataSource" id="FromTasks"/>
-                    <label class="form-check-label" for="FromTasks">
-                        From Tasks
-                    </label>
-                </div>
-            </li>
-        </ul>
-    </form>
 </div>
 <div class="options-box box"
      ng-class="(options.active_page=='options') ? 'active_page' : 'inactive_page'">
@@ -122,6 +96,33 @@
                 <input type="text" ng-model="data.remote_database"
                        class="form-control" id="remote-database"
                        placeholder="someodoodatabase">
+            </div>
+
+            <div class="form-group">
+                <label class="label">Data Source</label>
+                <ul class="data-source-list list-group">
+                    <li class="list-group-item">
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio"
+                                   value="project.issue"
+                                   ng-model="data.remote_datasrc"
+                                   id="FromIssues"/>
+                            <label class="form-check-label" for="FromIssues">
+                                From Issues
+                            </label>
+                        </div>
+                    </li>
+                    <li class="list-group-item">
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio"
+                                   value="project.task"
+                                   ng-model="data.remote_datasrc" id="FromTasks"/>
+                            <label class="form-check-label" for="FromTasks">
+                                From Tasks
+                            </label>
+                        </div>
+                    </li>
+                </ul>
             </div>
 
             <button ng-click="add_remote_host()" class="btn btn-info">Add

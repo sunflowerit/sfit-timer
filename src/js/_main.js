@@ -22,6 +22,8 @@ sfitTimerApp.controller('mainController', [
             {val:'', opt: 'All'},
         ];
         $scope.remotes = [];
+
+        // Assign all issues
         $scope.$watch('allIssues', function () {
             if (!$scope.allIssues && $scope.data.user) {
                 $scope.data.user_id = $scope.data.user.id;
@@ -29,11 +31,16 @@ sfitTimerApp.controller('mainController', [
                 $scope.data.user_id = '';
             }
         });
+
+        // Toggle password view
         $scope.displayPass = function (ev) {
             console.log("clicked!");;
             $('#unique-password').attr('type', $('#unique-password').is(
                 ':password') ? 'text' : 'password');
         }
+
+        // Times Start/Stop callbacks
+        //---------------------------------------------------------
         $scope.timerRunning = true;
         $scope.startTimer = function (issue) {
             $scope.$broadcast('timer-resume');
@@ -46,6 +53,7 @@ sfitTimerApp.controller('mainController', [
         $scope.$on('timer-stopped', function (event, data) {
             console.log('Timer Stopped - data = ', data);
         });
+        //---------------------------------------------------------
 
         //-----------------------------------
         /* MAIN CODE */
@@ -61,6 +69,7 @@ sfitTimerApp.controller('mainController', [
         $scope.data = {};
         $scope.data.today = new Date();
 
+        // Assign an active timer
         storage.getItem("active_timer_id", function (active_timer_id) {
             if (active_timer_id) {
                 $scope.data.active_timer_id = active_timer_id;
@@ -69,23 +78,26 @@ sfitTimerApp.controller('mainController', [
             }
         });
 
-        storage.getItem("host_info", function (host_info_json) {
-            var default_host_info = {
-                'host': 'https://sunflower.1systeem.nl',
-                'database': 'sunflowerdatabase'
+        // default data source
+        $scope.data.dataSource = 'project.issue';
+
+        // Set current data src already configured
+        storage.getItem('current_host_datasrc', function(src) {
+            if (src && src.length) {
+                $scope.data.dataSource = src;
             }
-            if (!host_info_json) {
-                storage.setItem('host_info', JSON.stringify(host_info));
-                host_info = default_host_info;
-            } else {
-                var host_info = JSON.parse(host_info_json);
+        });
+
+
+        // Assign remotes already configured
+        storage.getItem('current_host', function(host) {
+            if (host && host.length) {
+                jsonRpc.odoo_server = host;
             }
-            $scope.data.host = host_info.host;
-            $scope.data.database = host_info.database;
-            jsonRpc.odoo_server = $scope.data.host;
             $scope.trySession();
         });
 
+        // Assign remotes already configured
         storage.getItem('remote_host_info', function(remotes) {
             if (remotes && remotes.length) {
                 $scope.remotes_info = remotes;
@@ -98,37 +110,72 @@ sfitTimerApp.controller('mainController', [
             }
         });
 
+        //Odoo version info
+        $scope.remote_version = function () {
+            jsonRpc.getServerInfo().then(function(result){
+                storage.setItem('server_version_info', JSON.stringify(result));
+                $scope.server_version = result['server_version'];
+            }).catch((error)=>{console.log(error)});
+        }
+
+        // Get session based on configured remotes and login using it
         $scope.trySession = function() {
             // Check if user is logged in and set user:
             jsonRpc.getSessionInfo().then(function (result) {
-                if ($scope.data.useSelectionRemoteHost && $scope.remotes.length) {
+                $scope.remote_version();
+                if ($scope.remotes.length && $scope.data.useExistingSession) {
                     var remote_host = $("#remote-selection option:selected");
                     var selected_host = {};
-                    // If remotes exists use its values
+                    // If remotes exists and has been selected use its value
                     if (remote_host.length && remote_host.val()) {
                         selected_host = JSON.parse(
                             $scope.remotes_info[remote_host.val()]);
-                    }
-                    storage.getItem(selected_host['database'], function (res){
-                        if (res) {
-                            var info = JSON.parse(res);
-                            $scope.set_current_user(info.uid);
-                            $scope.database = info.db;
-                            $scope.loginLoading = false;
-                        }
+                        storage.getItem(selected_host['database'], function (res) {
+                            if (res) {
+                                var info = JSON.parse(res);
+                                $scope.set_current_user(info);
+                                $scope.current_active_session = info.session_id;
+                                $scope.database = info.db;
+                                $scope.data.dataSource = selected_host['datasrc'];
+                                storage.setItem(
+                                    'current_host', selected_host['url']);
+                                storage.setItem(
+                                    'current_host_db', selected_host['database']);
+                                storage.setItem(
+                                    'current_host_datasrc', selected_host['datasrc']);
+                                storage.setItem(
+                                    'current_host_state', 'Active');
+                                jsonRpc.odoo_server = selected_host['url'];
+                                $scope.loginLoading = false;
+                            }
 
-                    })
+                        });
+                    }
+                    else {
+                        alert.show("Select a remote and try to login");
+                    }
                 }
                 else if (result.uid) {
-                    $scope.set_current_user(result.uid);
+                    $scope.set_current_user(result);
+                    $scope.current_active_session = result.session_id;
+                    var remotes = $scope.remotes_info.map((x)=> JSON.parse(x));
+                    var host = remotes.find((x) => x.database === result.db);
                     $scope.database = result.db;
+                    $scope.current_host = host.url || result['web.base.url'];
+                    $scope.current_database = host.database || result.db;
+                    $scope.data.dataSource = host.datasrc;
                     $scope.loginLoading = false;
-                } else {
-                    $scope.loginError = 'Automatic login failed';
+                }
+                else {
+                    alert.show('Automatic login failed, no active' +
+                        ' session found and no remote configured. Go to' +
+                        ' "Options" below and configure a remote to login');
                     $scope.to_login();
                 }
-            }, function() {
-                $scope.loginError = 'Automatic login failed';
+            }).catch(function(error) {
+                console.log("ERROR: " + JSON.stringify(error));
+                alert.show('Automatic login failed, no active' +
+                    ' session found\n\n');
                 $scope.to_login();
             });
         };
@@ -362,23 +409,20 @@ sfitTimerApp.controller('mainController', [
                 selected_host = JSON.parse(
                     $scope.remotes_info[remote_host.val()]);
             }
-            // else add or create remote host to storage
+            // else add or create remote host to storage via Options link
             else {
-                selected_host = {
-                    'url': $scope.data.host,
-                    'database': $scope.data.database
-                };
-                if ('remotes_info' in $scope) {
-                    storage.setItem('remote_host_info', $scope.remote_info.push(
-                        JSON.stringify(selected_host)));
-                }
-                else {
-                    storage.setItem('remote_host_info', [JSON.stringify(selected_host)]);
-                }
+                alert.show("There is no remote configured, please Click" +
+                    " 'options' below the form and add a remote.");
             }
-
-            jsonRpc.odoo_server = $scope.data.useSelectionRemoteHost ? selected_host.url : $scope.data.host;
-            $scope.database = $scope.data.useSelectionRemoteHost ? selected_host.database : $scope.data.database;
+            jsonRpc.odoo_server = selected_host.url;
+            storage.setItem(
+                'current_host', selected_host['url']);
+            storage.setItem(
+                'current_host_db', selected_host['database']);
+            $scope.database = selected_host.database;
+            $scope.current_host = selected_host['url'];
+            $scope.current_database = selected_host.database;
+            $scope.data.dataSource = selected_host['datasrc'];
             $scope.loginLoading = true;
             if ($scope.data.useExistingSession) {
                 $scope.trySession();
@@ -397,7 +441,11 @@ sfitTimerApp.controller('mainController', [
                             'database': $scope.database,
                         };
                         storage.setItem('host_info', JSON.stringify(host_info));
-                        $scope.set_current_user(response.uid);
+                        console.log("RESPONSE: " + JSON.stringify(response));
+                        $scope.set_current_user(response);
+                        $scope.current_active_session = response.session_id;
+                        storage.setItem(
+                            'current_host_state', 'Active');
                         $scope.loginLoading = false;
                     }, function (response) {
                         $scope.loginLoading = false;
@@ -405,6 +453,18 @@ sfitTimerApp.controller('mainController', [
                     });
             }
         };
+
+        $scope.getRemoteInfo = function () {
+            var total = $scope.data.employee_issues ? $scope.data.employee_issues.length : 0;
+            $scope.remote_instance_info = [{
+                'current_user': $scope.data.user.display_name,
+                'odoo_version': $scope.server_version,
+                'host': $scope.current_host,
+                'db': $scope.current_database,
+                'datasrc': $scope.data.dataSource
+            }];
+            console.log($scope.remote_instance_info);
+        }
 
         $scope.to_main = function () {
             $("#wrapper").removeClass("hide");
@@ -424,10 +484,13 @@ sfitTimerApp.controller('mainController', [
             $cookies.remove('session_id');
             $scope.data.user = null;
             $scope.to_login();
+            storage.setItem(
+                'current_host_state', 'Inactive');
             console.log('logged out');
         };
 
-        $scope.set_current_user = function (id) {
+        $scope.set_current_user = function (res) {
+            var id = res.uid;
             $scope.data.user = false;
             $scope.model = 'res.users';
             $scope.domain = [['id', '=', id]];
@@ -440,6 +503,8 @@ sfitTimerApp.controller('mainController', [
                 storage.getItem("users_issues", function (issues) {
                     if (issues) {
                         $scope.data.employee_issues = JSON.parse(issues);
+                        storage.setItem(res.session_id,
+                            $scope.data.employee_issues)
                         $scope.to_main();
                         console.log('loaded existing issues');
                     }
@@ -455,16 +520,11 @@ sfitTimerApp.controller('mainController', [
                         $scope.to_main();
                         console.log('no issues found');
                     });
+                    $scope.getRemoteInfo();
                 });
+                $scope.getCurrentIssueList();
             });
         };
-
-        $scope.data.dataSource = 'project.issue';
-        storage.getItem("dataSource", function (source) {
-            if (source) {
-                $scope.data.dataSource = source;
-            }
-        });
 
         function search_employee_issues () {
             var model = $scope.data.dataSource;
@@ -517,6 +577,33 @@ sfitTimerApp.controller('mainController', [
             $scope.data.projects = [];
             angular.forEach(response.records, function (project) {
                 $scope.data.projects.push(project);
+            });
+        }
+
+        $scope.getCurrentIssueList = function () {
+            storage.getItem($scope.current_active_session, function(issues){
+                $scope.data.employee_issues = issues;
+            });
+        }
+
+        $scope.clearActiveSession = function () {
+            // Clear the default odoo sessions store in browser
+            // NB: Odoo v8 doesn't give the url
+            jsonRpc.getSessionInfo().then(async function (result) {
+                if (result.session_id) {
+                    var url = result['web.base.url'] || 'https://sunflower.1systeem.nl'
+                    var cookies = await browser.cookies.getAll(
+                        {'name': 'session_id', 'url': url});
+                    cookies.forEach(async (cookie)=>{
+                        var res = await browser.cookies.remove({
+                            'name': cookie.name,
+                            'storeId': cookie.storeId,
+                            'url': url || 'https://' + cookie.domain
+                        });
+                        console.log(res);
+                        $scope.to_login();
+                    });
+                }
             });
         }
 

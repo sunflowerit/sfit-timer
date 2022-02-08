@@ -415,6 +415,12 @@ angular.module('odoo').provider('jsonRpc', function jsonRpcProvider() {
 			},
 			set_sessionId: function (val, result) {
 				document.cookie = 'session_id=' + val;
+				// so we save multi sessions based on db name, however its best
+				// to be saved based on host since host urls are usually
+				// unique but odoo v8 does not return the host url, so in
+				// case, the assumption is dbs have a unique name :(.
+				// TODO find a unique matcher or concept to use for storing
+				//  multiple session when setting sessions.
 				storage.setItem(result.db, JSON.stringify(result));
 			}
 		};
