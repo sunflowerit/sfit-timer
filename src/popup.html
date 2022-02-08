@@ -1,197 +1,220 @@
 <html ng-app="sfitTimerApp" ng-controller="mainController">
 <head>
     <title>SFIT Timer</title>
-    <link rel="stylesheet" type="text/css" href="/css/font-awesome-4.6.3/css/font-awesome.min.css">
-    <link rel="stylesheet" type="text/css" href="/css/bootstrap.min.css">
+    <link rel="stylesheet" type="text/css"
+          href="/css/lib/font-awesome-4.6.3/css/font-awesome.min.css">
+    <link rel="stylesheet" type="text/css" href="/css/lib/bootstrap.min.css">
     <link rel="stylesheet" type="text/css" href="/css/popup.css">
-    <script type="text/javascript" src="/lib/jquery-2.0.3.min.js"></script>
-    <script type="text/javascript" src="/lib/angular.min.js"></script>
-    <script type="text/javascript" src="/lib/angular-animate.min.js"></script>
-    <script type="text/javascript" src="/lib/angular-sanitize.min.js"></script>
-    <script type="text/javascript" src="/lib/angular-cookies.min.js"></script>
-    <script type="text/javascript" src="/lib/angular-timer.js"></script>
-    <script type="text/javascript" src="/lib/moment.min.js"></script>
-    <script type="text/javascript" src="/lib/humanize-duration.js"></script>
-    <script type="text/javascript" src="/lib/bootstrap.min.js"></script>
-    <script type="text/javascript" src="/lib/ui-bootstrap-tpls-1.3.3.min.js"></script>
-    <script type="text/javascript" src="/lib/odoo.js"></script>
+    <script type="text/javascript" src="/js/lib/browser-polyfill.js"></script>
+    <script type="text/javascript" src="/js/lib/jquery-2.0.3.min.js"></script>
+    <script type="text/javascript" src="/js/lib/angular.min.js"></script>
+    <script type="text/javascript"
+            src="/js/lib/angular-animate.min.js"></script>
+    <script type="text/javascript"
+            src="/js/lib/angular-sanitize.min.js"></script>
+    <script type="text/javascript"
+            src="/js/lib/angular-cookies.min.js"></script>
+    <script type="text/javascript" src="/js/lib/angular-timer.js"></script>
+    <script type="text/javascript" src="/js/lib/moment.min.js"></script>
+    <script type="text/javascript" src="/js/lib/humanize-duration.js"></script>
+    <script type="text/javascript" src="/js/lib/bootstrap.min.js"></script>
+    <script type="text/javascript"
+            src="/js/lib/ui-bootstrap-tpls-1.3.3.min.js"></script>
+    <script type="text/javascript" src="/js/lib/odoo.js"></script>
+    <script type="text/javascript" src="/js/lib/ripple.js"></script>
+    <script type="text/javascript" src="/js/lib/alert.js"></script>
     <script type="text/javascript" src="/js/_localstorage.js"></script>
     <script type="text/javascript" src="/js/_main.js"></script>
-    <script type="text/javascript" src="/js/_sfit-readmore-directive.js"></script>
+    <script type="text/javascript"
+            src="/js/_sfit-readmore-directive.js"></script>
 </head>
 <body class="unselectable">
-
-    <!-- Animated Loader runs as app connects to odoo (2 seconds) -->
-    <div id="loader-container">
-        <i class="fa fa-cog fa-spin fa-5x"></i>
-    </div>
-
-    <!-- Login Form - Shown when there is no active odoo session-->
-    <div id="login" class="module form-module hide" ng-show="!data.user">
-        <div class="toggle"><i class="fa fa-times fa-pencil"></i></div>
-        <div class="form">
-            <div class="logo">
-                <img src="/img/logo.png">
-            </div>
-            <div ng-show="odoo_error">
-                <p class="odooError">{{odoo_error}}</p>
-            </div>
-            <form>
-                <p class="odooError">{{loginError}}</p>
-                <input 
-                    ng-show="!data.useDefaultHost"
-                    type="text"
-                    ng-model="data.host"
-                    placeholder="Host"/>
-                <input 
-                    ng-show="!data.useDefaultHost"
-                    type="text"
-                    ng-model="data.database"
-                    placeholder="Database"/>
-                <input 
-                    ng-show="!data.useExistingSession"
-                    type="text"
-                    ng-model="data.username"
-                    placeholder="Username"/>
-                <input 
-                    ng-show="!data.useExistingSession"
-                    type="password"
-                    ng-model="data.password"
-                    placeholder="Password"/>
-                <div class="checkbox">
-                    <label>
-                        <input
-                            type="checkbox"
-                            name="useDefaultHost"
-                            ng-model="data.useDefaultHost"
-                            ng-init="data.useDefaultHost=true"
-                            class="defaultCheckbox"/>
-                            Use Default Host
-                    </label>
-                </div>
-                <div class="checkbox">
-                    <label>
-                        <input 
-                            type="checkbox"
-                            name="useExistingSession"
-                            ng-model="data.useExistingSession"
-                            ng-init="data.useExistingSession=false"
-                            class="defaultCheckbox"/>
-                            Try to use existing session
-                    </label>
-                </div>
-                <button class="login" ng-click="login()">
-                    Login <i ng-show="loginLoading" class="fa fa-cog fa-spin"></i>
-                </button>           
-            </form>
+<!-- Animated Loader runs as app connects to odoo (2 seconds) -->
+<div id="loader-container">
+    <i class="fa fa-cog fa-spin fa-5x"></i>
+</div>
+<!-- Login Form - Shown when there is no active odoo session-->
+<div id="login" class="module form-module hide" ng-show="!data.user">
+    <div class="toggle"><i class="fa fa-times fa-pencil"></i></div>
+    <div class="form">
+        <div class="logo">
+            <img src="/img/logo.png">
         </div>
-        <div class="cta forgotpwd"><a>Forgot your password?</a></div>
-    </div>
-    <!-- End Login Form-->
-
-    <div id="wrapper" class="hide" ng-show="data.user">
-    <div>
-      <input 
-        ng-model="searchIssue.$"
-        type="text" 
-        id="searchIssue" 
-        placeholder="Search for Issue by ID, Name, Stage..." 
-        title="Type in an issue name">
-        <select 
-            id="limitTo"
-            ng-model="limitTo" 
-            ng-options="l.opt for l in limitRange" 
-            ng-init="limitTo=limitRange[1]">
-        </select>
-    </div>
-        <div>
+        <div ng-show="odoo_error">
             <p class="odooError">{{odoo_error}}</p>
         </div>
-        <table class="table table-bordered">
-            <thead>
-                <tr>
-                    <th>Issues [{{data.filtered_issues.length}}]
-                        <span class="allIssues"> 
-                            <input 
-                                type="checkbox" 
-                                ng-model="allIssues">
-                                All
-                        </span> 
-                    </th>
-                    <th>Stage</th>
-                    <th>
-                        <timer 
-                            ng-if="startTimeCount" 
-                            start-time="startTimeCount" 
-                            class="startTimeCount">{{hhours}}:{{mminutes}}:{{sseconds}}
-                        </timer>
-                        <div class="bigstopbutton" 
-                            ng-show="current_date" 
-                            ng-click="stopActiveTimer1()">
-                            <i class="fa fa-square" aria-hidden="true"></i>
-                        </div>
-                    </th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr ng-class="data.active_timer_id == issue.id ? 'active-row': ''" ng-repeat="issue in data.filtered_issues = (data.employee_issues | filter:searchIssue:strict| filter:{user_id: data.user_id} | filter:{stage_id: data.stage_id} | limitTo: limitTo.val | orderBy: 'currentRunning')">
-                    <td class="td-60 pd-7"
-                        hm-read 
-                        hmtext="{{issue.id}}-{{issue.name}}" 
-                        hmrecord="{{issue.id}}"
-                        hmhost="{{data.host}}"
-                hmsource="{{data.dataSource}}"
-                        hmlimit="33"
-                        hmMoreClass="hmMoreClass" 
-                        hmLessClass="hmMoreClass"
-                        hm-more-text="..." 
-                        hm-less-text="<i class='fa fa-caret-up'></i>">  
-                        
-                    </td>
-                    <td class="td-25 pd-7"
-                        hm-read 
-                        hmtext="{{issue.stage_id[1]}}" 
-                        hmlimit="9"
-                        hmMoreClass="hmMoreClass" 
-                        hmLessClass="hmMoreClass"
-                        hm-more-text="..." 
-                        hm-less-text="<i class='fa fa-caret-up'></i>">  
-                    </td>
-                    <td class="td-15 pd-7 text-center td-btn">
-                        <i 
-                            ng-show="!current_date" 
-                            class="fa fa-play-circle action-btn pointer" 
-                            ng-click="startTimer1(issue)"></i>
-                        <i 
-                            ng-show="current_date && current_date.issue_id == issue.id"
-                            class="fa fa-stop-circle action-btn pointer" 
-                            ng-click="stopTimer1(issue.id)"></i>
-                    </td>
-                </tr> 
-                <tr ng-if="!data.filtered_issues.length">
-                    <td>No Issues Available</td>
-                    <td/>
-                    <td/>
-                </tr>
-            </tbody>
-        </table>
-        <!--<button class="btn btn-success" style="float: right;">Refresh</button>-->
-        <div class="footer">
-            <div class="row">
-                <div class="col-sm-6">
-                    <small><b>Data loaded from:</b> {{data.dataSource}}</small><br/>
-                    <a href="options_main_page.html">
-                        <i class="fa fa-cog" aria-hidden="true"></i> Options 
-                    </a>
-                </div>
-                <div class="col-sm-6">
-                    <i class="fa fa-refresh fa-2x right pointer action-btn"
-                       ng-click="load_employee_issues()"></i>
-                    <i class="fa fa-sign-out fa-2x right pointer" 
-                        ng-click="logout()"></i>
-                </div>
+        <!-- If no remotes configures show -->
+        <div class="container no-remotes-set" ng-show="!remotes.length">
+            <div class="alert alert-warning">
+                Hello <span class="fun-man">&#128521;</span>, you
+                have not configured any
+                remotes, please click on <b><i class="fa fa-cogs fa-spin"></i>
+                options</b> below and configure remotes to login using them.
             </div>
         </div>
-    </div> 
+        <form ng-show="remotes.length">
+            <p class="odooError">{{loginError}}</p>
+            <input ng-show="!data.useExistingSession"
+                   type="text"
+                   ng-model="data.username"
+                   placeholder="Username"/>
+            <input ng-show="!data.useExistingSession"
+                   type="password"
+                   ng-model="data.password"
+                   id="unique-password"
+                   placeholder="Password"/>
+            <span ng-show="!data.useExistingSession" ng-click="displayPass()"
+                  class="pass-viewer">
+                <i class="fa fa-eye" aria-hidden="true"></i>
+            </span>
+            <select id="remote-selection"
+                    ng-show="remotes.length"
+                    data-toggle="tooltip"
+                    data-placement="bottom"
+                    title="Select a remote host via the URLs"
+                    placeholder="select remote"
+                    class="form-control">
+                <option ng-repeat="remote in remotes"
+                        ng-value="remote.id">{{remote.label}}
+                </option>
+            </select>
+            <div class="checkbox" ng-show="remotes.length">
+                <label>
+                    <input type="checkbox"
+                           name="useExistingSession"
+                           ng-model="data.useExistingSession"
+                           ng-init="data.useExistingSession=false"
+                           class="defaultCheckbox"/>
+                    Use Existing Session
+                </label>
+            </div>
+            <button class="login" ng-click="login()">
+                Login <i ng-show="loginLoading" class="fa fa-cog fa-spin"></i>
+            </button>
+            <div class="remote-info">{{remote_info}}</div>
+        </form>
+    </div>
+    <div class="cta forgotpwd footer-app">
+        <a href="options_main_page.html">
+            <i class="fa fa-cogs fa-spin" aria-hidden="true"></i> Options
+        </a>
+    </div>
+</div>
+<!-- Issue Table -->
+<div id="wrapper" class="hide" ng-show="data.user && remotes.length">
+    <div>
+        <input ng-model="searchIssue.$"
+               type="text"
+               id="searchIssue"
+               placeholder="Search for Issue by ID, Name, Stage..."
+               title="Type in an issue name">
+        <select id="limitTo"
+                ng-model="limitTo"
+                ng-options="l.opt for l in limitRange"
+                ng-init="limitTo=limitRange[1]">
+        </select>
+    </div>
+    <div>
+        <p class="odooError">{{odoo_error}}</p>
+    </div>
+    <table class="table table-bordered">
+        <thead>
+        <tr>
+            <th>Issues [{{data.filtered_issues.length}}]
+                <span class="allIssues">
+                    <input type="checkbox" ng-model="allIssues">
+                    All
+                </span>
+            </th>
+            <th>Stage</th>
+            <th>
+                <timer
+                        ng-if="startTimeCount"
+                        start-time="startTimeCount"
+                        class="startTimeCount">
+                    {{hhours}}:{{mminutes}}:{{sseconds}}
+                </timer>
+                <div class="bigstopbutton"
+                     ng-show="current_date"
+                     ng-click="stopActiveTimer1()">
+                    <i class="fa fa-square" aria-hidden="true"></i>
+                </div>
+            </th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr ng-class="data.active_timer_id == issue.id ? 'active-row': ''"
+            ng-repeat="issue in data.filtered_issues = (data.employee_issues | orderBy: issue.currentRunning | filter:searchIssue:strict| filter:{user_id: data.user_id} | filter:{stage_id: data.stage_id} | limitTo: limitTo.val)">
+            <td class="td-60 pd-7"
+                hm-read
+                hmtext="{{issue.id}}-{{issue.name}}"
+                hmrecord="{{issue.id}}"
+                hmhost="{{data.host}}"
+                hmsource="{{data.dataSource}}"
+                hmlimit="33"
+                hmMoreClass="hmMoreClass"
+                hmLessClass="hmMoreClass"
+                hm-more-text="..."
+                hm-less-text="<i class='fa fa-caret-up'></i>">
+
+            </td>
+            <td class="td-25 pd-7"
+                hm-read
+                hmtext="{{issue.stage_id[1]}}"
+                hmlimit="9"
+                hmMoreClass="hmMoreClass"
+                hmLessClass="hmMoreClass"
+                hm-more-text="..."
+                hm-less-text="<i class='fa fa-caret-up'></i>">
+            </td>
+            <td class="td-15 pd-7 text-center td-btn">
+                <i ng-show="!current_date"
+                   class="fa fa-play-circle action-btn pointer"
+                   ng-click="startTimer1(issue)"></i>
+                <i ng-show="current_date && current_date.issue_id == issue.id"
+                   class="fa fa-stop-circle action-btn pointer"
+                   ng-click="stopTimer1(issue.id)"></i>
+            </td>
+        </tr>
+        <tr ng-if="!data.filtered_issues.length">
+            <td>No Issues Available</td>
+            <td/>
+            <td/>
+        </tr>
+        </tbody>
+    </table>
+    <div class="footer">
+        <div class="row">
+            <hr/>
+            <div class="remote-info-block col-md-4"
+                 ng-repeat="info in remote_instance_info">
+                <span><b>Odoo: </b> {{info.odoo_version}}</span><br/>
+                <span><b>Host:</b> {{info.host}}</span><br/>
+                <span><b>Database:</b> {{info.db}}</span><br/>
+                <span><b>Current User:</b> {{info.current_user}}</span><br/>
+            </div>
+            <hr/>
+            <div class="col-md-8 left pointer">
+                <i class="fa fa-refresh fa-2x" data-toggle="tooltip"
+                   data-placement="top" title="Refresh employee issues"
+                   ng-click="load_employee_issues()"></i>
+                <i class="fa fa-sign-out fa-2x"
+                   data-toggle="tooltip" data-placement="top"
+                   title="Log out"
+                   ng-click="logout()"></i>
+                <i class="fa fa-trash-o fa-2x"
+                   data-toggle="tooltip" data-placement="top"
+                   title="Clear/Remove active session"
+                   ng-click="clearActiveSession()"></i>
+                <a href="options_main_page.html"
+                   data-toggle="tooltip" data-placement="top"
+                   title="Go To options">
+                    <i class="fa fa-cogs fa-2x"></i>
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- End of Issue Table -->
 </body>
 </html>

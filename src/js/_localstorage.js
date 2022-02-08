@@ -2,12 +2,10 @@
 
 var storage = {};
 
-/* Chrome storage */
-if (typeof chrome !== 'undefined' && chrome.storage && chrome.storage.local) {
-    storage.isChromeStorage = true;
-
+/* Using browser.polyfill lib */
+if (browser.storage && browser.storage.local) {
     storage.getItem = function (key, callback) {
-        chrome.storage.local.get(key, function (obj) {
+        browser.storage.local.get(key).then(function (obj) {
             if (obj.hasOwnProperty(key)) {
                 callback(obj[key]);
             } else {
@@ -19,15 +17,15 @@ if (typeof chrome !== 'undefined' && chrome.storage && chrome.storage.local) {
     storage.setItem = function (key, value) {
         var obj = {};
         obj[key] = value;
-        chrome.storage.local.set(obj, function () {});
+        browser.storage.local.set(obj).then(function () {});
     };
 
     storage.removeItem = function (key) {
-        chrome.storage.local.remove(key);
+        browser.storage.local.remove(key);
     };
 
     storage.clear = function () {
-        chrome.storage.local.clear();
+        browser.storage.local.clear();
     };
 } else {
 

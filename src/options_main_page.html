@@ -1,64 +1,141 @@
 <html ng-app='sfitTimerAppOptions' ng-controller='mainController'>
-
 <head>
-    <link rel="stylesheet" type="text/css" href="/css/font-awesome-4.6.3/css/font-awesome.min.css">
-	<link rel="stylesheet" type="text/css" href="/css/bootstrap.min.css">
-	<link rel="stylesheet" type="text/css" href="/css/options_main_page.css">
-	<script type="text/javascript" src="/lib/jquery-2.0.3.min.js"></script>
-	<script type="text/javascript" src="/lib/angular.min.js"></script>
-	<script type="text/javascript" src="/js/_localstorage.js"></script>
-	<script type="text/javascript" src="/js/options_main_page.js"></script>
+    <link rel="stylesheet" type="text/css"
+          href="/css/lib/font-awesome-4.6.3/css/font-awesome.min.css">
+    <link rel="stylesheet" type="text/css" href="/css/lib/bootstrap.min.css">
+    <link rel="stylesheet" type="text/css" href="/css/options_main_page.css">
+    <script type="text/javascript" src="/js/lib/browser-polyfill.js"></script>
+    <script type="text/javascript" src="/js/lib/jquery-2.0.3.min.js"></script>
+    <script type="text/javascript" src="/js/lib/angular.min.js"></script>
+    <script type="text/javascript"
+            src="/js/lib/angular-animate.min.js"></script>
+    <script type="text/javascript"
+            src="/js/lib/angular-sanitize.min.js"></script>
+    <script type="text/javascript"
+            src="/js/lib/angular-cookies.min.js"></script>
+    <script type="text/javascript" src="/js/lib/ripple.js"></script>
+    <script type="text/javascript" src="/js/lib/alert.js"></script>
+    <script type="text/javascript" src="/js/lib/odoo.js"></script>
+    <script type="text/javascript" src="/js/_localstorage.js"></script>
+    <script type="text/javascript" src="/js/options_main_page.js"></script>
     <title>Timer Options</title>
 </head>
 <body style="min-width: 500px;">
-	<div id="navigation">
-        <h1>Timer Options</h1>
-        <ul>
-            <li class="chooser" 
-            	ng-class="(options.active_page=='about') ? 'selected' : 'notselected'"
-            	ng-click="goToPage('about')">
-                <i class="fa fa-info-circle"></i>
-                <span>About Timer</span>
-            </li>
-            <li class="chooser" 
-            	ng-class="(options.active_page=='options') ? 'selected' : 'notselected'"
-            	ng-click="goToPage('options')">
-            	Options
-            </li>
-        </ul>
+<div id="navigation">
+    <h1 class="title-app">Timer Options</h1>
+    <ul class="list-group">
+        <li class="chooser list-group-item"
+            ng-class="(options.active_page=='about') ? 'selected' : 'notselected'"
+            ng-click="goToPage('about')">
+            <i class="fa fa-info-circle"></i>
+            <span>About Timer</span>
+        </li>
+        <li class="chooser list-group-item"
+            ng-class="(options.active_page=='options') ? 'selected' : 'notselected'"
+            ng-click="goToPage('options')">
+            <i class="fa fa-cogs"></i>
+            <span>Options</span>
+        </li>
+    </ul>
+    <hr/>
+    <div class="footer-app back-popup">
+        <a href="popup.html">
+            <i class="fa fa-arrow-left" aria-hidden="true"></i> Back to Timer
+        </a>
+    </div>
+</div>
+<div class="options-box box"
+     ng-class="(options.active_page=='about') ? 'active_page' : 'inactive_page'">
+    <h1>
+        <div class="logo">
+            <img src="/img/logo.png">
+        </div>
+    </h1>
+
+    <hr>
+    <div class="about-app">
+        <h4 class="title-app text-center">Description</h4>
         <hr/>
-        <div class="back-popup">
-    		<a href="popup.html">
-				<i class="fa fa-arrow-left" aria-hidden="true"></i> Back to Timer
-			</a>
-		</div>
+        This is a cross-plaform Sunflower Timer works in Firefox and Chrome
+        browsers
+        with the aim
+        of registering working hours of individual issues based on Odoo
+        timesheets.
+        <hr/>
+        <h4 class="title-app text-center">Usage</h4>
+        <hr/>
+        <div class="container">
+            <div class="row">
+                <div class="col-md-4">
+                    <img src="/img/login.png" alt="login" class="img-thumbnail">
+                </div>
+                <div class="col-md-4">
+                    <img src="/img/issues.png" alt="issue list"
+                         class="img-thumbnail">
+                </div>
+            </div>
+        </div>
     </div>
-    <div id="options-box" 
-    	class="box" 
-    	ng-class="(options.active_page=='about') ? 'active_page' : 'inactive_page'">
-        <h1>About me</h1>
-        <hr>
-        About this App
-    </div>
-
-    <div id="options-box" 
-    	class="box" 
-    	ng-class="(options.active_page=='options') ? 'active_page' : 'inactive_page'">
-        <h1>Options</h1>
-        <hr>
-
+</div>
+<div class="options-box box"
+     ng-class="(options.active_page=='options') ? 'active_page' : 'inactive_page'">
+    <div class="form remote-options-form">
         <form>
-		  <h6> Pick a Data Source: </h6>
-		  <label class="container">From Issues: <small>Fetch issue list.</small>
-			  <input type="radio" ng-model="options.dataSource" value="project.issue">
-			  <span class="checkmark"></span>
-			</label>
-			<label class="container">From Tasks: <small>Fetch task list.</small>
-			  <input type="radio" ng-model="options.dataSource" value="project.task">
-			  <span class="checkmark"></span>
-			</label>
-		</form>
-    </div>
-</body>
+            <h4 class="remote-title text-info">Add Remote</h4>
+            <hr>
+            <div class="form-group">
+                <label for="remote-host">Odoo Host</label>
+                <input
+                        type="text"
+                        ng-model="data.remote_host" type="text"
+                        class="form-control" id="remote-host"
+                        placeholder="https://wwww.sunflowerweb.nl">
+            </div>
+            <div class="form-group">
+                <label for="remote-database">Odoo Database</label>
+                <input type="text" ng-model="data.remote_database"
+                       class="form-control" id="remote-database"
+                       placeholder="someodoodatabase">
+            </div>
 
+            <div class="form-group">
+                <label class="label">Data Source</label>
+                <ul class="data-source-list list-group">
+                    <li class="list-group-item">
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio"
+                                   value="project.issue"
+                                   ng-model="data.remote_datasrc"
+                                   id="FromIssues"/>
+                            <label class="form-check-label" for="FromIssues">
+                                From Issues
+                            </label>
+                        </div>
+                    </li>
+                    <li class="list-group-item">
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio"
+                                   value="project.task"
+                                   ng-model="data.remote_datasrc" id="FromTasks"/>
+                            <label class="form-check-label" for="FromTasks">
+                                From Tasks
+                            </label>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+
+            <button ng-click="add_remote_host()" class="btn btn-info">Add
+            </button>
+
+            <button ng-click="remove_remotes_hosts()"
+                    class="btn btn-danger">Clear
+                Remotes
+            </button>
+
+            <div class="remote-error">{{remote_error}}</div>
+        </form>
+    </div>
+</div>
+</body>
 </html>
