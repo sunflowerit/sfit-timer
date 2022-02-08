@@ -455,7 +455,6 @@ sfitTimerApp.controller('mainController', [
         };
 
         $scope.getRemoteInfo = function () {
-            var total = $scope.data.employee_issues ? $scope.data.employee_issues.length : 0;
             $scope.remote_instance_info = [{
                 'current_user': $scope.data.user.display_name,
                 'odoo_version': $scope.server_version,
@@ -463,7 +462,6 @@ sfitTimerApp.controller('mainController', [
                 'db': $scope.current_database,
                 'datasrc': $scope.data.dataSource
             }];
-            console.log($scope.remote_instance_info);
         }
 
         $scope.to_main = function () {
@@ -473,12 +471,13 @@ sfitTimerApp.controller('mainController', [
         };
 
         $scope.to_login = function () {
-            $("#login").removeClass("hide");
+            $("#login").removeClass("hide ng-hide");
             $("#loader-container").addClass("hide");
             $("#wrapper").addClass("hide");
         };
 
         $scope.logout = function () {
+            $scope.stopTimer1($scope.data.active_timer_id);
             jsonRpc.logout();
             // Delete odoo cookie.
             $cookies.remove('session_id');
@@ -601,9 +600,12 @@ sfitTimerApp.controller('mainController', [
                             'url': url || 'https://' + cookie.domain
                         });
                         console.log(res);
-                        $scope.to_login();
                     });
                 }
+            }).then(function(){
+                alert.show("Session cleared successfully, " +
+                    "login again");
+                $scope.to_login();
             });
         }
 
@@ -618,6 +620,13 @@ sfitTimerApp.controller('mainController', [
             return deferred;
         };
 
+        // Active issue always selected.
+        $scope.dynamicIssueList = function(issue) {
+            if ('active_timer_id' in $scope.data &&
+                issue.id === $scope.data.active_timer_id)
+                return issue.id;
+            return 'id';
+        }
         $scope.load_projects = function () {
             var deferred = new $.Deferred();
             search_projects().then(function (response) {
