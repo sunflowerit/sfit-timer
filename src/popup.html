@@ -81,6 +81,7 @@
             <div class="checkbox" ng-show="remotes.length">
                 <label>
                     <input type="checkbox"
+                           ng-checked="remotes.length"
                            name="useExistingSession"
                            ng-model="data.useExistingSession"
                            ng-init="data.useExistingSession=false"
