@@ -250,7 +250,6 @@ sfitTimerApp.controller('mainController', [
                         function(o) {return o.id == id});
                     if (!issue) {
                         $scope.odoo_error = "Issue " + id + " not found";
-                        $scope.$apply();
                         return;
                     }
                     if ($scope.data.dataSource == 'project.issue') {
@@ -261,14 +260,12 @@ sfitTimerApp.controller('mainController', [
                             );
                             if (!project) {
                                 $scope.odoo_error = "Project not found.";
-                                $scope.$apply();
                                 return; 
                             }
                             analytic_account_id = project.analytic_account_id;
                         }
                         if (!analytic_account_id) {
                             $scope.odoo_error = "No Analytic Account is defined on the project.";
-                            $scope.$apply();
                             return; 
                         }
                         $scope.analytic_journal = null;
@@ -393,6 +390,9 @@ sfitTimerApp.controller('mainController', [
                 }
             });
 
+            // Removes the highlighted active timer.
+            $scope.data.active_timer_id = false;
+
             // Clear storage
             console.log('stopped time...');
             storage.removeItem("active_timer_id");
@@ -477,15 +477,22 @@ sfitTimerApp.controller('mainController', [
         };
 
         $scope.logout = function () {
-            $scope.stopTimer1($scope.data.active_timer_id);
-            jsonRpc.logout();
-            // Delete odoo cookie.
-            $cookies.remove('session_id');
-            $scope.data.user = null;
-            $scope.to_login();
-            storage.setItem(
-                'current_host_state', 'Inactive');
-            console.log('logged out');
+            var current_issue = $scope.data.active_timer_id;
+            if (current_issue) {
+                alert.show("Please stop timer for issue #" + current_issue
+                    + " before login out of current session");
+                return false;
+            }
+            else {
+                jsonRpc.logout();
+                // Delete odoo cookie.
+                $cookies.remove('session_id');
+                $scope.data.user = null;
+                $scope.to_login();
+                storage.setItem(
+                    'current_host_state', 'Inactive');
+                console.log('logged out');
+            }
         };
 
         $scope.set_current_user = function (res) {
