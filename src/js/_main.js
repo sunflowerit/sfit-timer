@@ -23,6 +23,7 @@ sfitTimerApp.controller('mainController', [
         ];
         $scope.remotes = [];
 
+
         // Assign all issues
         $scope.$watch('allIssues', function () {
             if (!$scope.allIssues && $scope.data.user) {
@@ -474,6 +475,8 @@ sfitTimerApp.controller('mainController', [
             $("#login").removeClass("hide ng-hide");
             $("#loader-container").addClass("hide");
             $("#wrapper").addClass("hide");
+            // default true for checkbox once login is visible.
+            $scope.data.useExistingSession = true;
         };
 
         $scope.logout = function () {
