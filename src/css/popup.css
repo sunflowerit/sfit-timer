@@ -383,3 +383,8 @@ body {
     padding: 0 0 5px 20px;
     font-size: 13px;
 }
+
+.footer-btns {
+    margin: 10px 0;
+    color: #17a2b8;
+}

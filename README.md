@@ -1,7 +1,12 @@
-SFIT Timer is a cross-plaform browser extension app used to log work hours and automatically write them to Odoo Timesheets.
+### SFIT TIMER
 
-It connects to an odoo instance e.g SFIT odoo instance and displays issue list. From the list, one can start timer based on the issue,
-set start and end time of the issue and when stop button is clicked, a new timesheet line record is added to Odoo.
+SFIT Timer is a cross-plaform browser extension app used to log work hours 
+and automatically write them to **Odoo Timesheets**.
+
+It connects to an odoo instance e.g *SFIT odoo instance* and displays issue 
+list from the list. One can start timer based on the issue,
+set start and end time of the issue and when stop button is clicked, a new 
+timesheet line record is added to the session instance.
 
 Features:
 
@@ -38,10 +43,10 @@ Configuration
 * Uncheck the 'Use Default Host' box at the buttom, and use the correct URL and database name.
 * For Username and Password, use your regular SFIT Odoo login info.
 
-![Logging in to SFIT timer app](src/img/login.png "Login")
+How it works
+------------
 
-Usage
------
+![How SFIT timer app works](src/img/usage.gif "How it Works")
 
 * After logging in, a list of your active issues will show up.
 * Use the green buttons to start and stop working on an issue. It will automatically show up on your Timesheet
@@ -49,12 +54,11 @@ Usage
 * Tick 'all' to have other people's issue show up in this list as well; useful for multidev tasks!
 * Under 'options' there's a switch to write time on ''tasks'' instead of ''issues'', we'll be using this in the future :)
 
-![List of issues](src/img/issues.png "Issue list")
-
 Update
 ------
 
 1. `cd /path/to/sfit-timer`
-2. `git pull`
-3. update on chrome://extensions
+2. `git pull origin branch`
+3. update on *chrome://extensions*
+4. update on *about:debugging#/runtime/this-firefox*
 

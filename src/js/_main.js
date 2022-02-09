@@ -480,22 +480,37 @@ sfitTimerApp.controller('mainController', [
         };
 
         $scope.logout = function () {
-            var current_issue = $scope.data.active_timer_id;
-            if (current_issue) {
-                alert.show("Please stop timer for issue #" + current_issue
-                    + " before login out of current session");
-                return false;
-            }
-            else {
-                jsonRpc.logout();
-                // Delete odoo cookie.
-                $cookies.remove('session_id');
-                $scope.data.user = null;
-                $scope.to_login();
-                storage.setItem(
-                    'current_host_state', 'Inactive');
-                console.log('logged out');
-            }
+            alert.show("<b>Are you sure you want to logout?<b> " +
+                "Session will be removed and a re-login will be required. " +
+                "Instead you can switch between remotes via " +
+                "<span style='font-size: 30px; color:" +
+                " #ffbf00;'>&#128072;</span>",
+                ['logout', 'cancel'])
+                .then(function(response) {
+                    if (response == 'logout') {
+                        var current_issue = $scope.data.active_timer_id;
+                        if (current_issue) {
+                            alert.show("Please stop timer for issue #" + current_issue
+                                + " before login out of current session");
+                            return false;
+                        }
+                        else {
+                            jsonRpc.logout();
+                            // Delete odoo cookie.
+                            $cookies.remove('session_id');
+                            $scope.data.user = null;
+                            storage.removeItem($scope.current_database);
+                            $scope.clearActiveSession();
+                            storage.setItem(
+                                'current_host_state', 'Inactive');
+                            console.log('logged out');
+                            $scope.to_login();
+                        }
+                    }
+                    else {
+                        return false;
+                    }
+            });
         };
 
         $scope.set_current_user = function (res) {
@@ -595,6 +610,20 @@ sfitTimerApp.controller('mainController', [
             });
         }
 
+        $scope.switch_btwn_remotes = function () {
+            var current_issue = $scope.data.active_timer_id;
+            if (current_issue) {
+                alert.show("Please stop timer for issue #" + current_issue
+                    + " before switching out of current session");
+                return false;
+            }
+
+            else {
+                $scope.to_login();
+            }
+
+        }
+
         $scope.clearActiveSession = function () {
             // Clear the default odoo sessions store in browser
             // NB: Odoo v8 doesn't give the url
@@ -614,7 +643,7 @@ sfitTimerApp.controller('mainController', [
                 }
             }).then(function(){
                 alert.show("Session cleared successfully, " +
-                    "login again");
+                    "login again by turning session checkbox off");
                 $scope.to_login();
             });
         }
