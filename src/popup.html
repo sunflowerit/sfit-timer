@@ -195,7 +195,12 @@
                 <span><b>Current User:</b> {{info.current_user}}</span><br/>
             </div>
             <hr/>
-            <div class="col-md-8 left pointer">
+            <div class="col-md-8 left text-info footer-btns pointer">
+                <i class="fa fa-hand-o-left fa-2x"
+                   data-toggle="tooltip"
+                   data-placement="top"
+                   ng-click="switch_btwn_remotes()"
+                   title="Switch between remotes"></i>
                 <i class="fa fa-refresh fa-2x" data-toggle="tooltip"
                    data-placement="top" title="Refresh employee issues"
                    ng-click="load_employee_issues()"></i>
@@ -203,10 +208,6 @@
                    data-toggle="tooltip" data-placement="top"
                    title="Log out"
                    ng-click="logout()"></i>
-                <i class="fa fa-trash-o fa-2x"
-                   data-toggle="tooltip" data-placement="top"
-                   title="Clear/Remove active session"
-                   ng-click="clearActiveSession()"></i>
                 <a href="options_main_page.html"
                    data-toggle="tooltip" data-placement="top"
                    title="Go To options">
