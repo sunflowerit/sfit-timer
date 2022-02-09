@@ -329,7 +329,11 @@ sfitTimerApp.controller('mainController', [
                                 alert.show("ERROR: " + msg);
                                 $scope.odoo_error = "ERROR" + msg;
                             });
-                        }, deferred.reject);
+                        }).catch(
+                            function(error) {
+                                alert.show("<b>Error Occurred</b><br/><p>" +
+                                    error +"</p>");
+                            });
                         return deferred;
                     }
 
@@ -353,9 +357,9 @@ sfitTimerApp.controller('mainController', [
                         ).then(function (response) {
                             console.log('response', response);
                             deferred.resolve();
-                        }, function(response) {
-                            console.log('rejecting');
-                            deferred.reject();
+                        }).catch(function(error) {
+                            alert.show("<b>Error Occurred</b><br/><p>" +
+                                error +"</p>");
                         });
                         return deferred;
                     }
@@ -381,9 +385,10 @@ sfitTimerApp.controller('mainController', [
                             kwargs
                         ).then(function (response) {
                             console.log('response', response);
-                        },
-                        odoo_failure_function
-                        );
+                        }).catch(function(error) {
+                            alert.show("<b>Error Occurred</b><br/><p>" +
+                                error +"</p>");
+                        });
                     }
 
                 } else {
@@ -681,10 +686,13 @@ sfitTimerApp.controller('mainController', [
         var odoo_failure_function = function (response) {
             $scope.odoo_error = {
                 'title': response.fullTrace.message,
-                'type': response.fullTrace.data.exception_type,
-                'message': response.fullTrace.data.message,
+                'type': response.fullTrace.data ? response.fullTrace.data.exception_type : 'ERROR exception unidentified',
+                'message': response.fullTrace.data ? response.fullTrace.data.message : response.message,
             };
-            $scope.error = $scope.odoo_error.message;
+            var msg = "<b>Error occurred</b><br/><p style='color: red;'>" +
+                JSON.stringify($scope.odoo_error) + "</p>";
+            alert.show(msg);
+            return false;
         };
 
     }]);
