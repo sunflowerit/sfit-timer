@@ -3,9 +3,10 @@
     <link rel="stylesheet" type="text/css"
           href="/css/lib/font-awesome-4.6.3/css/font-awesome.min.css">
     <link rel="stylesheet" type="text/css" href="/css/lib/bootstrap.min.css">
+    <link rel="stylesheet" type="text/css" href="/css/popup.css">
     <link rel="stylesheet" type="text/css" href="/css/options_main_page.css">
     <script type="text/javascript" src="/js/lib/browser-polyfill.js"></script>
-    <script type="text/javascript" src="/js/lib/jquery-2.0.3.min.js"></script>
+    <script type="text/javascript" src="/js/lib/jquery-3.6.0.min.js"></script>
     <script type="text/javascript" src="/js/lib/angular.min.js"></script>
     <script type="text/javascript"
             src="/js/lib/angular-animate.min.js"></script>
@@ -16,11 +17,12 @@
     <script type="text/javascript" src="/js/lib/ripple.js"></script>
     <script type="text/javascript" src="/js/lib/alert.js"></script>
     <script type="text/javascript" src="/js/lib/odoo.js"></script>
+    <script type="text/javascript" src="/js/_utils.js"></script>
     <script type="text/javascript" src="/js/_localstorage.js"></script>
     <script type="text/javascript" src="/js/options_main_page.js"></script>
     <title>Timer Options</title>
 </head>
-<body style="min-width: 500px;">
+<body>
 <div id="navigation">
     <h1 class="title-app">Timer Options</h1>
     <ul class="list-group">
@@ -38,9 +40,20 @@
         </li>
     </ul>
     <hr/>
-    <div class="footer-app back-popup">
-        <a href="popup.html">
-            <i class="fa fa-arrow-left" aria-hidden="true"></i> Back to Timer
+    <div class="footer-app">
+        <a href="popup.html"
+           data-toggle="tooltip"
+           data-placement="top"
+           title="Back to issue list"
+           class="back-left">
+            <i class="fa fa-arrow-circle-left fa-2x"></i>
+        </a>
+        <a href="popup.html"
+           data-toggle="tooltip"
+           data-placement="top"
+           title="Go to login"
+           class="back-right">
+            <i class="fa fa-arrow-circle-right fa-2x"></i>
         </a>
     </div>
 </div>
@@ -62,18 +75,21 @@
         of registering working hours of individual issues based on Odoo
         timesheets.
         <hr/>
-        <h4 class="title-app text-center">Usage</h4>
+        <h4 class="title-app text-center">Features</h4>
         <hr/>
-        <div class="container">
-            <div class="row">
-                <div class="col-md-4">
-                    <img src="/img/login.png" alt="login" class="img-thumbnail">
-                </div>
-                <div class="col-md-4">
-                    <img src="/img/issues.png" alt="issue list"
-                         class="img-thumbnail">
-                </div>
-            </div>
+        <div>
+            <ul class="list-group">
+                <li class="list-group-item">Start issue timer.</li>
+                <li class="list-group-item">Edit issue time</li>
+                <li class="list-group-item">Stop issue timer</li>
+                <li class="list-group-item">Create odoo timesheet line record
+                    linked to analytic account.</li>
+                <li class="list-group-item">Change issue state - eg. start or
+                    finish issue</li>
+                <li class="list-group-item">Support tasks instead of issues</li>
+                <li class="list-group-item">Show own issues or all issues</li>
+                <li class="list-group-item">Add a Remote host</li>
+            </ul>
         </div>
     </div>
 </div>
@@ -90,6 +106,12 @@
                         ng-model="data.remote_host" type="text"
                         class="form-control" id="remote-host"
                         placeholder="https://wwww.sunflowerweb.nl">
+            </div>
+            <div class="form-group">
+                <label for="remote-database">Display Name</label>
+                <input type="text" ng-model="data.remote_name"
+                       class="form-control" id="remote-name"
+                       placeholder="SFIT">
             </div>
             <div class="form-group">
                 <label for="remote-database">Odoo Database</label>
@@ -116,7 +138,8 @@
                         <div class="form-check">
                             <input class="form-check-input" type="radio"
                                    value="project.task"
-                                   ng-model="data.remote_datasrc" id="FromTasks"/>
+                                   ng-model="data.remote_datasrc"
+                                   id="FromTasks"/>
                             <label class="form-check-label" for="FromTasks">
                                 From Tasks
                             </label>
@@ -124,17 +147,107 @@
                     </li>
                 </ul>
             </div>
-
-            <button ng-click="add_remote_host()" class="btn btn-info">Add
-            </button>
-
-            <button ng-click="remove_remotes_hosts()"
-                    class="btn btn-danger">Clear
-                Remotes
-            </button>
+            <span class="caption-remotes">Controls</span>
+            <div class="remotes-control-btns col-md-12 text-center text-info pointer">
+                <i ng-click="add_remote_host()"
+                   data-toggle="tooltip"
+                   data-placement="top"
+                   title="Add a remote host"
+                   class="fa fa-2x fa-plus-circle"></i>
+                <i ng-click="getRemoteList()"
+                   data-toggle="tooltip"
+                   data-placement="top"
+                   title="Refresh list of remotes"
+                   class="fa fa-2x fa-refresh"></i>
+                <i ng-click="getRemoteList()"
+                   data-toggle="tooltip"
+                   data-placement="top"
+                   title="View list of remotes"
+                   class="fa fa-2x fa-eye"></i>
+                <i ng-click="remove_all_remotes_hosts()"
+                   data-toggle="tooltip"
+                   data-placement="top"
+                   title="Remove all list of remotes"
+                   class="fa fa-2x fa-minus-circle"></i>
+            </div>
 
             <div class="remote-error">{{remote_error}}</div>
         </form>
+    </div>
+    <div class="remotes-table-info" ng-show="remote_hosts.length">
+        <table class="table table-bordered">
+            <caption class="text-info caption-remotes">List of Available
+                Remotes
+            </caption>
+            <thead>
+            <tr>
+                <th scope="col">Remote</th>
+                <th scope="col">Host</th>
+                <th scope="col">Database</th>
+                <th scope="col">Source</th>
+                <th scope="col">State</th>
+                <th/>
+            </tr>
+            </thead>
+            <tbody>
+            <tr ng-repeat="remote in remote_hosts">
+                <td class="td-60 pd-7"
+                    hm-read
+                    hmtext="{{remote.url}}"
+                    hmrecord="{{remote.url}}"
+                    hmhost="{{remote.url}}"
+                    hmlimit="25"
+                    hmMoreClass="hmMoreClass"
+                    hmLessClass="hmMoreClass"
+                    hm-more-text="..."
+                    hm-less-text="<i class='fa fa-caret-up'></i>">
+                </td>
+                <td class="td-25 pd-7"
+                    hm-read
+                    hmtext="{{remote.name}}"
+                    hmlimit="10"
+                    hmMoreClass="hmMoreClass"
+                    hmLessClass="hmMoreClass"
+                    hm-more-text="..."
+                    hm-less-text="<i class='fa fa-caret-up'></i>">
+                </td>
+                <td class="td-25 pd-7"
+                    hm-read
+                    hmtext="{{remote.database}}"
+                    hmlimit="10"
+                    hmMoreClass="hmMoreClass"
+                    hmLessClass="hmMoreClass"
+                    hm-more-text="..."
+                    hm-less-text="<i class='fa fa-caret-up'></i>">
+                </td>
+                <td class="td-25 pd-7"
+                    hm-read
+                    hmtext="{{remote.datasrc}}"
+                    hmlimit="10"
+                    hmMoreClass="hmMoreClass"
+                    hmLessClass="hmMoreClass"
+                    hm-more-text="..."
+                    hm-less-text="<i class='fa fa-caret-up'></i>">
+                </td>
+                <td class="td-25 pd-7"
+                    hm-read
+                    hmtext="{{remote.state}}"
+                    hmlimit="10"
+                    hmMoreClass="hmMoreClass"
+                    hmLessClass="hmMoreClass"
+                    hm-more-text="..."
+                    hm-less-text="<i class='fa fa-caret-up'></i>">
+                </td>
+                <td class="td-15 pd-7 text-center td-btn">
+                    <i class="fa fa-trash-o action-btn pointer"
+                       data-toggle="tooltip"
+                       data-placement="top"
+                       title="remove selected remote"
+                       ng-click="remove_remote(remote.url)"></i>
+                </td>
+            </tr>
+            </tbody>
+        </table>
     </div>
 </div>
 </body>

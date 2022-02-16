@@ -1,3 +1,7 @@
+/*
+    Copyright 2016 - 2022 Sunflower IT (http://sunflowerweb.nl)
+    License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl).
+ */
 
 var sfitTimerApp = angular.module(
     'sfitTimerApp',
@@ -14,7 +18,6 @@ sfitTimerApp.controller('mainController', [
     '$scope', '$cookies', '$http', '$window', '$timeout', '$rootScope', '$location', 'jsonRpc',
     function ($scope, $cookies, $http, $window, $timeout, $rootScope, $location, jsonRpc, data) {
         $scope.remote_info = '';
-        $('.remote-info').removeClass('alert alert-info');
         $scope.limitRange = [
             {val:'5', opt: '5'},
             {val:'10', opt: '10'},
@@ -35,24 +38,35 @@ sfitTimerApp.controller('mainController', [
 
         // Toggle password view
         $scope.displayPass = function (ev) {
-            console.log("clicked!");;
-            $('#unique-password').attr('type', $('#unique-password').is(
-                ':password') ? 'text' : 'password');
+            var uniq_pass = get_element('#unique-password');
+            uniq_pass && uniq_pass.type === 'text' ?
+                uniq_pass.type = 'password' : uniq_pass.type = 'text';
         }
 
         // Times Start/Stop callbacks
         //---------------------------------------------------------
         $scope.timerRunning = true;
-        $scope.startTimer = function (issue) {
+        $scope.startTimer = function () {
             $scope.$broadcast('timer-resume');
             $scope.timerRunning = true;
+            // Change icon to start
+            browser.runtime.sendMessage({TimerActive: true});
+        };
+        $scope.pauseTimer = function () {
+            $scope.$broadcast('timer-stop');
+            $scope.timerRunning = false;
+            // Change icon to pause
+            browser.runtime.sendMessage({TimerActive: 'pause'});
         };
         $scope.stopTimer = function () {
             $scope.$broadcast('timer-stop');
             $scope.timerRunning = false;
         };
         $scope.$on('timer-stopped', function (event, data) {
-            console.log('Timer Stopped - data = ', data);
+            console.log('Timer Stopped:', data);
+        });
+        $scope.$on('timer-resume', function (event, data) {
+            console.log('Timer Resume:', data);
         });
         //---------------------------------------------------------
 
@@ -90,7 +104,7 @@ sfitTimerApp.controller('mainController', [
         });
 
 
-        // Assign remotes already configured
+        // Try login with current user session
         storage.getItem('current_host', function(host) {
             if (host && host.length) {
                 jsonRpc.odoo_server = host;
@@ -100,12 +114,13 @@ sfitTimerApp.controller('mainController', [
 
         // Assign remotes already configured
         storage.getItem('remote_host_info', function(remotes) {
+            console.log("remotes: " + remotes);
             if (remotes && remotes.length) {
                 $scope.remotes_info = remotes;
                 var count = 0;
                 remotes.forEach(remote => {
                 remote = JSON.parse(remote);
-                    $scope.remotes.push({'id': count, 'label': remote.url});
+                    $scope.remotes.push({'id': count, 'label': remote.name});
                     count++;
                 });
             }
@@ -167,17 +182,31 @@ sfitTimerApp.controller('mainController', [
                     $scope.data.dataSource = host.datasrc;
                     $scope.loginLoading = false;
                 }
+                else if ($scope.remotes.length && !$scope.data.useExistingSession) {
+                    let lst = '';
+                    for (let remote of $scope.remotes) {
+                        lst += '<li>'+ remote.label + '</li>';
+                    }
+                    alert.show("The following remotes exist, but have no" +
+                        " session:"+ lst +"Use them to login");
+                    $scope.to_login();
+                }
                 else {
                     alert.show('Automatic login failed, no active' +
                         ' session found and no remote configured. Go to' +
-                        ' "Options" below and configure a remote to login');
-                    $scope.to_login();
+                        ' "Options" below and configure a remote to login', ['OK'])
+                        .then(function(res) {
+                            if (res === 'OK')
+                                $scope.to_login();
+                        });
                 }
             }).catch(function(error) {
                 console.log("ERROR: " + JSON.stringify(error));
                 alert.show('Automatic login failed, no active' +
-                    ' session found\n\n');
-                $scope.to_login();
+                    ' session found\n\n', ['OK']).then(function(res) {
+                        if (res === 'OK')
+                            $scope.to_login();
+                    });
             });
         };
         //-----------------------------------
@@ -229,6 +258,7 @@ sfitTimerApp.controller('mainController', [
 
             // Stop timer
             $scope.stopTimer();
+            $scope.$broadcast('timer-clear');
 
             // Show start/stop buttons on other issues
             $scope.current_date = false;
@@ -253,142 +283,92 @@ sfitTimerApp.controller('mainController', [
                         $scope.odoo_error = "Issue " + id + " not found";
                         return;
                     }
-                    if ($scope.data.dataSource == 'project.issue') {
-                        var analytic_account_id = issue.analytic_account_id;
-                        if (!analytic_account_id) {
-                            var project = $scope.data.projects.find(
-                                function (o) {return o.id == issue.project_id[0];}
-                            );
-                            if (!project) {
-                                $scope.odoo_error = "Project not found.";
-                                return; 
-                            }
-                            analytic_account_id = project.analytic_account_id;
-                        }
-                        if (!analytic_account_id) {
-                            $scope.odoo_error = "No Analytic Account is defined on the project.";
-                            return; 
-                        }
-                        $scope.analytic_journal = null;
-                        // Search analytic journal for timesheet
-                        $scope.model = 'account.analytic.journal';
-                        $scope.domain = [['name', 'ilike', 'Timesheet']];
-                        $scope.fields = ['name'];
-                        jsonRpc.searchRead($scope.model, $scope.domain, $scope.fields)
-                            .then(function (response) {
-                                $scope.analytic_journal = response.records[0];
-                                createTimesheet();
-                            }, odoo_failure_function);
-                    } else {
-                        createTaskwork().then(function(response) {
-                            console.log('task.work created');
-                        }, function(response) {
-                            createAnalyticLine();
-                            console.log('creating analytic line');
-                        });
-                    }
 
-                    // Post to odoo project.task.work, create new task work
-                    function createAnalyticLine() {
-                        var deferred = new $.Deferred();
-                        console.log('creating analytic line');
+                    var analytic_account_id = issue.analytic_account_id;
+                    if (!analytic_account_id) {
                         var project = $scope.data.projects.find(
                             function (o) {return o.id == issue.project_id[0];}
                         );
                         if (!project) {
-                            console.log('project not found');
-                            deferred.reject();
+                            $scope.odoo_error = "Project not found.";
+                            return;
                         }
-                        jsonRpc.call(
-                            'account.analytic.line',
-                            'default_get',
-                            ['invoice_discount_id'],
-                            {} 
-                        ).then(function (response) {
+                        analytic_account_id = project.analytic_account_id;
+                    }
+                    if (!analytic_account_id) {
+                        $scope.odoo_error = "No Analytic Account is defined on the project.";
+                        return;
+                    }
+
+                    $scope.analytic_journal = null
+                    createTimesheet();
+
+                    // Post to odoo hr.analytic.timesheet, create new time sheet
+                    function createTimesheet () {
+                        if ($scope.data.dataSource === 'project.issue') {
+                            // Search analytic journal for timesheet
+                            $scope.model = 'account.analytic.journal';
+                            $scope.domain = [['name', 'ilike', 'Timesheet']];
+                            $scope.fields = ['name'];
+                            jsonRpc.searchRead($scope.model, $scope.domain, $scope.fields)
+                                .then(function (response) {
+                                    $scope.analytic_journal = response.records[0];
+                                    var args = [{
+                                        'date': now.format('YYYY-MM-D'),
+                                        'user_id': $scope.data.user.id,
+                                        'name': issue.name+' (#'+issue.id+')',
+                                        'journal_id': $scope.analytic_journal.id,
+                                        "account_id": analytic_account_id[0],
+                                        "unit_amount": durationInHours,
+                                        "to_invoice": 1,
+                                        "issue_id": issue.id,
+                                    }];
+                                    var kwargs = {};
+                                    jsonRpc.call(
+                                        'hr.analytic.timesheet',
+                                        'create',
+                                        args,
+                                        kwargs
+                                    ).then(function (response) {
+                                        console.log('response', response);
+                                        alert.show("Time for issue #" +
+                                            issue.id + " recorded successfully!"
+                                        );
+                                    }).catch(function(error) {
+                                        alert.show("<b>Error Occurred</b>" +
+                                            "<br/><p>" + JSON.stringify(error) +
+                                            "</p>");
+                                    });
+
+                                }, odoo_failure_function);
+                        }
+                        else {
+                            // project.tasks e.g Therp system
                             var args = [{
-                                'invoice_discount_id': response.invoice_discount_id,
                                 'date': now.format('YYYY-MM-D'),
                                 'user_id': $scope.data.user.id,
-                                'name': issue.name,
-                                'task_id': issue.id,
-                                'project_id': project.id,
-                                'unit_amount': durationInHours,
+                                'name': issue.name+' (#'+issue.id+')',
+                                "account_id": analytic_account_id[0],
+                                "unit_amount": durationInHours,
+                                "task_id": issue.id,
                             }];
+                            var kwargs = {};
                             jsonRpc.call(
                                 'account.analytic.line',
                                 'create',
                                 args,
-                                {}
+                                kwargs
                             ).then(function (response) {
                                 console.log('response', response);
-                                deferred.resolve();
-                            }).catch(function(res){
-                                console.log(res);
-                                var msg = res.title + '\n' +
-                                    res.message;
-                                alert.show("ERROR: " + msg);
-                                $scope.odoo_error = "ERROR" + msg;
-                            });
-                        }).catch(
-                            function(error) {
+                                alert.show("Time for Task #" +
+                                    issue.id + " recorded successfully!"
+                                );
+                            }).catch(function(error) {
                                 alert.show("<b>Error Occurred</b><br/><p>" +
-                                    error +"</p>");
+                                    JSON.stringify(error) +"</p>");
                             });
-                        return deferred;
-                    }
 
-                    // Post to odoo project.task.work, create new task work
-                    function createTaskwork () {
-                        var deferred = new $.Deferred();
-                        console.log('createTaskwork Called');
-                        var args = [{
-                            'date': now.format('YYYY-MM-D'),
-                            'user_id': $scope.data.user.id,
-                            'name': issue.name,
-                            'task_id': issue.id,
-                            "hours": durationInHours,
-                        }];
-                        var kwargs = {};
-                        jsonRpc.call(
-                            'project.task.work',
-                            'create',
-                            args,
-                            kwargs
-                        ).then(function (response) {
-                            console.log('response', response);
-                            deferred.resolve();
-                        }).catch(function(error) {
-                            alert.show("<b>Error Occurred</b><br/><p>" +
-                                error +"</p>");
-                        });
-                        return deferred;
-                    }
-
-                    // Post to odoo hr.analytic.timesheet, create new time sheet
-                    function createTimesheet () {
-                        console.log('createTimeSheet Called');
-                        var args = [{
-                            'date': now.format('YYYY-MM-D'),
-                            'user_id': $scope.data.user.id,
-                            'name': issue.name+' (#'+issue.id+')',
-                            'journal_id': $scope.analytic_journal.id,
-                            "account_id": analytic_account_id[0],
-                            "unit_amount": durationInHours,
-                            "to_invoice": 1,
-                            "issue_id": issue.id,
-                        }];
-                        var kwargs = {};
-                        jsonRpc.call(
-                            'hr.analytic.timesheet',
-                            'create',
-                            args,
-                            kwargs
-                        ).then(function (response) {
-                            console.log('response', response);
-                        }).catch(function(error) {
-                            alert.show("<b>Error Occurred</b><br/><p>" +
-                                error +"</p>");
-                        });
+                        }
                     }
 
                 } else {
@@ -405,7 +385,7 @@ sfitTimerApp.controller('mainController', [
             storage.removeItem("start_date_time");
         };
 
-        // LOGIN
+        // LOGIN process
         $scope.login = function () {
             $('.remote-info').removeClass('alert alert-info');
             var remote_host = $("#remote-selection option:selected");
@@ -447,7 +427,6 @@ sfitTimerApp.controller('mainController', [
                             'database': $scope.database,
                         };
                         storage.setItem('host_info', JSON.stringify(host_info));
-                        console.log("RESPONSE: " + JSON.stringify(response));
                         $scope.set_current_user(response);
                         $scope.current_active_session = response.session_id;
                         storage.setItem(
@@ -460,6 +439,7 @@ sfitTimerApp.controller('mainController', [
             }
         };
 
+        // Footer info about the current remote
         $scope.getRemoteInfo = function () {
             $scope.remote_instance_info = [{
                 'current_user': $scope.data.user.display_name,
@@ -470,20 +450,27 @@ sfitTimerApp.controller('mainController', [
             }];
         }
 
+        // Issue/task list view
         $scope.to_main = function () {
+            $scope.$apply(function() {
+                $scope.getRemoteInfo();
+            });
             $("#wrapper").removeClass("hide");
             $("#loader-container").addClass("hide");
             $("#login").addClass("hide");
         };
 
+        // Login Form
         $scope.to_login = function () {
             $("#login").removeClass("hide ng-hide");
             $("#loader-container").addClass("hide");
             $("#wrapper").addClass("hide");
+
             // default true for checkbox once login is visible.
             $scope.data.useExistingSession = true;
         };
 
+        // Logout of Timer App
         $scope.logout = function () {
             alert.show("<b>Are you sure you want to logout?<b> " +
                 "Session will be removed and a re-login will be required. " +
@@ -518,6 +505,7 @@ sfitTimerApp.controller('mainController', [
             });
         };
 
+        // Set current user
         $scope.set_current_user = function (res) {
             var id = res.uid;
             $scope.data.user = false;
@@ -555,6 +543,85 @@ sfitTimerApp.controller('mainController', [
             });
         };
 
+        // Get/Refresh of current issue list
+        $scope.getCurrentIssueList = function () {
+            storage.getItem($scope.current_active_session, function(issues){
+                $scope.data.employee_issues = issues;
+            });
+        }
+
+        // Switch Between remotes
+        $scope.switch_btwn_remotes = function () {
+            var current_issue = $scope.data.active_timer_id;
+            if (current_issue) {
+                alert.show("Please stop timer for issue #" + current_issue
+                    + " before switching out of current session");
+                return false;
+            }
+
+            else {
+                $scope.to_login();
+            }
+
+        }
+
+        // Clear Active session
+        $scope.clearActiveSession = function () {
+            // Clear the default odoo sessions store in browser
+            // NB: Odoo v8 doesn't give the url
+            jsonRpc.getSessionInfo().then(async function (result) {
+                if (result.session_id) {
+                    var url = result['web.base.url'] || 'https://sunflower.1systeem.nl'
+                    var cookies = await browser.cookies.getAll(
+                        {'name': 'session_id', 'url': url});
+                    cookies.forEach(async (cookie)=>{
+                        var res = await browser.cookies.remove({
+                            'name': cookie.name,
+                            'storeId': cookie.storeId,
+                            'url': url || 'https://' + cookie.domain
+                        });
+                        console.log(res);
+                    });
+                }
+            }).then(function(){
+                alert.show("Session cleared successfully, " +
+                    "login again by turning session checkbox off");
+                $scope.to_login();
+            });
+        }
+
+        // Load employee issues
+        $scope.load_employee_issues = function () {
+            var deferred = new $.Deferred();
+            search_employee_issues().then(function (response) {
+                process_employee_issues(response);
+                deferred.resolve();
+            }, function(response) {
+                deferred.reject();
+            });
+            return deferred;
+        };
+
+        // Active issue always selected.
+        $scope.dynamicIssueList = function(issue) {
+            if ('active_timer_id' in $scope.data &&
+                issue.id === $scope.data.active_timer_id)
+                return issue.id;
+            return 'id';
+        }
+
+        // Load project list
+        $scope.load_projects = function () {
+            var deferred = new $.Deferred();
+            search_projects().then(function (response) {
+                process_projects(response);
+                deferred.resolve();
+            }, function() {
+                deferred.reject();
+            });
+            return deferred;
+        };
+
         function search_employee_issues () {
             var model = $scope.data.dataSource;
             var domain = [
@@ -573,6 +640,12 @@ sfitTimerApp.controller('mainController', [
                 'stage_id',
                 'analytic_account_id',
             ];
+            if (model === 'project.issue') {
+                fields.push('working_hours_open');
+            }
+            if (model == 'project.task') {
+                fields.push('effective_hours', 'remaining_hours');
+            }
             return jsonRpc.searchRead(
                 model,
                 domain,
@@ -608,79 +681,6 @@ sfitTimerApp.controller('mainController', [
                 $scope.data.projects.push(project);
             });
         }
-
-        $scope.getCurrentIssueList = function () {
-            storage.getItem($scope.current_active_session, function(issues){
-                $scope.data.employee_issues = issues;
-            });
-        }
-
-        $scope.switch_btwn_remotes = function () {
-            var current_issue = $scope.data.active_timer_id;
-            if (current_issue) {
-                alert.show("Please stop timer for issue #" + current_issue
-                    + " before switching out of current session");
-                return false;
-            }
-
-            else {
-                $scope.to_login();
-            }
-
-        }
-
-        $scope.clearActiveSession = function () {
-            // Clear the default odoo sessions store in browser
-            // NB: Odoo v8 doesn't give the url
-            jsonRpc.getSessionInfo().then(async function (result) {
-                if (result.session_id) {
-                    var url = result['web.base.url'] || 'https://sunflower.1systeem.nl'
-                    var cookies = await browser.cookies.getAll(
-                        {'name': 'session_id', 'url': url});
-                    cookies.forEach(async (cookie)=>{
-                        var res = await browser.cookies.remove({
-                            'name': cookie.name,
-                            'storeId': cookie.storeId,
-                            'url': url || 'https://' + cookie.domain
-                        });
-                        console.log(res);
-                    });
-                }
-            }).then(function(){
-                alert.show("Session cleared successfully, " +
-                    "login again by turning session checkbox off");
-                $scope.to_login();
-            });
-        }
-
-        $scope.load_employee_issues = function () {
-            var deferred = new $.Deferred();
-            search_employee_issues().then(function (response) {
-                process_employee_issues(response);
-                deferred.resolve();
-            }, function(response) {
-                deferred.reject();
-            });
-            return deferred;
-        };
-
-        // Active issue always selected.
-        $scope.dynamicIssueList = function(issue) {
-            if ('active_timer_id' in $scope.data &&
-                issue.id === $scope.data.active_timer_id)
-                return issue.id;
-            return 'id';
-        }
-        $scope.load_projects = function () {
-            var deferred = new $.Deferred();
-            search_projects().then(function (response) {
-                process_projects(response);
-                deferred.resolve();
-            }, function() {
-                deferred.reject();
-            });
-            return deferred;
-        };
 
         // Generic failure function
         var odoo_failure_function = function (response) {

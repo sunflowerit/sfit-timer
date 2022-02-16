@@ -1,11 +1,20 @@
+/*
+    Copyright 2016 - 2022 Sunflower IT (http://sunflowerweb.nl)
+    License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl).
+ */
+
 var online = "it is online";
 console.log(online);
 var TogglButton = {
     setBrowserAction: function (timer) {
         console.log("TIMER CHECK:" + timer);
-        if (timer) {
+        if (timer === true) {
             var imagePath = {'19': 'img/icon_19.png', '38': 'img/icon_38.png'};
-        } else {
+        }
+        else if (timer === 'pause') {
+            var imagePath = {'19': 'img/icon-pause.png', '38': 'img/icon-pause.png'};
+        }
+        else {
             var imagePath = {'19': 'img/inactive_19.png', '38': 'img/inactive_19.png'};
         }
         browser.browserAction.setIcon({

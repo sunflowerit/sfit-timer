@@ -1,6 +1,7 @@
 body {
     margin: 0;
     padding: 0;
+    min-width: 700px;
     background-color: #FFF;
     font-size: 0.9em;
     font-family: 'Open Sans', sans-serif;
@@ -95,7 +96,6 @@ h1 {
 .section-title:first-of-type {
     margin-top: 10px;
 }
-
 
 .button {
     cursor: pointer;
@@ -260,11 +260,6 @@ hr {
     transform: rotate(45deg);
 }
 
-.back-popup {
-    position: absolute;
-    bottom: 5px;
-    left: 5px;
-}
 
 .remote-options-form {
     font-size: 14px;
@@ -293,10 +288,23 @@ hr {
 }
 
 .footer-app {
-    font-size: 15px;
+    font-size: 35px;
+    text-align: center;
     font-weight: bold;
     margin: 0 0 15px 0;
     color: #17a2b8 !important;
+}
+
+.footer-app .back-left {
+    position: absolute;
+    bottom: 15px;
+    left: 25px;
+}
+
+.footer-app .back-right {
+    position: absolute;
+    bottom: 15px;
+    right: 25px;
 }
 
 .chooser {
@@ -310,4 +318,28 @@ hr {
 
 .data-source-list > li {
     margin: 0 0 10px 0;
+}
+
+.remotes-table-info tbody > tr:hover {
+    background: #ffff99;
+}
+
+
+.remotes-control-btns {
+    font-size: 25px;
+    border: 2px solid #bcbfbf
+}
+
+.remotes-control-btns > i {
+    padding: 12px;
+}
+
+.remotes-control-btns .fa-eye {
+    color: #17a2b8;
+}
+
+.caption-remotes {
+    font-weight: bolder;
+    caption-side: top;
+    text-align: center;
 }
