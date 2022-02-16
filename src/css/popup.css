@@ -1,9 +1,5 @@
 body {
-    /*background-color: #ededed;*/
-    width: 500px;
-    /*height: 100.1%;*/
-    margin: 0 auto;
-    padding: 0;
+    min-width: 600px;
     overflow-x: hidden !important;
     overflow-y: scroll !important;
     font-family: 'Open Sans', sans-serif;
@@ -13,17 +9,17 @@ body {
 }
 
 #wrapper {
-    width: 100%;
-    padding: 0 0 40px 0;
-    background: white;
+    margin: 20px;
+    padding: 20px;
 }
 
 /* LOGIN */
-body {
-    /*background: #e9e9e9;*/
+#login {
     color: #666666;
     font-family: 'RobotoDraft', 'Roboto', sans-serif;
     font-size: 14px;
+    margin: 30px;
+    padding: 30px;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
 }
@@ -59,10 +55,11 @@ body {
 .form-module {
     position: relative;
     background: #ffffff;
-    /*max-width: 320px;*/
-    /*max-width: 400px;*/
     width: 100%;
     border-top: 5px solid #f30c16;
+    border-left: 3px solid #ddd;
+    border-right: 3px solid #ddd;
+    border-bottom: 3px solid #ddd;
     -webkit-box-shadow: 0 0 3px rgba(0, 0, 0, 0.1);
     box-shadow: 0 0 3px rgba(0, 0, 0, 0.1);
     margin: 0 auto;
@@ -138,6 +135,10 @@ body {
     transition: 0.3s ease;
 }
 
+.table-bordered {
+    border: 3px solid #dadde1;
+}
+
 .form-module input:focus {
     border: 1px solid #f30c16;
     color: #333333;
@@ -158,7 +159,7 @@ body {
     background: #d01c24;
 }
 
-.form-module .cta {
+.cta {
     background: #f2f2f2;
     width: 100%;
     padding: 15px 40px;
@@ -167,9 +168,12 @@ body {
     color: #666666;
     font-size: 12px;
     text-align: center;
+    position: fixed;
+    bottom: 0;
+    left: 0;
 }
 
-.form-module .cta a {
+.cta a {
     color: #333333;
     text-decoration: none;
 }
@@ -185,20 +189,20 @@ body {
     background-image: url('../img/searchicon.png');
     background-position: 10px 10px;
     background-repeat: no-repeat;
-    width: 90%;
+    width: 88%;
     font-size: 13px;
     padding: 12px 20px 12px 40px;
-    border: 1px solid #ddd;
-    margin-bottom: 12px;
+    border: 3px solid #ddd;
+    margin-bottom: 5px;
     display: inline;
 }
 
 #limitTo {
-    width: 10%;
+    width: 12%;
     float: right;
     font-size: 13px;
     padding: 13px 7px 13px 7px;
-    border: 1px solid #ddd;
+    border: 3px solid #ddd;
     margin-bottom: 12px;
     background: white;
     color: #666666;
@@ -228,14 +232,6 @@ body {
     text-align: center;
 }
 
-.td-60 {
-    width: 60%
-}
-
-.td-20 {
-    width: 20%
-}
-
 .footer {
     width: 100%;
 }
@@ -260,10 +256,6 @@ body {
     margin-bottom: 0 !important;
 }
 
-.forgotpwd {
-    position: fixed;
-    bottom: 0;
-}
 
 .allIssues {
     font-weight: normal;
@@ -278,22 +270,6 @@ body {
 .morebtn, .lessbtn {
     color: orange !important;
     cursor: pointer;
-}
-
-.pd-7 {
-    padding: 7px !important;
-}
-
-.td-name {
-    width: 60%;
-}
-
-.td-25 {
-    width: 25%;
-}
-
-.td-15 {
-    width: 15%;
 }
 
 .td-btn {
@@ -318,14 +294,27 @@ body {
 
 .bigstopbutton {
     position: absolute;
-    top: 105px;
-    height: 16px;
+    top: 90px;
+    height: 20px;
     border-radius: 2px;
-    width: 90px;
-    right: 0;
+    width: 82px;
+    left: 16px;
     background: #28a745;
-    color: #ffffff;
+    color: #fff;
+    font-size: 20px;
     text-align: center;
+}
+
+.pause-btn {
+    color: #f8b334;
+}
+
+.table td, .table th {
+    padding: 0.55rem;
+}
+
+.table tbody > tr:hover {
+    background: #ffff99;
 }
 
 .active-row {
@@ -340,7 +329,7 @@ body {
     border: 1px solid #f30c16;
 }
 
-#remote-selection:focus  {
+#remote-selection:focus {
     border: 1px solid #f30c16;
     box-shadow: none;
 }
@@ -350,7 +339,7 @@ body {
     margin: -52px 5px 0 0;
     position: relative;
     z-index: 1;
-    cursor:pointer;
+    cursor: pointer;
 }
 
 .fa-eye {
@@ -380,11 +369,24 @@ body {
 }
 
 .remote-info-block {
-    padding: 0 0 5px 20px;
+    margin: 0 0 10px 0;
+    border: 3px solid #ddd;
     font-size: 13px;
 }
 
 .footer-btns {
-    margin: 10px 0;
     color: #17a2b8;
+    font-size: 15px;
+    border: 3px solid #ddd;
+    text-align: center;
+    padding: 15px;
+    margin: 0 0 5px 0;
+}
+
+.footer-btns > i {
+    padding: 0 10px;
+}
+
+.footer-app-opts {
+
 }

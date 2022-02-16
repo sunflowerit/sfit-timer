@@ -6,7 +6,7 @@
     <link rel="stylesheet" type="text/css" href="/css/lib/bootstrap.min.css">
     <link rel="stylesheet" type="text/css" href="/css/popup.css">
     <script type="text/javascript" src="/js/lib/browser-polyfill.js"></script>
-    <script type="text/javascript" src="/js/lib/jquery-2.0.3.min.js"></script>
+    <script type="text/javascript" src="/js/lib/jquery-3.6.0.min.js"></script>
     <script type="text/javascript" src="/js/lib/angular.min.js"></script>
     <script type="text/javascript"
             src="/js/lib/angular-animate.min.js"></script>
@@ -23,6 +23,7 @@
     <script type="text/javascript" src="/js/lib/odoo.js"></script>
     <script type="text/javascript" src="/js/lib/ripple.js"></script>
     <script type="text/javascript" src="/js/lib/alert.js"></script>
+    <script type="text/javascript" src="/js/_utils.js"></script>
     <script type="text/javascript" src="/js/_localstorage.js"></script>
     <script type="text/javascript" src="/js/_main.js"></script>
     <script type="text/javascript"
@@ -34,7 +35,8 @@
     <i class="fa fa-cog fa-spin fa-5x"></i>
 </div>
 <!-- Login Form - Shown when there is no active odoo session-->
-<div id="login" class="module form-module hide" ng-show="!data.user">
+<div id="login" class="container module form-module hide"
+     ng-show="!data.user">
     <div class="toggle"><i class="fa fa-times fa-pencil"></i></div>
     <div class="form">
         <div class="logo">
@@ -95,14 +97,15 @@
             <div class="remote-info">{{remote_info}}</div>
         </form>
     </div>
-    <div class="cta forgotpwd footer-app">
+    <div class="cta forgotpwd footer-app-opts">
         <a href="options_main_page.html">
             <i class="fa fa-cogs fa-spin" aria-hidden="true"></i> Options
         </a>
     </div>
 </div>
 <!-- Issue Table -->
-<div id="wrapper" class="hide" ng-show="data.user && remotes.length">
+<div id="wrapper" class="hide"
+     ng-show="data.user && remotes.length">
     <div>
         <input ng-model="searchIssue.$"
                type="text"
@@ -112,22 +115,15 @@
         <select id="limitTo"
                 ng-model="limitTo"
                 ng-options="l.opt for l in limitRange"
-                ng-init="limitTo=limitRange[1]">
+                ng-init="limitTo=limitRange[0]">
         </select>
     </div>
     <div>
         <p class="odooError">{{odoo_error}}</p>
     </div>
-    <table class="table table-bordered">
+    <table class="table table-responsive-sm table-bordered">
         <thead>
         <tr>
-            <th>Issues [{{data.filtered_issues.length}}]
-                <span class="allIssues">
-                    <input type="checkbox" ng-model="allIssues">
-                    All
-                </span>
-            </th>
-            <th>Stage</th>
             <th>
                 <timer
                         ng-if="startTimeCount"
@@ -135,67 +131,101 @@
                         class="startTimeCount">
                     {{hhours}}:{{mminutes}}:{{sseconds}}
                 </timer>
-                <div class="bigstopbutton"
-                     ng-show="current_date"
-                     ng-click="stopActiveTimer1()">
-                    <i class="fa fa-square" aria-hidden="true"></i>
-                </div>
             </th>
+            <th>{{data.dataSource == 'project.task' ? 'Tasks' : 'Issues'}} [{{data.filtered_issues.length}}]
+                <span class="allIssues">
+                    <input type="checkbox" ng-model="allIssues">
+                    All
+                </span>
+            </th>
+            <th>Stage</th>
+            <th ng-show="data.dataSource == 'project.task'">Hours Spent</th>
+            <th ng-show="data.dataSource == 'project.task'">Remaining Hours</th>
         </tr>
         </thead>
         <tbody>
         <tr ng-class="data.active_timer_id == issue.id ? 'active-row': ''"
             ng-repeat="issue in data.filtered_issues = (data.employee_issues | orderBy: dynamicIssueList | filter:searchIssue:strict| filter:{user_id: data.user_id} | filter:{stage_id: data.stage_id} | limitTo: limitTo.val)">
-            <td class="td-60 pd-7"
-                hm-read
+            <td class="text-center td-btn"   hmlimit="20">
+                <i ng-show="!current_date"
+                   data-toggle="tooltip" data-placement="top"
+                   title="Start the timer for the selected issue"
+                   class="fa fa-play-circle action-btn pointer"
+                   ng-click="startTimer1(issue)"></i>
+                <i ng-show="current_date && current_date.issue_id == issue.id && !timerRunning"
+                   data-toggle="tooltip" data-placement="top"
+                   title="Continue timer for the selected issue"
+                   class="fa fa-play-circle action-btn pointer"
+                   ng-click="startTimer()"></i>
+                <i ng-show="current_date && current_date.issue_id == issue.id && timerRunning"
+                   data-toggle="tooltip" data-placement="top"
+                   title="Pause timer for the selected issue"
+                   class="pause-btn fa fa-pause-circle-o action-btn pointer"
+                   ng-click="pauseTimer()"></i>
+                <i ng-click="stopTimer1(issue.id)"
+                   data-toggle="tooltip" data-placement="top"
+                   title="Stop timer and record the time to Odoo timesheets"
+                   ng-show="current_date && current_date.issue_id == issue.id"
+                   class="text-danger fa fa-stop-circle action-btn pointer">
+                </i>
+            </td>
+            <td hm-read
                 hmtext="{{issue.id}}-{{issue.name}}"
                 hmrecord="{{issue.id}}"
                 hmhost="{{current_host}}"
                 hmsource="{{data.dataSource}}"
-                hmlimit="33"
+                hmlimit="40"
                 hmMoreClass="hmMoreClass"
                 hmLessClass="hmMoreClass"
                 hm-more-text="..."
                 hm-less-text="<i class='fa fa-caret-up'></i>">
 
             </td>
-            <td class="td-25 pd-7"
-                hm-read
-                hmtext="{{issue.stage_id[1]}}"
+            <td
+                    hm-read
+                    hmtext="{{issue.stage_id[1]}}"
+                    hmlimit="15"
+                    hmMoreClass="hmMoreClass"
+                    hmLessClass="hmMoreClass"
+                    hm-more-text="..."
+                    hm-less-text="<i class='fa fa-caret-up'></i>">
+            </td>
+            <td hm-read
+                ng-show="data.dataSource == 'project.task'"
+                hmtext="{{issue.effective_hours}}"
                 hmlimit="9"
                 hmMoreClass="hmMoreClass"
                 hmLessClass="hmMoreClass"
                 hm-more-text="..."
                 hm-less-text="<i class='fa fa-caret-up'></i>">
             </td>
-            <td class="td-15 pd-7 text-center td-btn">
-                <i ng-show="!current_date"
-                   class="fa fa-play-circle action-btn pointer"
-                   ng-click="startTimer1(issue)"></i>
-                <i ng-show="current_date && current_date.issue_id == issue.id"
-                   class="fa fa-stop-circle action-btn pointer"
-                   ng-click="stopTimer1(issue.id)"></i>
+            <td hm-read
+                ng-show="data.dataSource == 'project.task'"
+                hmtext="{{issue.remaining_hours}}"
+                hmlimit="9"
+                hmMoreClass="hmMoreClass"
+                hmLessClass="hmMoreClass"
+                hm-more-text="..."
+                hm-less-text="<i class='fa fa-caret-up'></i>">
             </td>
         </tr>
         <tr ng-if="!data.filtered_issues.length">
-            <td>No Issues Available</td>
-            <td/>
-            <td/>
+            <td class="text-center text-danger" colspan="6">
+                No issues available currently assigned to you
+            </td>
         </tr>
         </tbody>
     </table>
-    <div class="footer">
+    <div class="container footer">
         <div class="row">
-            <hr/>
-            <div class="remote-info-block col-md-4"
+            <div class="remote-info-block col-md-12"
                  ng-repeat="info in remote_instance_info">
                 <span><b>Odoo: </b> {{info.odoo_version}}</span><br/>
                 <span><b>Host:</b> {{info.host}}</span><br/>
                 <span><b>Database:</b> {{info.db}}</span><br/>
                 <span><b>Current User:</b> {{info.current_user}}</span><br/>
             </div>
-            <hr/>
-            <div class="col-md-8 left text-info footer-btns pointer">
+            <div class="col-md-12 footer-btns pointer">
                 <i class="fa fa-hand-o-left fa-2x"
                    data-toggle="tooltip"
                    data-placement="top"
