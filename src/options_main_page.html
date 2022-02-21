@@ -44,16 +44,9 @@
         <a href="popup.html"
            data-toggle="tooltip"
            data-placement="top"
-           title="Back to issue list"
+           title="Back to list"
            class="back-left">
             <i class="fa fa-arrow-circle-left fa-2x"></i>
-        </a>
-        <a href="popup.html"
-           data-toggle="tooltip"
-           data-placement="top"
-           title="Go to login"
-           class="back-right">
-            <i class="fa fa-arrow-circle-right fa-2x"></i>
         </a>
     </div>
 </div>
@@ -167,7 +160,7 @@
                 <i ng-click="remove_all_remotes_hosts()"
                    data-toggle="tooltip"
                    data-placement="top"
-                   title="Remove all list of remotes"
+                   title="Remove all remotes"
                    class="fa fa-2x fa-minus-circle"></i>
             </div>
 
@@ -191,10 +184,9 @@
             </thead>
             <tbody>
             <tr ng-repeat="remote in remote_hosts">
-                <td class="td-60 pd-7"
+                <td class="text-info"
                     hm-read
                     hmtext="{{remote.url}}"
-                    hmrecord="{{remote.url}}"
                     hmhost="{{remote.url}}"
                     hmlimit="25"
                     hmMoreClass="hmMoreClass"
@@ -202,8 +194,7 @@
                     hm-more-text="..."
                     hm-less-text="<i class='fa fa-caret-up'></i>">
                 </td>
-                <td class="td-25 pd-7"
-                    hm-read
+                <td hm-read
                     hmtext="{{remote.name}}"
                     hmlimit="10"
                     hmMoreClass="hmMoreClass"
@@ -211,8 +202,7 @@
                     hm-more-text="..."
                     hm-less-text="<i class='fa fa-caret-up'></i>">
                 </td>
-                <td class="td-25 pd-7"
-                    hm-read
+                <td hm-read
                     hmtext="{{remote.database}}"
                     hmlimit="10"
                     hmMoreClass="hmMoreClass"
@@ -220,8 +210,7 @@
                     hm-more-text="..."
                     hm-less-text="<i class='fa fa-caret-up'></i>">
                 </td>
-                <td class="td-25 pd-7"
-                    hm-read
+                <td hm-read
                     hmtext="{{remote.datasrc}}"
                     hmlimit="10"
                     hmMoreClass="hmMoreClass"
@@ -229,8 +218,7 @@
                     hm-more-text="..."
                     hm-less-text="<i class='fa fa-caret-up'></i>">
                 </td>
-                <td class="td-25 pd-7"
-                    hm-read
+                <td hm-read
                     hmtext="{{remote.state}}"
                     hmlimit="10"
                     hmMoreClass="hmMoreClass"
@@ -238,7 +226,7 @@
                     hm-more-text="..."
                     hm-less-text="<i class='fa fa-caret-up'></i>">
                 </td>
-                <td class="td-15 pd-7 text-center td-btn">
+                <td class="text-center td-btn">
                     <i class="fa fa-trash-o action-btn pointer"
                        data-toggle="tooltip"
                        data-placement="top"

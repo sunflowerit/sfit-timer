@@ -141,6 +141,7 @@
             <th>Stage</th>
             <th ng-show="data.dataSource == 'project.task'">Hours Spent</th>
             <th ng-show="data.dataSource == 'project.task'">Remaining Hours</th>
+            <th>Project</th>
         </tr>
         </thead>
         <tbody>
@@ -192,7 +193,7 @@
             </td>
             <td hm-read
                 ng-show="data.dataSource == 'project.task'"
-                hmtext="{{issue.effective_hours}}"
+                hmtext="{{getTimeInHrsMins(issue.effective_hours)}}"
                 hmlimit="9"
                 hmMoreClass="hmMoreClass"
                 hmLessClass="hmMoreClass"
@@ -201,8 +202,16 @@
             </td>
             <td hm-read
                 ng-show="data.dataSource == 'project.task'"
-                hmtext="{{issue.remaining_hours}}"
+                hmtext="{{getTimeInHrsMins(issue.remaining_hours)}}"
                 hmlimit="9"
+                hmMoreClass="hmMoreClass"
+                hmLessClass="hmMoreClass"
+                hm-more-text="..."
+                hm-less-text="<i class='fa fa-caret-up'></i>">
+            </td>
+            <td hm-read
+                hmtext="{{issue.project_id[1]}}"
+                hmlimit="15"
                 hmMoreClass="hmMoreClass"
                 hmLessClass="hmMoreClass"
                 hm-more-text="..."

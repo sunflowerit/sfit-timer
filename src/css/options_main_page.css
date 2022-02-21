@@ -297,7 +297,7 @@ hr {
 
 .footer-app .back-left {
     position: absolute;
-    bottom: 15px;
+    bottom: 45px;
     left: 25px;
 }
 
@@ -318,6 +318,10 @@ hr {
 
 .data-source-list > li {
     margin: 0 0 10px 0;
+}
+
+.remotes-table-info {
+    padding: 20px;
 }
 
 .remotes-table-info tbody > tr:hover {
