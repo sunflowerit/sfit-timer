@@ -26,7 +26,6 @@ sfitTimerApp.controller('mainController', [
         ];
         $scope.remotes = [];
 
-
         // Assign all issues
         $scope.$watch('allIssues', function () {
             if (!$scope.allIssues && $scope.data.user) {
@@ -37,8 +36,8 @@ sfitTimerApp.controller('mainController', [
         });
 
         // Toggle password view
-        $scope.displayPass = function (ev) {
-            var uniq_pass = get_element('#unique-password');
+        $scope.displayPass = function () {
+            var uniq_pass = document.getElementById('unique-password');
             uniq_pass && uniq_pass.type === 'text' ?
                 uniq_pass.type = 'password' : uniq_pass.type = 'text';
         }
@@ -350,6 +349,7 @@ sfitTimerApp.controller('mainController', [
                                 'name': issue.name+' (#'+issue.id+')',
                                 "account_id": analytic_account_id[0],
                                 "unit_amount": durationInHours,
+                                "project_id": issue.project_id[0],
                                 "task_id": issue.id,
                             }];
                             var kwargs = {};
@@ -441,13 +441,16 @@ sfitTimerApp.controller('mainController', [
 
         // Footer info about the current remote
         $scope.getRemoteInfo = function () {
-            $scope.remote_instance_info = [{
-                'current_user': $scope.data.user.display_name,
-                'odoo_version': $scope.server_version,
-                'host': $scope.current_host,
-                'db': $scope.current_database,
-                'datasrc': $scope.data.dataSource
-            }];
+            $scope.$apply(function(){
+                $scope.remote_instance_info = [{
+                    'current_user': $scope.data.user.display_name,
+                    'odoo_version': $scope.server_version,
+                    'host': $scope.current_host,
+                    'db': $scope.current_database,
+                    'datasrc': $scope.data.dataSource
+                }];
+            })
+
         }
 
         // Issue/task list view
@@ -680,6 +683,33 @@ sfitTimerApp.controller('mainController', [
             angular.forEach(response.records, function (project) {
                 $scope.data.projects.push(project);
             });
+        }
+
+        // Time conversion hrs & mins
+        $scope.getTimeInHrsMins = function(time_float) {
+            // Check sign of given number
+            var sign = (time_float >= 0) ? 1 : -1;
+
+            // Set positive value of number of sign negative
+            var number = time_float * sign;
+
+            // Separate the int from the decimal part
+            var hour = Math.floor(number);
+            var decpart = number - hour;
+
+            var min = 1 / 60;
+            // Round to nearest minute
+            decpart = min * Math.round(decpart / min);
+
+            var minute = Math.floor(decpart * 60) + '';
+            // Add padding if need
+            if (minute.length < 2) {
+                minute = '0' + minute;
+            }
+            // Add Sign in final result
+            sign = sign == 1 ? '' : '-';
+
+            return sign + hour + ':' + minute;
         }
 
         // Generic failure function
