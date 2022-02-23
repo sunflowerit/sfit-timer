@@ -1,23 +1,23 @@
 ### SFIT TIMER
 
-SFIT Timer is a cross-plaform browser extension app used to log work hours 
+SFIT Timer is a cross-platform browser extension app used to log work hours
 and automatically write them to **Odoo Timesheets**.
 
-It connects to an odoo instance e.g *SFIT odoo instance* and displays issue 
-list from the list. One can start timer based on the issue,
-set start and end time of the issue and when stop button is clicked, a new 
-timesheet line record is added to the session instance.
+It connects to an odoo instance e.g *SFIT odoo instance* and displays issue/task
+list from an existing project. One can start timer based on the issue, pause
+and end time of the issue thus recording a new billable
+timesheet line record in the timesheets.
 
 Features:
 
-* Start issue timer.
-* Edit issue time.
-* Stop issue timer.
+* Support for both issue/task list from projects.
+* Start/Pause/Stop issue/task timer.
 * Create odoo timesheet line record linked to analytic account.
-* Change issue state - eg. start or finish issue.
-* Support tasks instead of issues
-* Show own issues or all issues
-* Add a Remote host
+* Add and configure a Remote host.
+* Remove existing remotes.
+* Switch from existing Remotes.
+* Show an individuals issues/tasks or all.
+
 
 Usage
 =============
@@ -29,6 +29,13 @@ chrome
 1. Browse to [chrome://extensions/](chrome://extensions/)
 2. Select 'load unpacked' and point to the 'src' folder.
 3. The app will now appear in the top-right of your Chrome browser.
+
+Opera
+------
+1. Go to Opera Settings probably left sidebar `...`
+2. Click on `Extensions`
+3. Select `load unpacked` and point to the 'src' folder.
+4. The app will now appear in the top-right of Opera after pin it.
 
 Firefox
 -------
@@ -61,4 +68,3 @@ Update
 2. `git pull origin branch`
 3. update on *chrome://extensions*
 4. update on *about:debugging#/runtime/this-firefox*
-
