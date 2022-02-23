@@ -307,6 +307,10 @@ hr {
     right: 25px;
 }
 
+.timer-features {
+    margin: 20px;
+}
+
 .chooser {
     font-size: 14px;
     font-weight: bold;
@@ -324,10 +328,14 @@ hr {
     padding: 20px;
 }
 
+.remotes-table-info thead th {
+    text-align: center;
+    vertical-align: top;
+}
+
 .remotes-table-info tbody > tr:hover {
     background: #ffff99;
 }
-
 
 .remotes-control-btns {
     font-size: 25px;
