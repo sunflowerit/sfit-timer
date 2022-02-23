@@ -37,6 +37,11 @@ body {
     font-weight: 300;
 }
 
+#table-task-issues thead th {
+    text-align: center;
+    vertical-align: top;
+}
+
 .pen-title span {
     font-size: 12px;
 }
@@ -57,9 +62,9 @@ body {
     background: #ffffff;
     width: 100%;
     border-top: 5px solid #f30c16;
-    border-left: 3px solid #ddd;
-    border-right: 3px solid #ddd;
-    border-bottom: 3px solid #ddd;
+    border-left: 1px solid #ddd;
+    border-right: 1px solid #ddd;
+    border-bottom: 1px solid #ddd;
     -webkit-box-shadow: 0 0 3px rgba(0, 0, 0, 0.1);
     box-shadow: 0 0 3px rgba(0, 0, 0, 0.1);
     margin: 0 auto;
@@ -192,7 +197,7 @@ body {
     width: 88%;
     font-size: 13px;
     padding: 12px 20px 12px 40px;
-    border: 3px solid #ddd;
+    border: 1px solid #ddd;
     margin-bottom: 5px;
     display: inline;
 }
@@ -202,7 +207,7 @@ body {
     float: right;
     font-size: 13px;
     padding: 14px 7px 14px 7px;
-    border: 3px solid #ddd;
+    border: 1px solid #ddd;
     margin-bottom: 12px;
     background: white;
     color: #666666;
@@ -259,7 +264,9 @@ body {
 
 .allIssues {
     font-weight: normal;
-    float: right;
+    display: table-cell;
+    vertical-align: bottom;
+    /*float: right;*/
 }
 
 .startTimerCount {
@@ -370,14 +377,14 @@ body {
 
 .remote-info-block {
     margin: 0 0 10px 0;
-    border: 3px solid #ddd;
+    border: 1px solid #ddd;
     font-size: 13px;
 }
 
 .footer-btns {
     color: #17a2b8;
     font-size: 15px;
-    border: 3px solid #ddd;
+    border: 1px solid #ddd;
     text-align: center;
     padding: 15px;
     margin: 0 0 5px 0;

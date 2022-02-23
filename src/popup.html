@@ -121,7 +121,8 @@
     <div>
         <p class="odooError">{{odoo_error}}</p>
     </div>
-    <table class="table table-responsive-sm table-bordered">
+    <table id="table-task-issues"
+           class="table table-responsive-sm table-bordered">
         <thead>
         <tr>
             <th>
@@ -134,8 +135,7 @@
             </th>
             <th>{{data.dataSource == 'project.task' ? 'Tasks' : 'Issues'}} [{{data.filtered_issues.length}}]
                 <span class="allIssues">
-                    <input type="checkbox" ng-model="allIssues">
-                    All
+                    <input type="checkbox" ng-model="allIssues"> Inactive
                 </span>
             </th>
             <th>Stage</th>
