@@ -455,9 +455,6 @@ sfitTimerApp.controller('mainController', [
 
         // Issue/task list view
         $scope.to_main = function () {
-            $scope.$apply(function() {
-                $scope.getRemoteInfo();
-            });
             $("#wrapper").removeClass("hide");
             $("#loader-container").addClass("hide");
             $("#login").addClass("hide");
