@@ -23,6 +23,7 @@
     <script type="text/javascript" src="/js/lib/odoo.js"></script>
     <script type="text/javascript" src="/js/lib/ripple.js"></script>
     <script type="text/javascript" src="/js/lib/alert.js"></script>
+    <script type="text/javascript" src="/js/lib/download-js.js"></script>
     <script type="text/javascript" src="/js/_utils.js"></script>
     <script type="text/javascript" src="/js/_localstorage.js"></script>
     <script type="text/javascript" src="/js/_main.js"></script>
@@ -235,6 +236,11 @@
                 <span><b>Current User:</b> {{info.current_user}}</span><br/>
             </div>
             <div class="col-md-12 footer-btns pointer">
+                <i class="fa fa-eye-slash fa-2x"
+                   data-toggle="tooltip"
+                   data-placement="top"
+                   ng-click="getScreenShot()"
+                   title="Get a screenshot"></i>
                 <i class="fa fa-hand-o-left fa-2x"
                    data-toggle="tooltip"
                    data-placement="top"

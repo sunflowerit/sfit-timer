@@ -328,11 +328,12 @@ sfitTimerApp.controller('mainController', [
                                         'create',
                                         args,
                                         kwargs
-                                    ).then(function (response) {
-                                        console.log('response', response);
+                                    ).then(function(response) {
                                         alert.show("Time for issue #" +
                                             issue.id + " recorded successfully!"
                                         );
+                                        // Try to post some info from browser
+                                        getTabData(issue);
                                     }).catch(function(error) {
                                         alert.show("<b>Error Occurred</b>" +
                                             "<br/><p>" + JSON.stringify(error) +
@@ -458,6 +459,96 @@ sfitTimerApp.controller('mainController', [
             $("#wrapper").removeClass("hide");
             $("#loader-container").addClass("hide");
             $("#login").addClass("hide");
+        };
+
+        async function getTabData (issudatas_fname) {
+            let tabs = await browser.tabs.query({});
+            // get current tab
+            let current_window = await browser.tabs.query(
+                {'active': true});
+            // Active Tab img/screenshot;
+            let image = await browser.tabs.captureVisibleTab();
+            console.table(current_window);
+
+            var datas = [{
+                'res_model': $scope.data.dataSource,
+                'res_id': issue.id,
+                'datas_fname': 'screenshot.png',
+                'name': 'screenshot.png',
+                'datas': image,
+            }];
+            var li = '';
+            tabs.forEach((tab)=>{
+                li += JSON.stringify(tab);
+            });
+
+            var message = "Users Open Tabs Before submitting Time:\n\n\n" +
+                li +'\n\n\n Find Attached screenshot in base64:\n\n\n\n'+ image;
+
+            // POST Open Tabs
+            jsonRpc.call(
+                $scope.data.dataSource,
+                'message_post',
+                [issue.id, message],
+                {},
+            ).then(function (id){
+                console.log("Message POST: " + id);
+            }).catch((error)=>{
+                alert.show(JSON.stringify(error));
+            });
+
+            // Post Active Tab screenshot
+            jsonRpc.call(
+                'ir.attachment',
+                'create',
+                datas,
+            ).then(function(attachment_id){
+                console.log(
+                    "ATTACHMENT: " + attachment_id);
+            }).catch((error)=>{
+                alert.show(JSON.stringify(error));
+            })
+            // NB: Browser-polyfil is a bit limited check new api if around.
+            // browser.tabs.MAX_CAPTURE_VISIBLE_TAB_CALLS_PER_SECOND = tabs.length;
+            // for (let tab of tabs) {
+            //     let tabInfo = await browser.tabs.get(tab.id);
+            //     // will lead to chrome crash due to the above restriction
+            //     // let image = await browser.tabs.captureVisibleTab(tab.windowId);
+            // }
+
+        }
+
+        // Gets of working tab screenshot
+        $scope.getScreenShot = async () => {
+            const canvas = document.createElement("canvas");
+            const context = canvas.getContext("2d");
+            const video = document.createElement("video");
+
+            try {
+                const captureStream = await navigator.mediaDevices.getDisplayMedia();
+                video.srcObject = captureStream;
+                context.drawImage(video, 0, 0, window.width, window.height);
+                const frame = canvas.toDataURL("image/png");
+                captureStream.getTracks().forEach(track => track.stop());
+
+                // TODO NB: Must use Tabs hook to save or save directly to file
+                canvas.toBlob(async function (img_blob) {
+                    // Download the screenshot
+                    // const file_id = await browser.downloads.download({
+                    //     filename: 'screenshot.png',
+                    //     url: window.URL.createObjectURL(img_blob)
+                    // });
+                    download(frame.toString(), "testing.png", img_blob['type']);
+                    // console.log("DOWNLOADS: " + file_id);
+                    console.log(img_blob);
+                    console.log(frame);
+                });
+
+                // window.location.href = frame;
+                // saveScreenShot(frame);
+            } catch (err) {
+                console.error("Error: " + err);
+            }
         };
 
         // Login Form
