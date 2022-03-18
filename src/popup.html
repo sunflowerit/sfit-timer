@@ -110,8 +110,9 @@
         <input ng-model="searchIssue.$"
                type="text"
                id="searchIssue"
-               placeholder="Search for Issue by ID, Name, Stage..."
-               title="Type in an issue name">
+               placeholder="Search for Issue by ID, Name, user, priority, Stage..."
+               title="Type in an issue, create date, user, priority with suffix '-priority'
+               i.e' high-priority' or stage name to filter out">
         <select id="limitTo"
                 ng-model="limitTo"
                 ng-options="l.opt for l in limitRange"
@@ -121,110 +122,138 @@
     <div>
         <p class="odooError">{{odoo_error}}</p>
     </div>
-    <table id="table-task-issues"
-           class="table table-responsive-sm table-bordered">
-        <thead>
-        <tr>
-            <th>
-                <timer
-                        ng-if="startTimeCount"
-                        start-time="startTimeCount"
-                        class="startTimeCount">
-                    {{hhours}}:{{mminutes}}:{{sseconds}}
-                </timer>
-            </th>
-            <th>{{data.dataSource == 'project.task' ? 'Tasks' : 'Issues'}} [{{data.filtered_issues.length}}]
-                <span class="allIssues">
+    <div id="table-task-issues">
+        <table class="table table-responsive-sm table-bordered">
+            <thead>
+            <tr>
+                <th>
+                    <timer ng-if="startTimeCount"
+                            start-time="startTimeCount"
+                            class="startTimeCount">
+                        {{hhours}}:{{mminutes}}:{{sseconds}}
+                    </timer>
+                </th>
+                <th>Create Date</th>
+                <th>Priority</th>
+                <th>Stage</th>
+                <th>{{data.dataSource == 'project.task' ? 'Tasks' : 'Issues'}}
+                    [{{data.filtered_issues.length}}]
+                    <span class="allIssues">
                     <input type="checkbox" ng-model="allIssues"> Show for Everyone
                 </span>
-            </th>
-            <th>Stage</th>
-            <th ng-show="data.dataSource == 'project.task'">Hours Spent</th>
-            <th ng-show="data.dataSource == 'project.task'">Remaining Hours</th>
-            <th>Project</th>
-        </tr>
-        </thead>
-        <tbody>
-        <tr ng-class="data.active_timer_id == issue.id ? 'active-row': ''"
-            ng-repeat="issue in data.filtered_issues = (data.employee_issues | orderBy: dynamicIssueList | filter:searchIssue:strict| filter:{user_id: data.user_id} | filter:{stage_id: data.stage_id} | limitTo: limitTo.val)">
-            <td class="text-center td-btn"   hmlimit="20">
-                <i ng-show="!current_date"
-                   data-toggle="tooltip" data-placement="top"
-                   title="Start the timer for the selected issue"
-                   class="fa fa-play-circle action-btn pointer"
-                   ng-click="startTimer1(issue)"></i>
-                <i ng-show="current_date && current_date.issue_id == issue.id && !timerRunning"
-                   data-toggle="tooltip" data-placement="top"
-                   title="Continue timer for the selected issue"
-                   class="fa fa-play-circle action-btn pointer"
-                   ng-click="startTimer()"></i>
-                <i ng-show="current_date && current_date.issue_id == issue.id && timerRunning"
-                   data-toggle="tooltip" data-placement="top"
-                   title="Pause timer for the selected issue"
-                   class="pause-btn fa fa-pause-circle-o action-btn pointer"
-                   ng-click="pauseTimer()"></i>
-                <i ng-click="stopTimer1(issue.id)"
-                   data-toggle="tooltip" data-placement="top"
-                   title="Stop timer and record the time to Odoo timesheets"
-                   ng-show="current_date && current_date.issue_id == issue.id"
-                   class="text-danger fa fa-stop-circle action-btn pointer">
-                </i>
-            </td>
-            <td hm-read
-                hmtext="{{issue.id}}-{{issue.name}}"
-                hmrecord="{{issue.id}}"
-                hmhost="{{current_host}}"
-                hmsource="{{data.dataSource}}"
-                hmlimit="40"
-                hmMoreClass="hmMoreClass"
-                hmLessClass="hmMoreClass"
-                hm-more-text="..."
-                hm-less-text="<i class='fa fa-caret-up'></i>">
+                </th>
+                <th ng-show="data.dataSource == 'project.task'">Hours Spent</th>
+                <th ng-show="data.dataSource == 'project.task'">Remaining
+                    Hours
+                </th>
+                <th>Project</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr ng-class="data.active_timer_id == issue.id ? 'active-row': ''"
+                ng-repeat="issue in data.filtered_issues = (data.employee_issues | orderBy: dynamicIssueList | filter:searchIssue:strict| filter:{user_id: data.user_id} | filter:{create_date: data.create_date} | filter:{priority: data.priority} | filter:{stage_id: data.stage_id} | limitTo: limitTo.val)">
+                <td class="text-center td-btn" hmlimit="20">
+                    <i ng-show="!current_date"
+                       data-toggle="tooltip" data-placement="top"
+                       title="Start the timer for the selected issue"
+                       class="fa fa-play-circle action-btn pointer"
+                       ng-click="startTimer1(issue)"></i>
+                    <i ng-show="current_date && current_date.issue_id == issue.id && !timerRunning"
+                       data-toggle="tooltip" data-placement="top"
+                       title="Continue timer for the selected issue"
+                       class="fa fa-play-circle action-btn pointer"
+                       ng-click="startTimer()"></i>
+                    <i ng-show="current_date && current_date.issue_id == issue.id && timerRunning"
+                       data-toggle="tooltip" data-placement="top"
+                       title="Pause timer for the selected issue"
+                       class="pause-btn fa fa-pause-circle-o action-btn pointer"
+                       ng-click="pauseTimer()"></i>
+                    <i ng-click="stopTimer1(issue.id)"
+                       data-toggle="tooltip" data-placement="top"
+                       title="Stop timer and record the time to Odoo timesheets"
+                       ng-show="current_date && current_date.issue_id == issue.id"
+                       class="text-danger fa fa-stop-circle action-btn pointer">
+                    </i>
+                </td>
+                <td hm-read
+                    hmtext="{{issue.create_date.split(' ')[0]}}"
+                    hmlimit="20"
+                    hmMoreClass="hmMoreClass"
+                    hmLessClass="hmMoreClass"
+                    hm-more-text="..."
+                    hm-less-text="<i class='fa fa-caret-up'></i>">
+                </td>
+                <td ng-if="issue.priority_level.length"
+                    hmrecord="{{issue.priority}}"
+                    data-toggle="tooltip"
+                    data-placement="top"
+                    title="Priority set as None=nothing Low=* Medium=** High=***">
+                <span ng-repeat="index in issue.priority_level"
+                      class="fa fa-star checked"></span>
+                </td>
+                <td ng-if="!issue.priority_level.length"
+                    hmrecord="{{issue.priority}}"
+                    hmlimit="10"
+                    data-toggle="tooltip"
+                    data-placement="top"
+                    title="Here priority is not set 'Empty'">
+                    <i class="fa fa-star-o" aria-hidden="true"></i>
+                </td>
+                <td hm-read
+                    hmtext="{{issue.id}}-{{issue.name}}"
+                    hmrecord="{{issue.id}}"
+                    hmhost="{{current_host}}"
+                    hmsource="{{data.dataSource}}"
+                    hmlimit="70"
+                    hmMoreClass="hmMoreClass"
+                    hmLessClass="hmMoreClass"
+                    hm-more-text="..."
+                    hm-less-text="<i class='fa fa-caret-up'></i>">
 
-            </td>
-            <td
-                    hm-read
+                </td>
+                <td hm-read
                     hmtext="{{issue.stage_id[1]}}"
                     hmlimit="15"
                     hmMoreClass="hmMoreClass"
                     hmLessClass="hmMoreClass"
                     hm-more-text="..."
                     hm-less-text="<i class='fa fa-caret-up'></i>">
-            </td>
-            <td hm-read
-                ng-show="data.dataSource == 'project.task'"
-                hmtext="{{getTimeInHrsMins(issue.effective_hours)}}"
-                hmlimit="9"
-                hmMoreClass="hmMoreClass"
-                hmLessClass="hmMoreClass"
-                hm-more-text="..."
-                hm-less-text="<i class='fa fa-caret-up'></i>">
-            </td>
-            <td hm-read
-                ng-show="data.dataSource == 'project.task'"
-                hmtext="{{getTimeInHrsMins(issue.remaining_hours)}}"
-                hmlimit="9"
-                hmMoreClass="hmMoreClass"
-                hmLessClass="hmMoreClass"
-                hm-more-text="..."
-                hm-less-text="<i class='fa fa-caret-up'></i>">
-            </td>
-            <td hm-read
-                hmtext="{{issue.project_id[1]}}"
-                hmlimit="15"
-                hmMoreClass="hmMoreClass"
-                hmLessClass="hmMoreClass"
-                hm-more-text="..."
-                hm-less-text="<i class='fa fa-caret-up'></i>">
-            </td>
-        </tr>
-        <tr ng-if="!data.filtered_issues.length">
-            <td class="text-center text-danger" colspan="6">
-                No issues available currently assigned to you
-            </td>
-        </tr>
-        </tbody>
-    </table>
+                </td>
+                <td hm-read
+                    ng-show="data.dataSource == 'project.task'"
+                    hmtext="{{getTimeInHrsMins(issue.effective_hours)}}"
+                    hmlimit="9"
+                    hmMoreClass="hmMoreClass"
+                    hmLessClass="hmMoreClass"
+                    hm-more-text="..."
+                    hm-less-text="<i class='fa fa-caret-up'></i>">
+                </td>
+                <td hm-read
+                    ng-show="data.dataSource == 'project.task'"
+                    hmtext="{{getTimeInHrsMins(issue.remaining_hours)}}"
+                    hmlimit="9"
+                    hmMoreClass="hmMoreClass"
+                    hmLessClass="hmMoreClass"
+                    hm-more-text="..."
+                    hm-less-text="<i class='fa fa-caret-up'></i>">
+                </td>
+                <td hm-read
+                    hmtext="{{issue.project_id[1]}}"
+                    hmlimit="15"
+                    hmMoreClass="hmMoreClass"
+                    hmLessClass="hmMoreClass"
+                    hm-more-text="..."
+                    hm-less-text="<i class='fa fa-caret-up'></i>">
+                </td>
+            </tr>
+            <tr ng-if="!data.filtered_issues.length">
+                <td class="text-center text-danger" colspan="6">
+                    No issues available currently assigned to you
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
     <div class="container footer">
         <div class="row">
             <div class="remote-info-block col-md-12"
