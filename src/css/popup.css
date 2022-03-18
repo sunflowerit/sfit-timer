@@ -37,6 +37,17 @@ body {
     font-weight: 300;
 }
 
+#table-task-issues {
+    max-height: 460px;
+    margin-bottom: 20px;
+    overflow: auto;
+}
+
+#table-task-issues thead {
+    position: sticky;
+    top: 0;
+}
+
 #table-task-issues thead th {
     text-align: center;
     vertical-align: top;
@@ -394,6 +405,6 @@ body {
     padding: 0 10px;
 }
 
-.footer-app-opts {
-
+.checked {
+    color: orange;
 }

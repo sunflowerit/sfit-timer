@@ -35,6 +35,14 @@ sfitTimerApp.controller('mainController', [
             }
         });
 
+        // Attach fixed header background and remove when back
+        $('#table-task-issues').scroll(function() {
+           $('#table-task-issues thead').css({'background': '#fff'});
+           if ($(this).scrollTop() === 0)
+               $('#table-task-issues thead').css({'background': ''});
+        });
+
+
         // Toggle password view
         $scope.displayPass = function () {
             var uniq_pass = document.getElementById('unique-password');
@@ -638,6 +646,8 @@ sfitTimerApp.controller('mainController', [
                 'user_id',
                 'project_id',
                 'stage_id',
+                'priority',
+                'create_date',
                 'analytic_account_id',
             ];
             if (model === 'project.issue') {
@@ -669,10 +679,36 @@ sfitTimerApp.controller('mainController', [
         function process_employee_issues (response) {
             $scope.data.employee_issues = [];
             angular.forEach(response.records, function (issue) {
+                issue['priority_level'] = Array(parseInt(issue.priority)).fill(
+                    null).map((_, i) => i);
+                issue['priority_state'] = get_priority_state(issue.priority);
                 $scope.data.employee_issues.push(issue);
             });
             var users_issues = $scope.data.employee_issues;
             storage.setItem('users_issues', JSON.stringify(users_issues));
+        }
+
+        function get_priority_state(priority) {
+            let state = '';
+            switch (priority)
+            {
+                case '3':
+                    state = 'high-priority';
+                    break;
+                case '2':
+                    state = 'medium-priority';
+                    break;
+                case '1':
+                    state = 'low-priority';
+                    break;
+                case '0':
+                    state = 'zero-priority';
+                    break;
+                default:
+                    state = 'none';
+                    break;
+            }
+            return state;
         }
 
         function process_projects (response) {
