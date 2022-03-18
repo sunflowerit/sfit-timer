@@ -121,7 +121,6 @@ sfitTimerApp.controller('mainController', [
 
         // Assign remotes already configured
         storage.getItem('remote_host_info', function(remotes) {
-            console.log("remotes: " + remotes);
             if (remotes && remotes.length) {
                 $scope.remotes_info = remotes;
                 var count = 0;
@@ -651,9 +650,10 @@ sfitTimerApp.controller('mainController', [
                 'analytic_account_id',
             ];
             if (model === 'project.issue') {
-                fields.push('working_hours_open');
+                fields.push('working_hours_open',
+                    'message_summary', 'message_unread');
             }
-            if (model == 'project.task') {
+            if (model === 'project.task') {
                 fields.push('effective_hours', 'remaining_hours');
             }
             return jsonRpc.searchRead(
@@ -678,7 +678,12 @@ sfitTimerApp.controller('mainController', [
 
         function process_employee_issues (response) {
             $scope.data.employee_issues = [];
+            console.log(response.records);
             angular.forEach(response.records, function (issue) {
+                if (issue['message_unread'] && issue['message_summary']) {
+                    issue['message_summary'] = issue['message_summary'].match(
+                        /(?=You have)(.*)(?='><)/g)[0];
+                }
                 issue['priority_level'] = Array(parseInt(issue.priority)).fill(
                     null).map((_, i) => i);
                 issue['priority_state'] = get_priority_state(issue.priority);
