@@ -127,9 +127,10 @@
             <thead>
             <tr>
                 <th>
+                    <!-- Use startTimeCount a defined time to run -->
                     <timer ng-if="startTimeCount"
-                            start-time="startTimeCount"
-                            class="startTimeCount">
+                           start-time="startTimeCount"
+                           class="startTimeCount">
                         {{hhours}}:{{mminutes}}:{{sseconds}}
                     </timer>
                 </th>
@@ -158,16 +159,6 @@
                        title="Start the timer for the selected issue"
                        class="fa fa-play-circle action-btn pointer"
                        ng-click="startTimer1(issue)"></i>
-                    <i ng-show="current_date && current_date.issue_id == issue.id && !timerRunning"
-                       data-toggle="tooltip" data-placement="top"
-                       title="Continue timer for the selected issue"
-                       class="fa fa-play-circle action-btn pointer"
-                       ng-click="startTimer()"></i>
-                    <i ng-show="current_date && current_date.issue_id == issue.id && timerRunning"
-                       data-toggle="tooltip" data-placement="top"
-                       title="Pause timer for the selected issue"
-                       class="pause-btn fa fa-pause-circle-o action-btn pointer"
-                       ng-click="pauseTimer()"></i>
                     <i ng-click="stopTimer1(issue.id)"
                        data-toggle="tooltip" data-placement="top"
                        title="Stop timer and record the time to Odoo timesheets"
