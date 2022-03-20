@@ -58,23 +58,18 @@ sfitTimerApp.controller('mainController', [
             $scope.timerRunning = true;
             // Change icon to start
             browser.runtime.sendMessage({TimerActive: true});
-        };
-        $scope.pauseTimer = function () {
-            $scope.$broadcast('timer-stop');
-            $scope.timerRunning = false;
-            // Change icon to pause
-            browser.runtime.sendMessage({TimerActive: 'pause'});
+            console.log("Start Time: " + $scope.startTimeCount._d);
         };
         $scope.stopTimer = function () {
             $scope.$broadcast('timer-stop');
+            $scope.$broadcast('timer-reset');
+            $scope.$broadcast('timer-clear');
             $scope.timerRunning = false;
         };
-        $scope.$on('timer-stopped', function (event, data) {
-            console.log('Timer Stopped:', data);
+        $scope.$on('timer-tick', function (event, data) {
+            $scope.currentValue = data.millis;
         });
-        $scope.$on('timer-resume', function (event, data) {
-            console.log('Timer Resume:', data);
-        });
+
         //---------------------------------------------------------
 
         //-----------------------------------
@@ -264,7 +259,6 @@ sfitTimerApp.controller('mainController', [
 
             // Stop timer
             $scope.stopTimer();
-            $scope.$broadcast('timer-clear');
 
             // Show start/stop buttons on other issues
             $scope.current_date = false;
