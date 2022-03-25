@@ -25,6 +25,7 @@ sfitTimerApp.controller('mainController', [
             {val:'', opt: 'All'},
         ];
         $scope.remotes = [];
+        $scope.allIssues = false;
 
         // Assign all issues
         $scope.$watch('allIssues', function () {
@@ -214,7 +215,6 @@ sfitTimerApp.controller('mainController', [
 
         // Start timer
         $scope.startTimer1 = function (issue) {
-            console.log(issue);
             $scope.odoo_error = '';
             var now = moment();
             issue.currentRunning = 1;
@@ -278,7 +278,7 @@ sfitTimerApp.controller('mainController', [
                     var mins = Math.round(durationMins % 60/15) * 15;
                     var durationInHours = Math.floor(durationMins/60) + mins/60;
                     var issue = $scope.data.employee_issues.find(
-                        function(o) {return o.id == id});
+                        function(o) {return o.id === id});
                     if (!issue) {
                         $scope.odoo_error = "Issue " + id + " not found";
                         return;
@@ -287,7 +287,7 @@ sfitTimerApp.controller('mainController', [
                     var analytic_account_id = issue.analytic_account_id;
                     if (!analytic_account_id) {
                         var project = $scope.data.projects.find(
-                            function (o) {return o.id == issue.project_id[0];}
+                            function (o) {return o.id === issue.project_id[0];}
                         );
                         if (!project) {
                             $scope.odoo_error = "Project not found.";
@@ -456,9 +456,20 @@ sfitTimerApp.controller('mainController', [
 
         // Issue/task list view
         $scope.to_main = function () {
+            $scope.allIssues = false;
             $("#wrapper").removeClass("hide");
             $("#loader-container").addClass("hide");
             $("#login").addClass("hide");
+            let current_issue = $scope.data.employee_issues.find(
+                (x)=> x.id === $scope.data.active_timer_id);
+            let current_user = $scope.data.user_id;
+            let is_user_issue = true;
+            if (current_issue && current_user) {
+                is_user_issue = current_issue['user_id'][0] === current_user;
+            }
+            if ($scope.timerRunning && !$scope.allIssues && !is_user_issue) {
+                $scope.allIssues = true;
+            }
         };
 
         // Login Form
@@ -581,7 +592,6 @@ sfitTimerApp.controller('mainController', [
                             'storeId': cookie.storeId,
                             'url': url || 'https://' + cookie.domain
                         });
-                        console.log(res);
                     });
                 }
             }).then(function(){
@@ -672,7 +682,6 @@ sfitTimerApp.controller('mainController', [
 
         function process_employee_issues (response) {
             $scope.data.employee_issues = [];
-            console.log(response.records);
             angular.forEach(response.records, function (issue) {
                 if (issue['message_unread'] && issue['message_summary']) {
                     issue['message_summary'] = issue['message_summary'].match(
