@@ -27,6 +27,49 @@ sfitTimerApp.controller('mainController', [
         $scope.remotes = [];
         $scope.allIssues = false;
 
+        // apply saved option on checker
+        storage.getItem("auto_download_issue_timesheet", function (opt) {
+            if (opt) 
+                $scope.auto_download_issue_timesheet = opt;
+            else
+                $scope.auto_download_issue_timesheet = false;
+
+        });
+
+        // Apply existing session stored option
+        storage.getItem("useExistingSession", function (opt) {
+            if (opt) 
+                $scope.data.useExistingSession = opt;
+            else
+                $scope.auto_download_issue_timesheet = true;
+
+        });
+        // TODO => NB: Below is how angular checks for changes on checkbox 
+        // $scope.auto_issue_timesheet_checkbox_change = function () {
+        //     var checked = event.target.checked || 
+        //     $scope.auto_download_issue_timesheet || false;
+        //     $scope.$watch('auto_download_issue_timesheet', function () {
+        //         storage.setItem('auto_download_issue_timesheet', 
+        //         $scope.auto_download_issue_timesheet);
+        // }
+        // ng-change="auto_issue_timesheet_checkbox_change()"
+        // Above is not consistent with detction 
+
+        // prefered approach works well
+        $scope.$watch('auto_download_issue_timesheet', function () {
+            storage.removeItem('auto_download_issue_timesheet');
+            storage.setItem('auto_download_issue_timesheet', 
+            $scope.auto_download_issue_timesheet);
+        });
+
+        // Existing session checker
+        $scope.$watch('data.useExistingSession', function() {
+            storage.removeItem('useExistingSession');
+            storage.setItem('useExistingSession', 
+            $scope.data.useExistingSession);
+
+        });
+
         // Assign all issues
         $scope.$watch('allIssues', function () {
             if (!$scope.allIssues && $scope.data.user) {
@@ -165,6 +208,14 @@ sfitTimerApp.controller('mainController', [
                                     'current_host_state', 'Active');
                                 jsonRpc.odoo_server = selected_host['url'];
                                 $scope.loginLoading = false;
+                                var remotes = $scope.remotes_info.map(
+                                    (x)=> JSON.parse(x));
+                                var host = remotes.find(
+                                    (x) => x.database === result.db);
+                                $scope.database = result.db;
+                                $scope.current_host = host.url || result['web.base.url'];
+                                $scope.current_database = host.database || result.db;
+                                $scope.data.dataSource = host.datasrc;
                             }
 
                         });
@@ -250,6 +301,130 @@ sfitTimerApp.controller('mainController', [
                 $scope.stopTimer1(startTimeInfo.issue_id);
             });
         };
+
+        const objectToCSV = function (data) {
+            const csvRows = [];
+            const headers = Object.keys(data[0]);
+            csvRows.push(headers.join(','));
+            for (const row of data) {
+                const values = headers.map(header => {
+                    const val = row[header]
+                    return `"${val}"`;
+                });
+                csvRows.push(values.join(','));
+            }
+            return csvRows.join('\n');
+        };
+
+        // Download locally only specific issue timesheet for current month
+        function auto_download_current_issue (issue) {
+            var model = $scope.data.dataSource == 'project.task'? 
+            'account.analytic.line' :'hr.analytic.timesheet';
+            var task_domain = $scope.data.dataSource == 'project.task' ? 
+            ['task_id', '=', issue.id] : ['issue_id', '=', issue.id];
+            if ($scope.data.dataSource == 'project.task')
+                model = 'account.analytic.line';
+            var today = new Date();
+            var first_day = new Date(today.getFullYear(), today.getMonth(), 1);
+            var first_date = first_day.toJSON().slice(0,10);
+            var current_date = new Date().toJSON().slice(0,10);
+            var domain = [
+                ['user_id', '=', $scope.data.user.id],
+                ['create_date', '>=', first_date],
+                ['create_date', '<=', current_date]
+            ];
+            domain.push(task_domain);
+            var fields = [];
+            var link = document.createElement("a");
+            var $download_icon = $(`<i class="fa fa-download fa-2x" 
+            data-toggle="tooltip" data-placement="top" 
+            title="Download Timesheet"></i>`);
+            var csv_data = '';
+            var now = new Date().toGMTString();
+            var filename = `Timesheet-#${issue.id}-[${now}].csv`;
+            link.download = filename;
+            link.appendChild($download_icon[0]);
+
+            jsonRpc.searchRead(model, domain, fields).then(function (response) {
+                if ('records' in response && response.records.length) {
+                    csv_data = objectToCSV(response.records);
+                    $scope.data.timesheet_csv = csv_data;
+                    csvData = new Blob(
+                        [csv_data], 
+                        {
+                            type: 'application/csv;charset=utf-8;'
+                        }
+                    ); 
+                    link.href = URL.createObjectURL(csvData);
+                    link.click();
+                    alert.show(`Timesheet for issue <b>#${issue.id}</b></br>
+                    has been saved locally as<br/> <b>${filename}</b></br> 
+                    in Downloads.<br/>
+                    <span style='font-size: 30px; color; #ffbf00;'>&#128077;
+                    </span>
+                    `);
+                } 
+            });
+
+        }
+
+        // Allows you download to a copy of timesheet on local based on 
+        // current month
+        $scope.getTimesheets = function () {
+            var model = $scope.data.dataSource == 'project.task'? 
+            'account.analytic.line' :'hr.analytic.timesheet';
+            var today = new Date();
+            var first_day = new Date(today.getFullYear(), today.getMonth(), 1);
+            var first_date = first_day.toJSON().slice(0,10);
+            var current_date = new Date().toJSON().slice(0,10);
+            var domain = [
+                ['user_id', '=', $scope.data.user.id],
+                ['create_date', '>=', first_date],
+                ['create_date', '<=', current_date]
+            ];
+            var fields = [];
+            if (!$('.month_timesheet_download').length) {
+                var link = document.createElement("a");
+                var $download_icon = $(`<i class="fa fa-download fa-2x" 
+                data-toggle="tooltip" data-placement="top" 
+                title="Download current month timesheet"></i>`);
+                var csv_data = '';
+                var now = new Date().toGMTString();
+                link.download = `Timesheet [${now}].csv`;
+                link.classList.add('month_timesheet_download');
+                link.appendChild($download_icon[0]);
+                jsonRpc.searchRead(model, domain, fields).then(function (response) {
+                    if ('records' in response && response.records.length) {
+                        csv_data = objectToCSV(response.records);
+                        $scope.data.timesheet_csv = csv_data;
+                        csvData = new Blob(
+                            [csv_data], 
+                            {
+                                type: 'application/csv;charset=utf-8;'
+                            }
+                        ); 
+                        link.href = URL.createObjectURL(csvData);
+                        $(link).insertBefore($('.options-btn'));
+                    }
+                });
+            }
+        }
+        
+        $(document).on("click", "a.month_timesheet_download", function(){
+            var today = new Date();
+            var first_day = new Date(today.getFullYear(), today.getMonth(), 1);
+            var first_date = first_day.toJSON().slice(0,10);
+            var current_date = new Date().toJSON().slice(0,10);
+            var username = $scope.data.user.display_name;
+            var now = new Date().toGMTString();
+            var filename = `Timesheet [${now}].csv`;
+            alert.show(`Timesheet for <b>${username}</b>:</br> 
+            Dated <b>${first_date}</b> to <b>${current_date}</b></br> 
+            has been saved locally as<br/><b>${filename}</b></br> 
+            in Downloads.<br/>
+            <span style='font-size: 30px; color; #ffbf00;'>&#128077;</span>`);
+            
+        });
         // Stop timer
         $scope.stopTimer1 = function (id) {
             console.log('stopping time...');
@@ -334,6 +509,9 @@ sfitTimerApp.controller('mainController', [
                                         alert.show("Time for issue #" +
                                             issue.id + " recorded successfully!"
                                         );
+                                        if ($scope.auto_download_issue_timesheet && issue)
+                                            auto_download_current_issue(issue);
+                                            
                                     }).catch(function(error) {
                                         alert.show("<b>Error Occurred</b>" +
                                             "<br/><p>" + JSON.stringify(error) +
@@ -364,6 +542,8 @@ sfitTimerApp.controller('mainController', [
                                 alert.show("Time for Task #" +
                                     issue.id + " recorded successfully!"
                                 );
+                                if ($scope.auto_download_issue_timesheet && issue)
+                                    auto_download_current_issue(issue);
                             }).catch(function(error) {
                                 alert.show("<b>Error Occurred</b><br/><p>" +
                                     JSON.stringify(error) +"</p>");
@@ -552,6 +732,7 @@ sfitTimerApp.controller('mainController', [
                     $scope.getRemoteInfo();
                 });
                 $scope.getCurrentIssueList();
+                $scope.getTimesheets();
             });
         };
 

@@ -119,6 +119,22 @@
                 ng-init="limitTo=limitRange[0]">
         </select>
     </div>
+
+    <div class="auto_download_timesheet" 
+         data-toggle="tooltip" 
+         data-placement="top"
+         title="Store timesheet locally when you stop timer on an specific issue">
+        <span>
+            <!-- NB: ng-change="auto_issue_timesheet_checkbox_change()" 
+                not working well -->
+            <input id="auto_download_timesheet_input"
+                   type="checkbox" 
+                   ng-model="auto_download_issue_timesheet">
+                   Auto Download Issue Timesheet 
+            </input>
+        </span>
+    </div>
+
     <div>
         <p class="odooError">{{odoo_error}}</p>
     </div>
@@ -270,6 +286,7 @@
                 <span><b>Database:</b> {{info.db}}</span><br/>
                 <span><b>Current User:</b> {{info.current_user}}</span><br/>
             </div>
+
             <div class="col-md-12 footer-btns pointer">
                 <i class="fa fa-hand-o-left fa-2x"
                    data-toggle="tooltip"
@@ -284,6 +301,7 @@
                    title="Log out"
                    ng-click="logout()"></i>
                 <a href="options_main_page.html"
+                   class="options-btn"
                    data-toggle="tooltip" data-placement="top"
                    title="Go To options">
                     <i class="fa fa-cogs fa-2x"></i>
