@@ -110,6 +110,20 @@
             </div>
 
             <div class="form-group">
+                <label for="remote-vc-host">Version Control Host</label>
+                <input type="text" ng-model="data.remote_vc_host"
+                       class="form-control" id="remote-vc-host"
+                       placeholder="https://gitlab.com">
+            </div>
+
+            <div class="form-group">
+                <label for="remote-vc-token">Version Control Private Token</label>
+                <input type="text" ng-model="data.remote_vc_token"
+                       class="form-control" id="remote-vc-token"
+                       placeholder="ER45kgl-RT56p9uyt-rtY7798pkdZXD">
+            </div>
+
+            <div class="form-group">
                 <label class="label">Data Source</label>
                 <ul class="data-source-list list-group">
                     <li class="list-group-item">

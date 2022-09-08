@@ -38,6 +38,12 @@
     "https://*/",
     "http://*/"
   ],
+  "browser_specific_settings": {
+    "gecko": {
+      "id": "info@sunflowerweb.nl",
+      "update_url": "https://github.com/sunflowerit/sfit-timer"
+    }
+  },  
   "content_security_policy": "script-src 'self' https://ssl.google-analytics.com; object-src 'self'",
   "minimum_chrome_version": "41",
   "manifest_version": 2
