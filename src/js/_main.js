@@ -26,6 +26,7 @@ sfitTimerApp.controller('mainController', [
         ];
         $scope.remotes = [];
         $scope.allIssues = false;
+        $scope.issue_desc = '';
 
         // apply saved option on checker
         storage.getItem("auto_download_issue_timesheet", function (opt) {
@@ -35,6 +36,29 @@ sfitTimerApp.controller('mainController', [
                 $scope.auto_download_issue_timesheet = false;
 
         });
+
+        // TODO find a better way to update since someone has to click twice
+        // Apply the stored boolean for existing issues for edit desc
+        $scope.check_issue_edit_desc_checker = function(issue_id) {
+            storage.getItem('store_edit_issue', function(edit_issues) {
+                if (!jQuery.isEmptyObject(edit_issues)) {
+                    var does_exist = Object.keys(edit_issues).find(
+                        (x)=> parseInt(x) === issue_id);
+                    if (does_exist)
+                        {
+                            $(`tr#${issue_id}`).find('#edit_issue_desc_opt')
+                            .prop('checked', edit_issues[issue_id]);
+                        }
+                }
+            });
+        }
+
+        // Pre-set empty to be used in storage of edit issue desc checker action
+        storage.getItem('store_edit_issue', function(edit_issues) {
+            if (jQuery.isEmptyObject(edit_issues))
+                storage.setItem('store_edit_issue', {});  
+        });
+
 
         // Apply existing session stored option
         storage.getItem("useExistingSession", function (opt) {
@@ -148,6 +172,35 @@ sfitTimerApp.controller('mainController', [
                 $scope.data.dataSource = src;
             }
         });
+
+        // Update changes of checkboxes used for editing
+        $scope.update_issue_desc = function(issue_id) {
+            var opt = $('tr#'+ issue_id).find('#edit_issue_desc_opt').prop(
+                'checked');
+            storage.getItem('store_edit_issue', function(edit_issues){
+                if (!jQuery.isEmptyObject(edit_issues)) {
+                    var issue = Object.keys(edit_issues).find(
+                        (x)=> parseInt(x) === issue_id);
+                    // Aleady exists just update state true/false
+                    if (issue) {
+                        edit_issues[parseInt(issue)] = opt;
+                        storage.setItem('store_edit_issue', edit_issues);
+                    }
+                    // New issue to be stored and its state
+                    else {
+                        edit_issues[issue_id] = opt;
+                        storage.setItem('store_edit_issue', edit_issues);
+                    }
+                }
+                // first time we are storing issue
+                else {
+                    var edit_issues = {};
+                    edit_issues[issue_id] = opt;
+                    storage.setItem('store_edit_issue', edit_issues);
+                }
+                    
+            });
+        }
 
 
         // Try login with current user session
@@ -427,143 +480,178 @@ sfitTimerApp.controller('mainController', [
         });
         // Stop timer
         $scope.stopTimer1 = function (id) {
-            console.log('stopping time...');
-
-            // Change icon to inactive
-            browser.runtime.sendMessage({TimerActive: false});
-
-            // Stop timer
-            $scope.stopTimer();
-
-            // Show start/stop buttons on other issues
-            $scope.current_date = false;
-
-            var now = moment();
-            var timer_info = {
-                'stop_time': now,
-                'issue_id': id,
-            };
-            storage.setItem('stop_date_time', JSON.stringify(timer_info));
-            storage.getItem("start_date_time", function (time) {
-                var startTimeInfo = JSON.parse(time);
-                if (startTimeInfo) {
-                    // Get time difference in minutes
-                    var durationMins = moment.duration(
-                        now.diff(startTimeInfo.start_time)).asMinutes();
-                    var mins = Math.round(durationMins % 60/15) * 15;
-                    var durationInHours = Math.floor(durationMins/60) + mins/60;
-                    var issue = $scope.data.employee_issues.find(
-                        function(o) {return o.id === id});
-                    if (!issue) {
-                        $scope.odoo_error = "Issue " + id + " not found";
-                        return;
-                    }
-
-                    var analytic_account_id = issue.analytic_account_id;
-                    if (!analytic_account_id) {
-                        var project = $scope.data.projects.find(
-                            function (o) {return o.id === issue.project_id[0];}
-                        );
-                        if (!project) {
-                            $scope.odoo_error = "Project not found.";
-                            return;
-                        }
-                        analytic_account_id = project.analytic_account_id;
-                    }
-                    if (!analytic_account_id) {
-                        $scope.odoo_error = "No Analytic Account is defined on the project.";
-                        return;
-                    }
-
-                    $scope.analytic_journal = null
-                    createTimesheet();
-
-                    // Post to odoo hr.analytic.timesheet, create new time sheet
-                    function createTimesheet () {
-                        if ($scope.data.dataSource === 'project.issue') {
-                            // Search analytic journal for timesheet
-                            $scope.model = 'account.analytic.journal';
-                            $scope.domain = [['name', 'ilike', 'Timesheet']];
-                            $scope.fields = ['name'];
-                            jsonRpc.searchRead($scope.model, $scope.domain, $scope.fields)
-                                .then(function (response) {
-                                    $scope.analytic_journal = response.records[0];
-                                    var args = [{
-                                        'date': now.format('YYYY-MM-D'),
-                                        'user_id': $scope.data.user.id,
-                                        'name': issue.name+' (#'+issue.id+')',
-                                        'journal_id': $scope.analytic_journal.id,
-                                        "account_id": analytic_account_id[0],
-                                        "unit_amount": durationInHours,
-                                        "to_invoice": 1,
-                                        "issue_id": issue.id,
-                                    }];
-                                    var kwargs = {};
-                                    jsonRpc.call(
-                                        'hr.analytic.timesheet',
-                                        'create',
-                                        args,
-                                        kwargs
-                                    ).then(function (response) {
-                                        console.log('response', response);
-                                        alert.show("Time for issue #" +
-                                            issue.id + " recorded successfully!"
-                                        );
-                                        if ($scope.auto_download_issue_timesheet && issue)
-                                            auto_download_current_issue(issue);
-                                            
-                                    }).catch(function(error) {
-                                        alert.show("<b>Error Occurred</b>" +
-                                            "<br/><p>" + JSON.stringify(error) +
-                                            "</p>");
-                                    });
-
-                                }, odoo_failure_function);
+            var edit_issue_desc = $('tr#' + id).find('#edit_issue_desc_opt')
+            .prop('checked');
+            if (edit_issue_desc)
+             {
+                alert.show(`
+                <label for='new_issue_desc'>#${id} Description</label>
+                <textarea class='form-control' id='new_issue_desc' rows='7'/>`, 
+                ['Save', 'close']).then(function(res) {
+                    if (res === 'Save') {
+                        var desc = $('#new_issue_desc').val();
+                        if (desc != '') {
+                            $scope.issue_desc = desc;
+                            _SubmitIssueTime(id);
                         }
                         else {
-                            // project.tasks e.g Therp system
-                            var args = [{
-                                'date': now.format('YYYY-MM-D'),
-                                'user_id': $scope.data.user.id,
-                                'name': issue.name+' (#'+issue.id+')',
-                                "account_id": analytic_account_id[0],
-                                "unit_amount": durationInHours,
-                                "project_id": issue.project_id[0],
-                                "task_id": issue.id,
-                            }];
-                            var kwargs = {};
-                            jsonRpc.call(
-                                'account.analytic.line',
-                                'create',
-                                args,
-                                kwargs
-                            ).then(function (response) {
-                                console.log('response', response);
-                                alert.show("Time for Task #" +
-                                    issue.id + " recorded successfully!"
-                                );
-                                if ($scope.auto_download_issue_timesheet && issue)
-                                    auto_download_current_issue(issue);
-                            }).catch(function(error) {
-                                alert.show("<b>Error Occurred</b><br/><p>" +
-                                    JSON.stringify(error) +"</p>");
-                            });
-
+                            alert.show(`You cannot have <b>Edit Issue Desc</b> 
+                            on and submit an <b>empty value</b> <span 
+                            style="font-size: 20px;">&#128580;</span>. Either 
+                            remove checker and sumbit or <b>add a description
+                            </b> for the current issue`);
                         }
                     }
+                });
+            }
+            
+            else {
+                _SubmitIssueTime(id);
+            }
 
-                } else {
-                    console.log('No time info');
-                }
-            });
+            
+            function _SubmitIssueTime(issue) {
+                var id = issue;
+                // Change icon to inactive
+                browser.runtime.sendMessage({TimerActive: false});
 
-            // Removes the highlighted active timer.
-            $scope.data.active_timer_id = false;
+                // Stop timer
+                $scope.stopTimer();
 
-            // Clear storage
-            console.log('stopped time...');
-            storage.removeItem("active_timer_id");
-            storage.removeItem("start_date_time");
+                // Show start/stop buttons on other issues
+                $scope.current_date = false;
+
+                var now = moment();
+                var timer_info = {
+                    'stop_time': now,
+                    'issue_id': id,
+                };
+                storage.setItem('stop_date_time', JSON.stringify(timer_info));
+                storage.getItem("start_date_time", function (time) {
+                    var startTimeInfo = JSON.parse(time);
+                    if (startTimeInfo) {
+                        // Get time difference in minutes
+                        var durationMins = moment.duration(
+                            now.diff(startTimeInfo.start_time)).asMinutes();
+                        var mins = Math.round(durationMins % 60/15) * 15;
+                        var durationInHours = Math.floor(durationMins/60) + mins/60;
+                        var issue = $scope.data.employee_issues.find(
+                            function(o) {return o.id === id});
+                        if (!issue) {
+                            $scope.odoo_error = "Issue " + id + " not found";
+                            return;
+                        }
+
+                        var analytic_account_id = issue.analytic_account_id;
+                        if (!analytic_account_id) {
+                            var project = $scope.data.projects.find(
+                                function (o) {return o.id === issue.project_id[0];}
+                            );
+                            if (!project) {
+                                $scope.odoo_error = "Project not found.";
+                                return;
+                            }
+                            analytic_account_id = project.analytic_account_id;
+                        }
+                        if (!analytic_account_id) {
+                            $scope.odoo_error = "No Analytic Account is defined on the project.";
+                            return;
+                        }
+
+                        $scope.analytic_journal = null
+                        createTimesheet();
+
+                        // Post to odoo hr.analytic.timesheet, create new time sheet
+                        function createTimesheet () {
+                            if ($scope.data.dataSource === 'project.issue') {
+                                // Search analytic journal for timesheet
+                                $scope.model = 'account.analytic.journal';
+                                $scope.domain = [['name', 'ilike', 'Timesheet']];
+                                $scope.fields = ['name'];
+                                var issue_name = issue.name+' (#'+issue.id+')';
+                                if ($scope.issue_name != '')
+                                    issue_name = $scope.issue_desc;
+
+                                jsonRpc.searchRead($scope.model, $scope.domain, $scope.fields)
+                                    .then(function (response) {
+                                        $scope.analytic_journal = response.records[0];
+                                        var args = [{
+                                            'date': now.format('YYYY-MM-D'),
+                                            'user_id': $scope.data.user.id,
+                                            'name': issue_name,
+                                            'journal_id': $scope.analytic_journal.id,
+                                            "account_id": analytic_account_id[0],
+                                            "unit_amount": durationInHours,
+                                            "to_invoice": 1,
+                                            "issue_id": issue.id,
+                                        }];
+                                        var kwargs = {};
+                                        jsonRpc.call(
+                                            'hr.analytic.timesheet',
+                                            'create',
+                                            args,
+                                            kwargs
+                                        ).then(function (response) {
+                                            console.log('response', response);
+                                            alert.show("Time for issue #" +
+                                                issue.id + " recorded successfully!"
+                                            );
+                                            if ($scope.auto_download_issue_timesheet && issue)
+                                                auto_download_current_issue(issue);
+                                                
+                                        }).catch(function(error) {
+                                            alert.show("<b>Error Occurred</b>" +
+                                                "<br/><p>" + JSON.stringify(error) +
+                                                "</p>");
+                                        });
+
+                                    }, odoo_failure_function);
+                            }
+                            else {
+                                // project.tasks e.g Therp system
+                                var args = [{
+                                    'date': now.format('YYYY-MM-D'),
+                                    'user_id': $scope.data.user.id,
+                                    'name': issue.name+' (#'+issue.id+')',
+                                    "account_id": analytic_account_id[0],
+                                    "unit_amount": durationInHours,
+                                    "project_id": issue.project_id[0],
+                                    "task_id": issue.id,
+                                }];
+                                var kwargs = {};
+                                jsonRpc.call(
+                                    'account.analytic.line',
+                                    'create',
+                                    args,
+                                    kwargs
+                                ).then(function (response) {
+                                    console.log('response', response);
+                                    alert.show("Time for Task #" +
+                                        issue.id + " recorded successfully!"
+                                    );
+                                    if ($scope.auto_download_issue_timesheet && issue)
+                                        auto_download_current_issue(issue);
+                                }).catch(function(error) {
+                                    alert.show("<b>Error Occurred</b><br/><p>" +
+                                        JSON.stringify(error) +"</p>");
+                                });
+
+                            }
+                        }
+
+                    } else {
+                        console.log('No time info');
+                    }
+                });
+
+                // Removes the highlighted active timer.
+                $scope.data.active_timer_id = false;
+
+                // Clear storage
+                console.log('stopped time...');
+                storage.removeItem("active_timer_id");
+                storage.removeItem("start_date_time");
+            }
         };
 
         // LOGIN process
@@ -700,6 +788,7 @@ sfitTimerApp.controller('mainController', [
         // Set current user
         $scope.set_current_user = function (res) {
             var id = res.uid;
+            console.log($('tr#2834'));
             $scope.data.user = false;
             $scope.model = 'res.users';
             $scope.domain = [['id', '=', id]];
@@ -720,6 +809,7 @@ sfitTimerApp.controller('mainController', [
                     $scope.load_projects().then(function() {
                         console.log('loaded projects');
                     });
+
                     $scope.load_employee_issues().then(function() {
                         var users_issues = $scope.data.employee_issues;
                         storage.setItem('users_issues', JSON.stringify(users_issues));

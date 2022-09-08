@@ -30,6 +30,7 @@ if (browser.storage && browser.storage.local) {
     storage.clear = function () {
         browser.storage.local.clear();
     };
+
 } else {
 
     /* Test for local storage */
