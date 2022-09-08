@@ -498,8 +498,8 @@ sfitTimerApp.controller('mainController', [
                             alert.show(`You cannot have <b>Edit Issue Desc</b> 
                             on and submit an <b>empty value</b> <span 
                             style="font-size: 20px;">&#128580;</span>. Either 
-                            remove checker and sumbit or <b>add a description
-                            </b> for the current issue`);
+                            remove checker or <b>add a description
+                            </b> for the current issue then submit`);
                         }
                     }
                 });
