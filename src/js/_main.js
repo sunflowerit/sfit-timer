@@ -104,6 +104,31 @@ sfitTimerApp.controller('mainController', [
             }
         });
 
+        // autoset Allissues/lmitTo to true if timer was running for a user
+        // unassigned issue.
+        $scope.assign_all_issues_if_timer_runnning = function (issue_id) {
+            if ($scope.timerRunning && $scope.data.active_timer_id === issue_id 
+                && 'employee_issues' in $scope.data)
+            {
+                var issue = $scope.data.employee_issues.find(
+                    function(o) {return o.id === issue_id && 
+                        o.user_id[0] !== $scope.data.user_id});
+                if (issue) {
+                    $scope.allIssues= true;
+                    $scope.limitTo = '';
+                }
+                else {
+                    $scope.allIssues= true;
+                    $scope.limitTo = '5';
+                }
+            }
+            else {
+                $scope.allIssues = false;
+                $scope.limitTo = '5';
+            }
+
+        }
+
         // Toggle password view
         $scope.displayPass = function () {
             var uniq_pass = document.getElementById('unique-password');
@@ -811,6 +836,9 @@ sfitTimerApp.controller('mainController', [
                         storage.setItem('users_issues', JSON.stringify(users_issues));
                         $scope.to_main();
                         console.log('loaded new issues');
+                        // set active if issue was hidden but timer running
+                        $scope.assign_all_issues_if_timer_runnning(
+                            $scope.data.active_timer_id);
                     }, function() {
                         $scope.to_main();
                         console.log('no issues found');
