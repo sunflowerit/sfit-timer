@@ -142,9 +142,7 @@ sfitTimerAppOptions.controller('mainController', [
                     'name': $scope.data.remote_name || $scope.data.remote_host,
                     'database': $scope.data.remote_database,
                     'datasrc': $scope.data.remote_datasrc,
-                    'state': 'Inactive',
-                    'vc_host': $scope.data.remote_vc_host || false,
-                    'vc_host_token': $scope.data.remote_vc_token || false
+                    'state': 'Inactive'
                 }
                 // Check if url is valid for storage.
                 if (validURL($scope.data.remote_host)) {
