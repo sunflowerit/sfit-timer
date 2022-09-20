@@ -28,65 +28,6 @@ sfitTimerApp.controller('mainController', [
         $scope.allIssues = false;
         $scope.issue_desc = '';
 
-        // apply saved option on checker
-        storage.getItem("auto_download_issue_timesheet", function (opt) {
-            if (opt) 
-                $scope.auto_download_issue_timesheet = opt;
-            else
-                $scope.auto_download_issue_timesheet = false;
-
-        });
-
-        // TODO find a better way to update since someone has to click twice
-        // Apply the stored boolean for existing issues for edit desc
-        // Currently Disabled comments
-        // $scope.check_issue_edit_desc_checker = function(issue_id) {
-        //     storage.getItem('store_edit_issue', function(edit_issues) {
-        //         if (!jQuery.isEmptyObject(edit_issues)) {
-        //             var does_exist = Object.keys(edit_issues).find(
-        //                 (x)=> parseInt(x) === issue_id);
-        //             if (does_exist)
-        //                 {
-        //                     $(`tr#${issue_id}`).find('#edit_issue_desc_opt')
-        //                     .prop('checked', edit_issues[issue_id]);
-        //                 }
-        //         }
-        //     });
-        // }
-
-        // Pre-set empty to be used in storage of edit issue desc checker action
-        storage.getItem('store_edit_issue', function(edit_issues) {
-            if (jQuery.isEmptyObject(edit_issues))
-                storage.setItem('store_edit_issue', {});  
-        });
-
-
-        // Apply existing session stored option
-        storage.getItem("useExistingSession", function (opt) {
-            if (opt) 
-                $scope.data.useExistingSession = opt;
-            else
-                $scope.auto_download_issue_timesheet = false;
-
-        });
-        // TODO => NB: Below is how angular checks for changes on checkbox 
-        // $scope.auto_issue_timesheet_checkbox_change = function () {
-        //     var checked = event.target.checked || 
-        //     $scope.auto_download_issue_timesheet || false;
-        //     $scope.$watch('auto_download_issue_timesheet', function () {
-        //         storage.setItem('auto_download_issue_timesheet', 
-        //         $scope.auto_download_issue_timesheet);
-        // }
-        // ng-change="auto_issue_timesheet_checkbox_change()"
-        // Above is not consistent with detction 
-
-        // prefered approach works well
-        $scope.$watch('auto_download_issue_timesheet', function () {
-            storage.removeItem('auto_download_issue_timesheet');
-            storage.setItem('auto_download_issue_timesheet', 
-            $scope.auto_download_issue_timesheet);
-        });
-
         // Existing session checker
         $scope.$watch('data.useExistingSession', function() {
             storage.removeItem('useExistingSession');
@@ -104,30 +45,13 @@ sfitTimerApp.controller('mainController', [
             }
         });
 
-        // autoset Allissues/lmitTo to true if timer was running for a user
-        // unassigned issue.
-        // $scope.assign_all_issues_if_timer_runnning = function (issue_id) {
-        //     if ($scope.timerRunning && $scope.data.active_timer_id === issue_id 
-        //         && 'employee_issues' in $scope.data)
-        //     {
-        //         var issue = $scope.data.employee_issues.find(
-        //             function(o) {return o.id === issue_id && 
-        //                 o.user_id[0] !== $scope.data.user_id});
-        //         if (issue) {
-        //             $scope.allIssues= true;
-        //             $scope.limitTo = '';
-        //         }
-        //         else {
-        //             $scope.allIssues= true;
-        //             $scope.limitTo = '5';
-        //         }
-        //     }
-        //     else {
-        //         $scope.allIssues = false;
-        //         $scope.limitTo = '5';
-        //     }
+        // Attach fixed header background and remove when back
+        $('#table-task-issues').scroll(function() {
+           $('#table-task-issues thead').css({'background': '#fff'});
+           if ($(this).scrollTop() === 0)
+               $('#table-task-issues thead').css({'background': ''});
+        });
 
-        // }
 
         // Toggle password view
         $scope.displayPass = function () {
@@ -191,37 +115,6 @@ sfitTimerApp.controller('mainController', [
             }
         });
 
-        // Update changes of checkboxes used for editing
-        // Currently Disabled comments
-        // $scope.update_issue_desc = function(issue_id) {
-        //     var opt = $('tr#'+ issue_id).find('#edit_issue_desc_opt').prop(
-        //         'checked');
-        //     storage.getItem('store_edit_issue', function(edit_issues){
-        //         if (!jQuery.isEmptyObject(edit_issues)) {
-        //             var issue = Object.keys(edit_issues).find(
-        //                 (x)=> parseInt(x) === issue_id);
-        //             // Aleady exists just update state true/false
-        //             if (issue) {
-        //                 edit_issues[parseInt(issue)] = opt;
-        //                 storage.setItem('store_edit_issue', edit_issues);
-        //             }
-        //             // New issue to be stored and its state
-        //             else {
-        //                 edit_issues[issue_id] = opt;
-        //                 storage.setItem('store_edit_issue', edit_issues);
-        //             }
-        //         }
-        //         // first time we are storing issue
-        //         else {
-        //             var edit_issues = {};
-        //             edit_issues[issue_id] = opt;
-        //             storage.setItem('store_edit_issue', edit_issues);
-        //         }
-                    
-        //     });
-        // }
-
-
         // Try login with current user session
         storage.getItem('current_host', function(host) {
             if (host && host.length) {
@@ -236,7 +129,7 @@ sfitTimerApp.controller('mainController', [
                 $scope.remotes_info = remotes;
                 var count = 0;
                 remotes.forEach(remote => {
-                    remote = JSON.parse(remote);
+                remote = JSON.parse(remote);
                     $scope.remotes.push({'id': count, 'label': remote.name});
                     count++;
                 });
@@ -582,14 +475,14 @@ sfitTimerApp.controller('mainController', [
 
                         // Post to odoo hr.analytic.timesheet, create new time sheet
                         function createTimesheet () {
+                            var issue_name = issue.name+' (#'+issue.id+')';
+                            if ($scope.issue_desc != '')
+                                    issue_name = $scope.issue_desc;
                             if ($scope.data.dataSource === 'project.issue') {
                                 // Search analytic journal for timesheet
                                 $scope.model = 'account.analytic.journal';
                                 $scope.domain = [['name', 'ilike', 'Timesheet']];
                                 $scope.fields = ['name'];
-                                var issue_name = issue.name+' (#'+issue.id+')';
-                                if ($scope.issue_desc != '')
-                                    issue_name = $scope.issue_desc;
 
                                 jsonRpc.searchRead($scope.model, $scope.domain, $scope.fields)
                                     .then(function (response) {
@@ -628,9 +521,6 @@ sfitTimerApp.controller('mainController', [
                             }
                             else {
                                 // project.tasks e.g Therp system
-                                var issue_name = issue.name+' (#'+issue.id+')';
-                                if ($scope.issue_desc != '')
-                                    issue_name = $scope.issue_desc;
                                 var args = [{
                                     'date': now.format('YYYY-MM-D'),
                                     'user_id': $scope.data.user.id,
@@ -836,9 +726,6 @@ sfitTimerApp.controller('mainController', [
                         storage.setItem('users_issues', JSON.stringify(users_issues));
                         $scope.to_main();
                         console.log('loaded new issues');
-                        // set active if issue was hidden but timer running
-                        // $scope.assign_all_issues_if_timer_runnning(
-                        //     $scope.data.active_timer_id);
                     }, function() {
                         $scope.to_main();
                         console.log('no issues found');
@@ -847,6 +734,8 @@ sfitTimerApp.controller('mainController', [
                 });
                 $scope.getCurrentIssueList();
                 $scope.getTimesheets();
+            }).catch(function(error){
+                odoo_failure_function(error);
             });
         };
 
@@ -1051,12 +940,12 @@ sfitTimerApp.controller('mainController', [
         // Generic failure function
         var odoo_failure_function = function (response) {
             $scope.odoo_error = {
-                'title': response.fullTrace.message,
+                'title': response.title || response.fullTrace.message,
                 'type': response.fullTrace.data ? response.fullTrace.data.exception_type : 'ERROR exception unidentified',
                 'message': response.fullTrace.data ? response.fullTrace.data.message : response.message,
             };
-            var msg = "<b>Error occurred</b><br/><p style='color: red;'>" +
-                JSON.stringify($scope.odoo_error) + "</p>";
+            var msg = `<b>${$scope.odoo_error['title']}</b><br/>
+            <p style='color: red;'>${JSON.stringify($scope.odoo_error)}</p>`;
             alert.show(msg);
             return false;
         };
