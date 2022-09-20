@@ -106,28 +106,28 @@ sfitTimerApp.controller('mainController', [
 
         // autoset Allissues/lmitTo to true if timer was running for a user
         // unassigned issue.
-        $scope.assign_all_issues_if_timer_runnning = function (issue_id) {
-            if ($scope.timerRunning && $scope.data.active_timer_id === issue_id 
-                && 'employee_issues' in $scope.data)
-            {
-                var issue = $scope.data.employee_issues.find(
-                    function(o) {return o.id === issue_id && 
-                        o.user_id[0] !== $scope.data.user_id});
-                if (issue) {
-                    $scope.allIssues= true;
-                    $scope.limitTo = '';
-                }
-                else {
-                    $scope.allIssues= true;
-                    $scope.limitTo = '5';
-                }
-            }
-            else {
-                $scope.allIssues = false;
-                $scope.limitTo = '5';
-            }
+        // $scope.assign_all_issues_if_timer_runnning = function (issue_id) {
+        //     if ($scope.timerRunning && $scope.data.active_timer_id === issue_id 
+        //         && 'employee_issues' in $scope.data)
+        //     {
+        //         var issue = $scope.data.employee_issues.find(
+        //             function(o) {return o.id === issue_id && 
+        //                 o.user_id[0] !== $scope.data.user_id});
+        //         if (issue) {
+        //             $scope.allIssues= true;
+        //             $scope.limitTo = '';
+        //         }
+        //         else {
+        //             $scope.allIssues= true;
+        //             $scope.limitTo = '5';
+        //         }
+        //     }
+        //     else {
+        //         $scope.allIssues = false;
+        //         $scope.limitTo = '5';
+        //     }
 
-        }
+        // }
 
         // Toggle password view
         $scope.displayPass = function () {
