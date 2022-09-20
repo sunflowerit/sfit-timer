@@ -837,8 +837,8 @@ sfitTimerApp.controller('mainController', [
                         $scope.to_main();
                         console.log('loaded new issues');
                         // set active if issue was hidden but timer running
-                        $scope.assign_all_issues_if_timer_runnning(
-                            $scope.data.active_timer_id);
+                        // $scope.assign_all_issues_if_timer_runnning(
+                        //     $scope.data.active_timer_id);
                     }, function() {
                         $scope.to_main();
                         console.log('no issues found');
