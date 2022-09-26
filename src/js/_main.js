@@ -842,7 +842,7 @@ sfitTimerApp.controller('mainController', [
                     'message_summary', 'message_unread');
             }
             if (model === 'project.task') {
-                fields.push('effective_hours', 'remaining_hours');
+                fields.push('effective_hours', 'remaining_hours', 'code');
             }
             return jsonRpc.searchRead(
                 model,
@@ -874,6 +874,7 @@ sfitTimerApp.controller('mainController', [
                 issue['priority_level'] = Array(parseInt(issue.priority)).fill(
                     null).map((_, i) => i);
                 issue['priority_state'] = get_priority_state(issue.priority);
+                console.log(issue);
                 $scope.data.employee_issues.push(issue);
             });
             var users_issues = $scope.data.employee_issues;
