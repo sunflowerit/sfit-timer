@@ -420,6 +420,25 @@ sfitTimerApp.controller('mainController', [
             else {
                 _SubmitIssueTime(id);
             }
+            // When 'enter' key is pressed we submit the issue time
+            document.addEventListener('keydown', function(event) {
+                if($('#new_issue_desc').is(':visible')) {
+                    var desc = $('#new_issue_desc').val();
+                    if (event.key === 'Enter') {
+                        if (desc !== '') {
+                                $scope.issue_desc = desc;
+                                _SubmitIssueTime(id);
+                            }
+                        else {
+                            alert.show(`You cannot have <b>Edit Issue Desc</b> 
+                            on and submit an <b>empty value</b> <span 
+                            style="font-size: 20px;">&#128580;</span>. Either 
+                            remove checker or <b>add a description
+                            </b> for the current issue then submit`);
+                        }
+                        }
+                    }
+                });
 
             
             function _SubmitIssueTime(issue) {
@@ -504,7 +523,7 @@ sfitTimerApp.controller('mainController', [
                                             args,
                                             kwargs
                                         ).then(function (response) {
-                                            console.log('response', response);
+
                                             alert.show("Time for issue #" +
                                                 issue.id + " recorded successfully!"
                                             );
@@ -537,7 +556,7 @@ sfitTimerApp.controller('mainController', [
                                     args,
                                     kwargs
                                 ).then(function (response) {
-                                    console.log('response', response);
+                                    
                                     alert.show("Time for Task #" +
                                         issue.id + " recorded successfully!"
                                     );
@@ -560,7 +579,6 @@ sfitTimerApp.controller('mainController', [
                 $scope.data.active_timer_id = false;
 
                 // Clear storage
-                console.log('stopped time...');
                 storage.removeItem("active_timer_id");
                 storage.removeItem("start_date_time");
             }
@@ -687,7 +705,6 @@ sfitTimerApp.controller('mainController', [
                             $scope.clearActiveSession();
                             storage.setItem(
                                 'current_host_state', 'Inactive');
-                            console.log('logged out');
                             $scope.to_login();
                         }
                     }
@@ -874,7 +891,6 @@ sfitTimerApp.controller('mainController', [
                 issue['priority_level'] = Array(parseInt(issue.priority)).fill(
                     null).map((_, i) => i);
                 issue['priority_state'] = get_priority_state(issue.priority);
-                console.log(issue);
                 $scope.data.employee_issues.push(issue);
             });
             var users_issues = $scope.data.employee_issues;
