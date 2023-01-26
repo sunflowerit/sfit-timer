@@ -175,14 +175,29 @@
                         data-toggle="tooltip" data-placement="top" title="Here priority is not set 'Empty'">
                         <i class="fa fa-star-o" aria-hidden="true"></i>
                     </td>
-                    <td hm-read ng-if="!issue.message_unread" hmtext="{{issue.id}}-{{issue.name}}"
+                    
+                    <!-- Project Issue Description -->
+                    <td hm-read ng-if="!issue.message_unread && data.dataSource == 'project.issue'" hmtext="{{issue.id}}-{{issue.name}}"
                         hmrecord="{{issue.id}}" hmhost="{{current_host}}" hmsource="{{data.dataSource}}" hmlimit="70"
                         hmMoreClass="hmMoreClass" hmLessClass="hmMoreClass" hm-more-text="..."
                         hm-less-text="<i class='fa fa-caret-up'></i>">
 
                     </td>
-                    <td hm-read ng-if="issue.message_unread"
+                    <td hm-read ng-if="issue.message_unread && data.dataSource == 'project.issue'"
                         hmtext="{{issue.id}}-{{issue.name}}  ----> ({{issue.message_summary}})"
+                        hmMessageUnread="{{issue.message_summary}}" hmrecord="{{issue.id}}" hmhost="{{current_host}}"
+                        hmsource="{{data.dataSource}}" hmlimit="70" hmMoreClass="hmMoreClass" hmLessClass="hmMoreClass"
+                        hm-more-text="..." hm-less-text="<i class='fa fa-caret-up'></i>">
+                    </td>
+                    <!-- Project Task Description -->
+                    <td hm-read ng-if="!issue.message_unread && data.dataSource == 'project.task'" hmtext="{{issue.code}}-{{issue.name}}"
+                        hmrecord="{{issue.id}}" hmhost="{{current_host}}" hmsource="{{data.dataSource}}" hmlimit="70"
+                        hmMoreClass="hmMoreClass" hmLessClass="hmMoreClass" hm-more-text="..."
+                        hm-less-text="<i class='fa fa-caret-up'></i>">
+
+                    </td>
+                    <td hm-read ng-if="issue.message_unread && data.dataSource == 'project.task'"
+                        hmtext="{{issue.code}}-{{issue.name}}  ----> ({{issue.message_summary}})"
                         hmMessageUnread="{{issue.message_summary}}" hmrecord="{{issue.id}}" hmhost="{{current_host}}"
                         hmsource="{{data.dataSource}}" hmlimit="70" hmMoreClass="hmMoreClass" hmLessClass="hmMoreClass"
                         hm-more-text="..." hm-less-text="<i class='fa fa-caret-up'></i>">
