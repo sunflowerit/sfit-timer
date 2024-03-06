@@ -1,0 +1,295 @@
+<templates xml:space="preserve">
+    <t t-name="therp_timer.TimerLinkerSection">
+        <div>
+            <!-- Spinner -->
+            <t t-if="state.activeSection == 'TimerSpinnerSection'">
+                <div class="overlay">
+                    <div class="loader-container">
+                        <div class="loader"></div>
+                        <p class="loading-text">Please wait, loading...</p>
+                    </div>
+                </div>
+            </t>
+
+            <!--Logo Header-->
+            <div class="banner-header">
+                <div class="logo">
+                    <img src="../images/icon.png" alt="Logo"/>
+                </div>
+            </div>
+
+            <!-- Login Section -->
+            <t t-if="state.activeSection == 'TimerLoginSection'">
+                <!-- If we have host instances -->
+                <t t-if="state.hosts_list.length">
+                    <div class="form-container">
+                        <div class="login-form">
+                            <div class="form-group" t-att-class="state.existingSession ? 'hide': 'active-show'">
+                                <label for="InputEmail">Email or Username</label>
+                                <input required="required" 
+                                t-ref="odoo_user_email" 
+                                type="email" 
+                                class="form-control" 
+                                id="InputEmail" 
+                                aria-describedby="emailHelp" 
+                                placeholder="Enter email"/>
+                            </div>
+                            <div class="form-group" t-att-class="state.existingSession ? 'hide': 'active-show'">
+                                <label for="InputPassword">Password</label>
+                                <input required="required" t-ref="odoo_user_password" type="password" class="form-control" id="InputPassword" placeholder="Enter Password"/>
+                            </div>
+                            <div class="form-group">
+                                <label for="existinghosts">Instance</label>
+                                <select class="form-control" t-ref="odoo_user_instance">
+                                    <t t-foreach="state.hosts_list" t-as="instance" t-key="instance">
+                                        <option t-att-selected="instance['id'] == 1" 
+                                        t-att-id="instance['id']" 
+                                        t-att-value="instance['db']"
+                                        t-att-data-db="instance['database']"
+                                        t-att-data-host="instance['host']"
+                                        t-att-data-instance="instance['instance']"
+                                        t-att-data-logo="instance['logo']"
+                                        >
+                                            <span t-esc="instance['instance']"/>
+                                        </option>
+                                    </t>
+                                </select>
+                            </div>
+                            <div class="form-check">
+                                <input t-att-checked="state.active_sessions.length" 
+                                t-ref="odoo_existing_session" 
+                                type="checkbox" 
+                                class="form-check-input" 
+                                id="existingSession"/>
+                                <label class="form-check-label" for="existingSession">Use Existing Session</label>
+                            </div>
+                            <button type="submit" 
+                                    t-att-class="state.existingSession ? 'active-show': 'hide'"
+                                    t-on-click="continueSession" 
+                                    class="login-btn btn-default">Continue</button>
+                            <button type="submit" 
+                                    t-att-class="!state.existingSession ? 'active-show': 'hide'"
+                                    t-on-click="login" 
+                                    class="login-btn btn-default">Login</button>
+                        </div>
+                    </div>
+                </t>
+                <!-- Else configure them under settings -->
+                <t t-else="">
+                    <div class="login-alert alert alert-warning" t-att-class="!state.hosts_list.length ? 'active-show': 'hide'">
+                    You need to configure a list of Odoo host instances
+                    to use to login and record time. Click below on <b>Configurations</b>
+                    to setup remote Odoo instances.
+                    </div>
+                </t>
+            </t>
+
+            <!-- Tasks Section -->
+            <t t-if="state.activeSection == 'TimerTasksSection'">
+                
+            </t>
+
+            <!-- Settings Section -->
+            <t t-if="state.activeSection == 'TimerSettingsSection'">
+                <!-- Close button (outside of the sidebar) -->
+                <a href="#" class="closebtn" t-on-click="closeNavBar">&#215;</a>
+                <t t-if="state.activeSection == 'TimerSettingsSection'">
+                    <!-- Sidebar -->
+                    <div id="mySidenav" class="sidenav" t-on-mouseleave="closeNavBar">
+                        <ul class="nav flex-column">
+                            <li class="nav-item">
+                                <a class="nav-link" t-on-click="toggleActiveTab" id="aboutTimer" href="#"><img src="../images/icons/account.png" alt="Account" width="24" height="24"/> Account</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" t-on-click="toggleActiveTab" id="aboutTimer" href="#"><img src="../images/icons/about.png" alt="About" width="24" height="24"/> About</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" t-on-click="toggleActiveTab" id="configForm" href="#"><img src="../images/icons/settings.png" alt="Settings" width="24" height="24"/> Settings</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" t-on-click="toggleActiveSection" id="TimerTasksSection" href="#"><img src="../images/icons/tasks.png" alt="Tasks" width="24" height="24"/> Tasks</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" t-on-click="toggleActiveSection" id="TimerLoginSection" href="#"><img src="../images/icons/login.png" alt="Login" width="24" height="24"/> Login</a>
+                            </li>
+                        </ul>
+                    </div>
+
+                    <div class="container">
+                        <!-- Open Menu button -->
+                        <span class="navbar-open-btn" t-on-mouseover="showNavBar" t-on-click="showNavBar">&#9776;</span>
+
+                        <!-- About Timer -->
+                        <t t-if="state.activeTab == 'aboutTimer'">
+                            <div class="container">
+                                <div class="row">
+                                    <!-- General info -->
+                                    <div class="col-md-6">
+                                        <div class="card" style="width: 18rem;">
+                                            <div class="card-body">
+                                                <h5 class="card-title">Description</h5>
+                                                <h6 class="card-subtitle mb-2 text-muted">Why use Timer?</h6>
+                                                <p class="card-text">
+                        This is a cross-platform Therp Timer App that works in 
+                        Firefox, Opera and Chrome browsers with the aim of registering working
+                        hours of individual's issues/tasks based on Odoo timesheets.<br/>
+                        
+                        It has primariliy being design using Odoo's Owl Library based on the browsers
+                        extensions manifest v2. This is beacause the current Owl js library when making
+                        of the v 2.0 of this extension used some restricted unsafe methods not supported
+                        in manifest v3. Its important to note this is a beta release and more improvements
+                        are being made to this extension as time goes and as odoo's OWL library gets used more.
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Sample Look -->
+                                    <div class="col-md-6">
+                                        <div class="card" style="width: 18rem;">
+                                            <div class="card-body">
+                                                <h5 class="card-title">Card title</h5>
+                                                <h6 class="card-subtitle mb-2 text-muted">How does it look like</h6>
+                                                <p class="card-text">Sample of how it looks like</p>
+                                            </div>
+                                            <img class="card-img-bottom" src="../images/sample.png" alt="sample"/>
+                                        </div>
+                                    </div>
+
+
+                                    <!-- Features -->
+                                    <div class="col-md-6">
+                                        <div class="card" style="width: 18rem;">
+                                            <div class="card-body">
+                                                <h5 class="card-title">Features</h5>
+                                                <h6 class="card-subtitle mb-2 text-muted">What does it do?</h6>
+                                                <p class="card-text">
+                                                    <ul class="list-group">
+                                                        <li class="list-group-item">Support for both Issues and Tasks</li>
+                                                        <li class="list-group-item">Start/Pause/Stop issue/task timer.</li>
+                                                        <li class="list-group-item">Create Odoo timesheet line record linked to analytic account.</li>
+                                                        <li class="list-group-item">Show assigned issues/tasks or all issues/tasks</li>
+                                                        <li class="list-group-item">Add a Remote host</li>
+                                                        <li class="list-group-item">Remove a Remote host or all them</li>
+                                                        <li class="list-group-item">Switch between remote sessions</li>
+                                                    </ul>
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <!-- Usage-->
+                                    <div class="col-md-6">
+                                        <div class="card" style="width: 18rem;">
+                                            <div class="card-body">
+                                                <h5 class="card-title">Usage</h5>
+                                                <h6 class="card-subtitle mb-2 text-muted">How to install?</h6>
+                                                <p class="card-text">
+                                                    <ul class="list-group">
+                                                        <li class="list-group-item">
+                                    Access Extensions in Chrome: Open Google Chrome and go to the Extensions page by clicking on the three-dot menu -&gt; More tools -&gt; Extensions.
+                                                        </li>
+                                                        <li class="list-group-item">
+                                    Enable Developer Mode: In the Extensions page, toggle the "Developer mode" switch to enable it.
+                                                        </li>
+                                                        <li class="list-group-item">
+                                    Load Unpacked: Click on the "Load unpacked" button and select the folder containing your extension's files (the ZIP file or the extracted folder).
+                                                        </li>
+                                                        <li class="list-group-item">
+                                    Test Your Extension: Your extension should now be loaded in Chrome. Test its functionality to ensure it works correctly.
+                                                        </li>
+
+                                                    </ul>
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </t>
+
+                        <!-- Configuration Form -->
+                        <t t-if="state.activeTab == 'configForm'">
+                            <div class="form-container">
+                                <div class="config-form" id="configForm">
+                                    <h3 class="text-center">Configurations</h3>
+                                    <!-- Form for configurations -->
+                                    <div class="form">
+                                        <div class="form-group">
+                                            <label for="odooHost">Odoo Host</label>
+                                            <input type="text" t-ref="odoo_host" class="form-control" id="odooHost" placeholder="https://www.OurHelpdesk.com"/>
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="displayName">Display Name</label>
+                                            <input type="text" t-ref="odoo_instance_name" class="form-control" id="displayName" placeholder="OurInstanceName"/>
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="odooDatabase">Odoo Database</label>
+                                            <input type="text" t-ref="odoo_database" class="form-control" id="odooDatabase" placeholder="OurOdooInstanceDatabaseName"/>
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="OdooInstanceLogo">Odoo Instance Logo</label>
+                                            <input type="file" t-on-change="uploadLogo" accept="image/*"/>
+                                            <img t-ref="odoo_instance_logo" class="logo-settings hide" src="" alt="logo"/>
+                                        </div>
+                                        <h3 class="text-center">Controls</h3>
+                                        <div class="banner-controls">
+                                            <button data-toggle="tooltip" data-placement="top" t-on-click="addHostDetails" title="Add a host instance" class="btn-default">Add</button>
+                                            <button data-toggle="tooltip" data-placement="top" t-on-click="refreshHostList" title="Refresh host instance List" class="btn-default">Refresh</button>
+                                            <button data-toggle="tooltip" data-placement="top" t-on-click="viewStoredHostInfo" title="View saved host instances" class="btn-default">View</button>
+                                            <button data-toggle="tooltip" data-placement="top" t-on-click="removeHostDetails" title="Remove all saved instances" class="btn-default">Remove</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </t>
+
+                        <!-- Host Info Table -->
+                        <t t-if="state.can_view_host_table and state.hosts_list.length">
+                            <div class="container table-details">
+                                <table class="table">
+                                    <caption>Stored Host Details</caption>
+                                    <thead>
+                                        <tr>
+                                            <th>Host</th>
+                                            <th>Description</th>
+                                            <th>Database</th>
+                                            <th>Logo</th>
+                                            <th class="delete-host-th"/>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <t t-foreach="state.hosts_list" t-as="host" t-key="host">
+                                            <tr t-att-id="host['id']">
+                                                <td>
+                                                    <span t-esc="host['host']"/>
+                                                </td>
+                                                <td>
+                                                    <span t-esc="host['instance']"/>
+                                                </td>
+                                                <td>
+                                                    <span t-esc="host['database']"/>
+                                                </td>
+                                                <td>
+                                                    <img t-att-src="host['logo']" alt="logo"/>
+                                                </td>
+                                                <td t-on-click="removeSelectHostDetails" t-att-id="host['id']" t-att-data-remote="host['host']">
+                                                    <img class="delete-host" src="../images/trash.png" alt="delete"/>
+                                                </td>
+                                            </tr>
+                                        </t>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </t>
+                    </div>
+                </t>
+            </t>
+
+            <!-- Banner footer -->
+            <div class="banner-footer">
+                <a id="TimerLoginSection" t-att-class="state.activeSection == 'TimerLoginSection' ? 'hide': 'active-show'" href="#" t-on-click="toggleActiveSection" class="btn-default">Login</a>
+                <a id="TimerSettingsSection" t-att-class="state.activeSection == 'TimerSettingsSection' ? 'hide': 'active-show'" href="#" t-on-click="toggleActiveSection" class="btn-default">Configurations</a>
+            </div>
+        </div>
+    </t>
+</templates>

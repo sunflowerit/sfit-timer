@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Odoo Timer</title>
+    <link rel="icon" href="images/favicon.ico" type="image/x-icon"/>
+    <!-- alertAwesome -->
+    <link rel="stylesheet" href="/css/lib/alertAwesome.css"/>
+    <!-- Main Timer -->
+    <link rel="stylesheet" href="/css/style.css" />
+  </head>
+  <body>
+
+    <!-- Crossplatform Browser API -->
+    <script src="/js/lib/browser-api/browser-polyfill.js"></script>
+
+    <!-- Odoo OWL 2.2.7 -->
+    <script src="/js/lib/owl-v2.2.7/owl.iife.js"></script>
+
+    <!-- Helper -->
+    <script src="/js/lib/helper/alertAwesome.js"></script>
+    <script src="/js/lib/helper/localstorage.js"></script>
+    <!-- <script src="/js/lib/helper/sessionTimer.js"></script> -->
+    <script src="/js/lib/helper/odoo.js"></script>
+    <script src="/js/lib/helper/utils.js"></script>
+  
+    <!-- Timer Components -->
+    <!-- TODO: design pre-compiled templates to allow manifest v3 for browser extension -->
+    <!-- SEE => https://github.com/odoo/owl/blob/master/doc/reference/precompiling_templates.md -->
+    <!-- SEE => https://github.com/odoo/owl/blob/master/doc/miscellaneous/compiled_template.md-->
+    <!-- <script src="/templates/templates.js"></script> -->
+    <script src="/js/components/odoo_timer.js"></script>
+    <!-- Main Timer App Initialization-->
+    <script src="/js/components/app.js"></script>
+  </body>
+</html>
