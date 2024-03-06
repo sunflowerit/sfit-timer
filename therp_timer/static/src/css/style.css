@@ -1,0 +1,949 @@
+body {
+  min-width: 600px;
+  min-height: 450px;
+  overflow-x: hidden !important;
+  overflow-y: scroll !important;
+  font-family: "Open Sans", sans-serif;
+  font-size: 0.8em;
+  background: white;
+}
+
+/* Hide elements */
+.hide {
+  display: none;
+}
+
+/* Display elements */
+.active-show {
+  display: block;
+}
+
+/* Basic Styles for demonstration */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: Arial, sans-serif;
+  line-height: 1.6;
+}
+
+.row {
+  display: flex;
+  flex-wrap: wrap;
+  margin: -10px; /* Negative margin to counteract padding of columns */
+}
+
+.col-4 {
+  flex: 0 0 33.33%; /* Flex basis for 4-column layout */
+  padding: 10px;
+}
+
+.col-6 {
+  flex: 0 0 50%; /* Flex basis for 6-column layout */
+  padding: 10px;
+}
+
+.box {
+  background: #f0f0f0;
+  border: 1px solid #ccc;
+  padding: 20px;
+  margin-bottom: 20px;
+}
+
+/* Form Group */
+.form-group {
+  margin-bottom: 15px;
+}
+
+/* Form Control */
+.form-control {
+  display: block;
+  width: 100%;
+  padding: 8px;
+  font-size: 14px;
+  line-height: 1.5;
+  color: #555;
+  background-color: #fff;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+}
+
+/* Focus style for form control */
+.form-control:focus {
+  border-color: #80bdff; /* Set the border color when in focus */
+  outline: 0; /* Remove default outline */
+  box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25); /* Optional: add a box shadow */
+}
+
+/* Input */
+input[type="text"],
+input[type="email"],
+input[type="password"],
+textarea {
+  height: calc(2.25rem + 2px); /* Set height for input fields */
+}
+
+/* Checkbox */
+.checkbox-inline {
+  display: inline-block;
+  margin-right: 10px;
+}
+
+.checkbox-inline label {
+  display: inline-block;
+  cursor: pointer;
+  position: relative;
+  padding-left: 25px;
+  margin-bottom: 0;
+  font-weight: normal;
+  user-select: none;
+}
+
+.checkbox-inline label input[type="checkbox"] {
+  position: absolute;
+  left: 0;
+  top: 0;
+  visibility: hidden;
+}
+
+.checkbox-inline label:before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 18px;
+  height: 18px;
+  border: 1px solid #ccc;
+  border-radius: 3px;
+  background-color: #fff;
+}
+
+.checkbox-inline label:after {
+  content: "";
+  position: absolute;
+  width: 6px;
+  height: 12px;
+  border-left: 2px solid #333;
+  border-bottom: 2px solid #333;
+  transform: rotate(45deg);
+  top: 3px;
+  left: 5px;
+  opacity: 0;
+  transition: opacity 0.1s ease-in-out;
+}
+
+.checkbox-inline input[type="checkbox"]:checked + label:after {
+  opacity: 1;
+}
+
+/* Label */
+label {
+  display: inline-block;
+  margin-bottom: 5px;
+  font-weight: bold;
+}
+
+/* Buttons */
+.btn {
+  display: inline-block;
+  padding: 8px 16px;
+  font-size: 14px;
+  font-weight: bold;
+  text-decoration: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s ease-in-out, color 0.3s ease-in-out;
+}
+
+/* Danger Button */
+.btn-danger {
+  color: #fff;
+  background-color: #dc3545;
+  border: 1px solid #dc3545;
+}
+
+.btn-danger:hover {
+  background-color: #c82333;
+  border-color: #bd2130;
+}
+
+/* Success Button */
+.btn-success {
+  color: #fff;
+  background-color: #28a745;
+  border: 1px solid #28a745;
+}
+
+.btn-success:hover {
+  background-color: #218838;
+  border-color: #1e7e34;
+}
+
+/* Warning Button */
+.btn-warning {
+  color: #212529;
+  background-color: #ffc107;
+  border: 1px solid #ffc107;
+}
+
+.btn-warning:hover {
+  background-color: #e0a800;
+  border-color: #d39e00;
+  color: #212529;
+}
+
+/* Info Button */
+.btn-info {
+  color: #fff;
+  background-color: #17a2b8;
+  border: 1px solid #17a2b8;
+}
+
+.btn-info:hover {
+  background-color: #138496;
+  border-color: #117a8b;
+}
+
+/* Primary Button */
+.btn-primary {
+  color: #fff;
+  background-color: #007bff;
+  border: 1px solid #007bff;
+}
+
+.btn-primary:hover {
+  background-color: #0056b3;
+  border-color: #0056b3;
+}
+
+/* Alert Messages */
+.alert {
+  padding: 15px;
+  margin-bottom: 20px;
+  border: 1px solid transparent;
+  border-radius: 4px;
+}
+
+.alert-danger {
+  color: #721c24;
+  background-color: #f8d7da;
+  border-color: #f5c6cb;
+}
+
+.alert-success {
+  color: #155724;
+  background-color: #d4edda;
+  border-color: #c3e6cb;
+}
+
+.alert-warning {
+  color: #856404;
+  background-color: #fff3cd;
+  border-color: #ffeeba;
+}
+
+.alert-info {
+  color: #0c5460;
+  background-color: #d1ecf1;
+  border-color: #bee5eb;
+}
+
+/* Image Styles */
+img {
+  max-width: 100%;
+  height: auto;
+}
+
+/* Logo Styles */
+.logo {
+  position: absolute;
+  /* top: 15px; Adjust positioning */
+  left: 50%; /* Center horizontally */
+  transform: translateX(-50%);
+  z-index: 1; /* Set a higher z-index */
+}
+
+.logo img {
+  width: 100%; /* Ensure the logo fits within its container */
+  height: 40px;
+}
+
+/* Containers */
+/*==========================*/
+.container {
+  /* Your styles for the container class */
+  max-width: 1200px; /* Example maximum width */
+  margin: 0 auto; /* Center the container horizontally */
+  padding: 0 15px; /* Add some padding */
+}
+
+.main {
+  /* Your styles for the main class */
+  /* Example styles */
+  background-color: #f2f2f2;
+  padding: 20px;
+}
+
+.wrapper {
+  /* Your styles for the wrapper class */
+  /* Example styles */
+  background-color: #fff;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  padding: 15px;
+}
+
+.form-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 500px;
+  background-color: #fff; /* Background color for demonstration */
+  margin: 20px;
+}
+
+
+.login-form {
+  width: 80%;
+  max-width: 400px; /* Adjust max-width as needed */
+  padding: 20px;
+  border: 2px solid #b4dbef; /* Brown border color */
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.2); /* Box shadow */
+  background-color: #fff; /* White background color */
+}
+
+.form-container label {
+  font-size: 14px;
+  color: #72a3bd;
+}
+
+/* Text Center */
+.text-center {
+  text-align: center;
+}
+
+/* Grid System */
+.row::after {
+  content: "";
+  clear: both;
+  display: table;
+}
+
+/* Columns - Mobile First Approach */
+[class^="col-"] {
+  float: left;
+  padding: 10px;
+}
+
+/* Extra Small Devices (<576px) */
+.col-xs-12 {
+  width: 100%;
+}
+
+/* Small Devices (≥576px) */
+@media (min-width: 576px) {
+  .col-sm-6 {
+    width: 50%;
+  }
+}
+
+/* Medium Devices (≥768px) */
+@media (min-width: 768px) {
+  .col-md-4 {
+    width: 33.33333%;
+  }
+  .col-md-6 {
+    width: 50%;
+  }
+}
+
+/* Form Check */
+.form-check {
+  position: relative;
+  display: block;
+  padding-left: 1.25rem;
+}
+
+/* Form Check Label */
+.form-check-label {
+  margin-bottom: 10px;
+  cursor: pointer;
+}
+
+/* Form Check Input */
+.form-check-input {
+  position: absolute;
+  margin-top: 0.3rem;
+  margin-left: -1.25rem;
+}
+
+/* Aligning the checkbox vertically with other form inputs */
+.align-checkbox {
+  display: flex;
+  align-items: center;
+}
+
+/* Form */
+form {
+  margin-bottom: 15px;
+}
+
+/* Example usage */
+/* Style for horizontal form */
+.form-horizontal .form-check-label {
+  display: inline-block;
+  margin-right: 20px;
+}
+
+.form-horizontal .form-check-input {
+  margin-top: 0;
+  margin-left: 0;
+}
+
+.banner-header {
+  /* padding: 5px; */
+  text-align: center;
+  margin-top: 10px;
+  color: #333; /* Color for text in the banner */
+}
+
+/* Banner footer styles */
+.banner-footer {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px; /* Adjust the space between buttons */
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  background-color: #f8f9fa;
+  padding: 20px 0;
+  text-align: center;
+}
+
+.btn-default {
+  text-decoration: none;
+  color: #333;
+  font-weight: bold;
+  border: 2px solid #333;
+  padding: 10px 20px;
+  border-radius: 5px;
+  transition: background-color 0.3s, color 0.3s;
+}
+
+.btn-default:hover {
+  background-color: #333;
+  color: #fff;
+}
+
+/* Table */
+.table-details {
+  margin: 30px;
+  padding: 30px;
+  overflow: auto; /* Enable scrolling for the table if it overflows */
+  height: 300px; /* Adjust the height as needed, considering the banner's height */
+}
+
+.table {
+  font-family: Arial, Helvetica, sans-serif;
+  border-collapse: collapse;
+  width: 100%;
+}
+
+.table th,
+.table td {
+  border: 1px solid #ddd;
+  padding: 8px;
+  font-size: 14px;
+  white-space: nowrap; /* Prevent text wrapping */
+  overflow: hidden;
+  text-overflow: ellipsis; /* Add ellipsis for truncated text */
+}
+
+/* Show full content on hover */
+.table th:hover,
+.table td:hover {
+  overflow: visible;
+  white-space: normal;
+  z-index: 1;
+  position: relative;
+}
+
+.table tr:nth-child(even) {
+  background-color: #f2f2f2;
+}
+
+.table tr:hover {
+  background-color: #ddd;
+}
+
+.table th {
+  padding-top: 12px;
+  padding-bottom: 12px;
+  text-align: left;
+  background-color: #72a3bd;
+  color: white;
+}
+
+.table .delete-host-th {
+  padding: 16px;
+}
+
+/* Nav Styles */
+.navbar {
+  background-color: #fff; /* Navbar background color */
+}
+
+.navbar-open-btn {
+  font-size: 25px;
+  cursor: pointer;
+}
+
+.navbar .navbar-brand {
+  color: #333; /* Navbar brand text color */
+}
+
+.navbar-nav .nav-item {
+  margin-right: 10px; /* Adjust spacing between nav items */
+}
+
+.navbar-nav .nav-link {
+  color: #333; /* Nav link text color */
+}
+
+/* Flex-column Styles */
+.flex-column {
+  display: flex;
+  flex-direction: column;
+}
+
+/* Card Image Top Styles */
+.card-img-top {
+  width: 100%;
+  border-top-left-radius: calc(0.25rem - 1px);
+  border-top-right-radius: calc(0.25rem - 1px);
+}
+
+.card-img-bottom {
+  width: 100%;
+  border-radius: calc(0.25rem - 1px) calc(0.25rem - 1px) 0 0;
+}
+
+/* Card Body Styles */
+.card-body {
+  padding: 1.25rem; /* Adjust padding as needed */
+}
+
+/* Card Title Styles */
+.card-title {
+  margin-bottom: 0.75rem; /* Adjust margin as needed */
+  font-size: 1.25rem; /* Adjust font size as needed */
+}
+
+/* Card Text Styles */
+.card-text {
+  margin-bottom: 1rem; /* Adjust margin as needed */
+}
+
+/* Card Link Styles */
+.card-link {
+  color: #007bff; /* Card link text color */
+}
+
+/* Text Muted Styles */
+.text-muted {
+  color: #6c757d; /* Muted text color */
+}
+
+/* Margin Bottom Styles */
+.mb {
+  margin-bottom: 1rem !important; /* Margin bottom value */
+}
+
+/* Margin Bottom No Styles */
+.mb-0 {
+  margin-bottom: 0 !important; /* Margin bottom no value */
+}
+
+/* Margin Bottom mb-2 Styles */
+.mb-2 {
+  margin-bottom: 0.5rem !important; /* Margin bottom value */
+}
+
+/* Sidebar */
+.sidenav {
+  height: 100%;
+  width: 0;
+  position: fixed;
+  z-index: 1;
+  top: 0;
+  left: 0;
+  background-color: #f8f9fa;
+  overflow-x: hidden;
+  padding-top: 60px;
+  transition: width 0.5s ease; /* Adding transition for sidebar width */
+}
+
+.sidenav .nav-link {
+  padding: 25px;
+}
+
+.sidenav a {
+  padding: 12px 16px; /* Adjust padding values as desired */
+  text-decoration: none;
+  font-size: 20px;
+  color: #1b1b1b;
+  display: block;
+  transition: 0.3s;
+  border: 2px solid transparent; /* Initial transparent border */
+}
+
+.sidenav a:hover {
+  color: #fff;
+  background: #333;
+}
+
+/* Close button */
+.closebtn {
+  position: fixed;
+  top: 45px;
+  left: 165px;
+  font-size: 40px;
+  color: #535353;
+  text-decoration: none;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.7s ease; /* Adding transition effect */
+  z-index: 9999;
+}
+
+.closebtn:hover {
+  color: #1b1b1b;
+}
+
+.closebtn.active {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* When sidebar width is 0, hide the close button */
+.sidenav[style*="width: 0"] + .closebtn {
+  display: none; /* Change opacity to display */
+}
+
+/* Adjustments for smaller screens */
+@media screen and (max-height: 450px) {
+  .sidenav {
+    padding-top: 15px;
+  }
+  .sidenav a {
+    font-size: 18px;
+  }
+}
+
+/* Card for timer details */
+.timer-details {
+  display: none;
+  margin-top: 20px;
+  padding: 20px;
+  border: 1px solid #ced4da;
+  border-radius: 5px;
+  background-color: #fff;
+}
+
+/* Form for configs */
+.config-form {
+  display: block;
+  overflow-y: scroll;
+  width: 400px;
+  height: 450px;
+  margin: 30px;
+  padding: 20px;
+  border: 2px solid #b4dbef; /* Brown border color */
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.2); /* Box shadow */
+  background-color: #fff; /* White background color */
+  border: 1px solid #ced4da;
+  border-radius: 5px;
+}
+
+/* Banner with controls */
+.banner-controls {
+  padding: 10px 0;
+  text-align: center;
+}
+
+/* Align icons */
+.banner-controls .fa {
+  margin-right: 10px;
+  cursor: pointer;
+}
+
+.banner-controls button {
+  margin: 10px;
+}
+
+/* Styles for Bootstrap tooltips */
+
+/* Base styles for tooltip */
+.tooltip {
+  /* General appearance */
+  position: absolute;
+  z-index: 1070;
+  display: block;
+  /* Font styles */
+  font-family: sans-serif;
+  /* ... */
+  /* Tooltip size and opacity */
+  font-size: 0.875rem;
+  opacity: 0;
+}
+
+/* Show tooltip when active */
+.tooltip.show {
+  opacity: 0.9;
+}
+
+/* Arrow styles for tooltip */
+.tooltip .arrow {
+  position: absolute;
+  display: block;
+  width: 0.8rem;
+  height: 0.4rem;
+}
+
+.tooltip .arrow::before {
+  position: absolute;
+  content: "";
+  border-color: transparent;
+  border-style: solid;
+}
+
+/* Arrow styles for top positioned tooltip */
+.tooltip .bs-tooltip-top .arrow::before {
+  bottom: 0;
+  border-width: 0.4rem 0.4rem 0;
+  border-top-color: #000;
+}
+
+/* Styles for tooltip inner content */
+.tooltip-inner {
+  /* Maximum width of inner content */
+  max-width: 200px;
+  /* Padding and text styles */
+  padding: 0.25rem 0.5rem;
+  color: #fff;
+  text-align: center;
+  /* Background and border radius */
+  background-color: #000;
+  border-radius: 0.25rem;
+}
+
+/* Custom Spinner CSS */
+/* Loader container styles */
+.overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(255, 255, 255, 1); /* Semi-transparent white background */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+}
+
+.loader-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.loader {
+  border: 4px solid #f3f3f3;
+  border-top: 4px solid #3498db;
+  border-radius: 50%;
+  width: 50px;
+  height: 50px;
+  animation: spin 1s linear infinite;
+  margin-bottom: 10px;
+}
+
+.loading-text {
+  margin: 0;
+  font-weight: bold;
+  color: #007bff;
+}
+
+/* Keyframes for spinner animation */
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+* List group container */ .list-group {
+  display: flex;
+  flex-direction: column;
+  padding-left: 0;
+  margin-bottom: 0;
+}
+
+/* List group items */
+.list-group-item {
+  position: relative;
+  display: block;
+  padding: 0.75rem 1.25rem;
+  margin-bottom: -1px;
+  background-color: #fff;
+  border: 1px solid rgba(0, 0, 0, 0.125);
+}
+
+/* Column for medium-sized devices (≥768px) */
+.col-md-2 {
+  flex: 0 0 16.66666667%;
+  max-width: 16.66666667%;
+}
+
+.col-md-3 {
+  flex: 0 0 25%;
+  max-width: 25%;
+}
+
+.col-md-4 {
+  flex: 0 0 33.33333333%;
+  max-width: 33.33333333%;
+}
+
+.col-md-5 {
+  flex: 0 0 41.66666667%;
+  max-width: 41.66666667%;
+}
+
+.col-md-6 {
+  flex: 0 0 50%;
+  max-width: 50%;
+}
+
+.col-md-7 {
+  flex: 0 0 58.33333333%;
+  max-width: 58.33333333%;
+}
+
+.col-md-8 {
+  flex: 0 0 66.66666667%;
+  max-width: 66.66666667%;
+}
+
+.col-md-10 {
+  flex: 0 0 83.33333333%;
+  max-width: 83.33333333%;
+}
+
+.col-md-12 {
+  flex: 0 0 100%;
+  max-width: 100%;
+}
+
+/* List group item hover */
+.list-group-item:hover {
+  z-index: 1;
+  text-decoration: none;
+}
+
+/* Active list group item */
+.list-group-item.active {
+  z-index: 2;
+  color: #fff;
+  background-color: #007bff;
+  border-color: #007bff;
+}
+
+/* Disabled list group item */
+.list-group-item.disabled,
+.list-group-item:disabled {
+  color: #6c757d;
+  pointer-events: none;
+  background-color: #fff;
+}
+
+/* Secondary list group item */
+.list-group-item-secondary {
+  color: #6c757d;
+  background-color: rgba(0, 123, 255, 0.075);
+}
+
+/* Dark list group item */
+.list-group-item-dark {
+  color: #fff;
+  background-color: #343a40;
+}
+
+.delete-host {
+  width: 16px;
+  height: 16px;
+}
+
+.delete-host:hover {
+  /* Apply visual changes to simulate a click effect */
+  transform: scale(0.95); /* Scale the image down slightly */
+  box-shadow: 0 0 5px rgba(0, 0, 0, 0.3); /* Add a shadow for depth */
+}
+
+/* Scrollbar changes */
+/* Works on Firefox */
+/* width */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #f8f9fa rgba(0, 0, 0, 0.1);
+}
+
+/* Works on Chrome, Edge, and Safari */
+/* width */
+*::-webkit-scrollbar {
+  width: 8px;
+}
+
+/* Track */
+*::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.1);
+}
+
+/* Handle */
+*::-webkit-scrollbar-thumb {
+  background: #f8f9fa;
+  border-radius: 4px;
+}
+
+/* Handle on hover */
+*::-webkit-scrollbar-thumb:hover {
+  background: #f8f9fa;
+}
+
+.host-url-txt {
+  color: #007bff
+}
+
+.login-alert {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.logo-settings {
+    max-width: 100%; /* Ensure the image doesn't exceed its container's width */
+    height: auto; /* Maintain the aspect ratio */
+    margin-top: 5px; /* Add space above the image */
+    border: 1px solid #ccc; /* Optional border for image */
+}
