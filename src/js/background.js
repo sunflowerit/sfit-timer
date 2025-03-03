@@ -17,7 +17,7 @@ var TogglButton = {
         else {
             var imagePath = {'19': 'img/inactive_19.png', '38': 'img/inactive_19.png'};
         }
-        browser.browserAction.setIcon({
+        browser.action.setIcon({
 	      path: imagePath,
 	    });
 	    console.log("works");
