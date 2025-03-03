@@ -1,6 +1,6 @@
 {
   "name": "Therp-Timer",
-  "version": "1.11",
+  "version": "1.12",
   "description": "Therp Timer cross-platform extension used to post work hours to Odoo timesheets",
   "icons": {
     "16": "img/icon_16.png",
@@ -45,7 +45,7 @@
     }
   },
   "content_security_policy": {
-    "extension_pages": "inline-src: 'unsafe-eval'; connect-src https://helpdesk.therp.nl; style-src 'unsafe-inline'; default-src 'self'"
+    "extension_pages": "script-src: 'unsafe-eval'; connect-src https://helpdesk.therp.nl; style-src 'unsafe-inline'; default-src 'self'"
   },
   "minimum_chrome_version": "41",
   "manifest_version": 3
