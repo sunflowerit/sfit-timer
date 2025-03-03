@@ -45,7 +45,7 @@
     }
   },
   "content_security_policy": {
-    "extension_pages": "connect-src https://helpdesk.therp.nl; style-src 'unsafe-inline'; default-src 'self'"
+    "extension_pages": "inline-src: 'unsafe-eval'; connect-src https://helpdesk.therp.nl; style-src 'unsafe-inline'; default-src 'self'"
   },
   "minimum_chrome_version": "41",
   "manifest_version": 3
