@@ -5,7 +5,7 @@
         {
           "version": "experimental",
           "update_link": "https://github.com/sunflowerit/sfit-timer/releases/download/experimental/Therp-timer.xpi",
-          "update_hash": "sha256:fe93c2156f05f20621df1723b0f39c8ab28cdbeec342efa95535d3abff932096",
+          "update_hash": "sha256:15295b838bb39e2d9dc3af340022ffefb275bca2ea704927289ffe7ec7e9c4bb",
           "applications": {
             "gecko": {
               "strict_min_version": "91.0"
